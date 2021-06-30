@@ -360,7 +360,7 @@
         Nnow = 3.d0*HO*HO*OmegaB/(8.d0*Pi*G*mu_H*m_H)
         n = Nnow * (1.d0+z)**3
         fnu = (21.d0/8.d0)*(4.d0/11.d0)**(4.d0/3.d0)
-!   (this is explictly for 3 massless neutrinos - change if N_nu.ne.3)
+!   (this is explictly for 3 massless neutrinos - change if N_nu .ne. 3)
         z_eq = (3.d0*(HO*C)**2/(8.d0*Pi*G*a*(1.d0+fnu)*Tnow**4))*OmegaT
         z_eq = z_eq - 1.d0
 
@@ -417,7 +417,7 @@
         read(*,*)Heswitch
      
 !   Set the He fudge factor
-!c  if((Heswitch.eq. 2).or.(Heswitch.eq. 5).or.(Heswitch.eq.6))then
+!c  if((Heswitch .eq. 2) .or. (Heswitch .eq. 5) .or. (Heswitch .eq. 6))then
 !c    write(*,*)'Enter the fudge factor b_He'
 !c    read(*,*)b_He
 !c  endif
@@ -465,7 +465,7 @@
 
             z = zend
 
-            if (zend.gt.8000.d0) then
+            if (zend > 8000.d0) then
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
@@ -474,7 +474,7 @@
                 y(2) = x_He0
                 y(3) = Tnow*(1.d0+z)
 
-            else if(z.gt.5000.d0)then
+            else if(z > 5000.d0)then
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
@@ -487,7 +487,7 @@
                 y(2) = x_He0
                 y(3) = Tnow*(1.d0+z)
 
-            else if(z.gt.3500.d0)then
+            else if(z > 3500.d0)then
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
@@ -496,7 +496,7 @@
                 y(2) = x_He0
                 y(3) = Tnow*(1.d0+z)
 
-            else if(y(2).gt.0.99)then
+            else if(y(2) > 0.99)then
 
                 x_H0 = 1.d0
                 rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
@@ -510,7 +510,7 @@
                 y(2) = x_He0
                 y(3) = Tnow*(1.d0+z)
 
-            else if (y(1).gt.0.99d0) then
+            else if (y(1) > 0.99d0) then
 
                 rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
                     - CB1/(Tnow*(1.d0+z)) ) / Nnow
@@ -563,13 +563,13 @@
         common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
-        if(z.gt.8000.d0)then
+        if(z > 8000.d0)then
 
             x_H0 = 1.d0
             x_He0 = 1.d0
             x0 = 1.d0+2.d0*fHe
 
-        else if(z.gt.3500.d0)then
+        else if(z > 3500.d0)then
 
             x_H0 = 1.d0
             x_He0 = 1.d0
@@ -579,7 +579,7 @@
             x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2 &
                 + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
 
-        else if(z.gt.2000.d0)then
+        else if(z > 2000.d0)then
 
         x_H0 = 1.d0
         rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
@@ -685,14 +685,14 @@
         Rup_He = Rdown_He*(CR*Tmat)**(1.5d0)*dexp(-CDB_He/Tmat)
         Rup_He = 4.d0*Rup_He    !statistical weights factor for HeI
 !       Avoid overflow (pointed out by Jacques Roland)
-        if((Bfact/Tmat).gt.680.d0)then
+        if((Bfact/Tmat) > 680.d0)then
             He_Boltz = dexp(680.d0)
         else
             He_Boltz = dexp(Bfact/Tmat)
         end if
 
 !       now deal with H and its fudges
-        if (Hswitch.eq.0) then
+        if (Hswitch .eq. 0) then
             K = CK/Hz     !Peebles coefficient K=lambda_a^3/8piH
         else
 !       fit a double Gaussian correction function
@@ -709,19 +709,19 @@
 !       last factor here is the statistical weight
 
 !       try to avoid "NaN" when x_He gets too small
-        if ((x_He.lt.5.d-9) .or. (x_He.gt.0.980)) then
+        if ((x_He < 5.d-9) .or. (x_He > 0.980)) then
             Heflag = 0
         else
             Heflag = Heswitch
         end if
-        if (Heflag.eq.0)then        !use Peebles coeff. for He
+        if (Heflag .eq. 0)then        !use Peebles coeff. for He
             K_He = CK_He/Hz
         else    !for Heflag>0       !use Sobolev escape probability
             tauHe_s = A2P_s*CK_He*3.d0*n_He*(1.d0-x_He)/Hz
             pHe_s = (1.d0 - dexp(-tauHe_s))/tauHe_s
             K_He = 1.d0/(A2P_s*pHe_s*3.d0*n_He*(1.d0-x_He))
 !           smoother criterion here from Antony Lewis & Chad Fendt
-            if (((Heflag.eq.2).or.(Heflag.ge.5)).and.(x_H.lt.0.9999999d0))then
+            if (((Heflag .eq. 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999d0))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
                 Doppler = 2.D0*k_B*Tmat/(m_H*not4*C*C)
@@ -735,12 +735,12 @@
                 AHcon = A2P_s/(1.d0+pb*(gamma_2Ps**qb))
                 K_He=1.d0/((A2P_s*pHe_s+AHcon)*3.d0*n_He*(1.d0-x_He))
             end if
-            if (Heflag.ge.3) then     !include triplet effects
+            if (Heflag >= 3) then     !include triplet effects
                 tauHe_t = A2P_t*n_He*(1.d0-x_He)*3.d0
                 tauHe_t = tauHe_t /(8.d0*Pi*Hz*L_He_2Pt**(3.d0))
                 pHe_t = (1.d0 - dexp(-tauHe_t))/tauHe_t
                 CL_PSt = h_P*C*(L_He_2Pt - L_He_2st)/k_B
-                if ((Heflag.eq.3) .or. (Heflag.eq.5).or.(x_H.gt.0.99999d0)) then
+                if ((Heflag .eq. 3) .or. (Heflag .eq. 5) .or. (x_H > 0.99999d0)) then
 !                   no H cont. effect
                     CfHe_t = A2P_t*pHe_t*dexp(-CL_PSt/Tmat)
                     CfHe_t = CfHe_t/(Rup_trip+CfHe_t)   !"C" factor for triplets
@@ -767,10 +767,10 @@
 !       calculate the derivatives
 !       turn on H only for x_H<0.99, and use Saha derivative for 0.98<x_H<0.99
 !       (clunky, but seems to work)
-        if (x_H.gt.0.99d0) then         !don't change at all
+        if (x_H > 0.99d0) then         !don't change at all
             f(1) = 0.d0
-!c      else if ((x_H.gt.0.98d0).and.(Heflag.eq.0)) then    !don't modify
-        else if (x_H.gt.0.985d0) then     !use Saha rate for Hydrogen
+!c      else if ((x_H > 0.98d0) .and. (Heflag .eq. 0)) then    !don't modify
+        else if (x_H > 0.985d0) then     !use Saha rate for Hydrogen
             f(1) = (x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat)) &
                 /(Hz*(1.d0+z))
 !           for interest, calculate the correction factor compared to Saha
@@ -785,7 +785,7 @@
                 +K*Rup*n*(1.d0-x_H)))
         end if
 !       turn off the He once it is small
-        if (x_He.lt.1.d-15) then
+        if (x_He < 1.d-15) then
             f(2)=0.d0
         else
             f(2) = ((x*x_He*n*Rdown_He &
@@ -794,7 +794,7 @@
                 /(Hz*(1.d0+z) &
                 * (1.d0 + K_He*(Lambda_He+Rup_He)*n_He*(1.d0-x_He)*He_Boltz))
 !           Modification to HeI recombination including channel via triplets
-            if (Heflag.ge.3) then
+            if (Heflag >= 3) then
                 f(2) = f(2)+ (x*x_He*n*Rdown_trip &
                     - (1.d0-x_He)*3.d0*Rup_trip*dexp(-h_P*C*L_He_2st/(k_B*Tmat))) &
                     *CfHe_t/(Hz*(1.d0+z))
@@ -803,7 +803,7 @@
 
 !       follow the matter temperature once it has a chance of diverging
 
-        if (timeTh.lt.H_frac*timeH) then
+        if (timeTh < H_frac*timeH) then
 !           f(3)=Tmat/(1.d0+z)  !Tmat follows Trad
 !       additional term to smooth transition to Tmat evolution,
 !       (suggested by Adam Moss)
@@ -832,14 +832,14 @@
 !       ******************************************************************
 !
 !  ......abort if ind out of range 1 to 6
-        if (ind.lt.1 .or. ind.gt.6) go to 500
+        if (ind < 1 .or. ind > 6) go to 500
 !
 !       cases - initial entry, normal re-entry, interrupt re-entries
         go to (5, 5, 45, 1111, 2222, 2222), ind
 !       case 1 - initial entry (ind .eq. 1 or 2)
-!  .........abort if n.gt.nw or tol.le.0
-    5   if (n.gt.nw .or. tol.le.0.d0) go to 500
-        if (ind.eq. 2) go to 15
+!  .........abort if n > nw or tol <= 0
+    5   if (n > nw .or. tol <= 0.d0) go to 500
+        if (ind .eq. 2) go to 15
 !       initial entry without options (ind .eq. 1)
 !       set c(1) to c(9) equal to 0
         do 10 k = 1, 9
@@ -853,7 +853,7 @@
             c(k) = dabs(c(k))
    20   continue
 !       make floor values non-negative if they are to be used
-        if (c(1).ne.4.d0 .and. c(1).ne.5.d0) go to 30
+        if (c(1) .ne. 4.d0 .and. c(1) .ne. 5.d0) go to 30
         do 25 k = 1, n
             c(k+30) = dabs(c(k+30))
    25   continue
@@ -870,8 +870,8 @@
         go to 50
 !       case 2 - normal re-entry (ind .eq. 3)
 !  .........abort if xend reached, and either x changed or xend not
-   45   if (c(21).ne.0.d0 .and.
-     +                        (x.ne.c(20) .or. xend.eq.c(20))) go to 500
+   45   if (c(21) .ne. 0.d0 .and.
+     +                        (x .ne. c(20) .or. xend .eq. c(20))) go to 500
 !           re-initialize flag
             c(21) = 0.d0
             go to 50
@@ -888,7 +888,7 @@
 !       * until the occurrence of one of the following                   *
 !       *    (a) the normal return (with ind .eq. 3) on reaching xend in *
 !       *        stage 4                                                 *
-!       *    (b) an error return (with ind .lt. 0) in stage 1 or stage 4 *
+!       *    (b) an error return (with ind < 0) in stage 1 or stage 4 *
 !       *    (c) an interrupt return (with ind  .eq.  4,  5  or  6),  if *
 !       *        requested, in stage 1 or stage 4                        *
 !       ******************************************************************
@@ -903,7 +903,7 @@
 !       ***************************************************************
 !
 !***********error return (with ind=-1) if no of fcn evals too great
-        if (c(7).eq.0.d0 .or. c(24).lt.c(7)) go to 100
+        if (c(7) .eq. 0.d0 .or. c(24) < c(7)) go to 100
             ind = -1
             return
   100   continue
@@ -970,34 +970,34 @@
 !
 !       calculate hmax - consider 4 cases
 !       case 1 both hmax and scale prescribed
-        if (c(6).ne.0.d0 .and. c(5).ne.0.d0)
+        if (c(6) .ne. 0.d0 .and. c(5) .ne. 0.d0)
      +      c(16) = dmin1(c(6), 2.d0/c(5))
 !       case 2 - hmax prescribed, but scale not
-        if (c(6).ne.0.d0 .and. c(5).eq.0.d0) c(16) = c(6)
+        if (c(6) .ne. 0.d0 .and. c(5) .eq. 0.d0) c(16) = c(6)
 !       case 3 - hmax not prescribed, but scale is
-        if (c(6).eq.0.d0 .and. c(5).ne.0.d0) c(16) = 2.d0/c(5)
+        if (c(6) .eq. 0.d0 .and. c(5) .ne. 0.d0) c(16) = 2.d0/c(5)
 !       case 4 - neither hmax nor scale is provided
-        if (c(6).eq.0.d0 .and. c(5).eq.0.d0) c(16) = 2.d0
+        if (c(6) .eq. 0.d0 .and. c(5) .eq. 0.d0) c(16) = 2.d0
 !
-!***********error return (with ind=-2) if hmin .gt. hmax
-        if (c(13) .le. c(16)) go to 170
+!***********error return (with ind=-2) if hmin > hmax
+        if (c(13) <= c(16)) go to 170
         ind = -2
         return
   170   continue
 !
 !       calculate preliminary hmag - consider 3 cases
-        if (ind .gt. 2) go to 175
+        if (ind > 2) go to 175
 !       case 1 - initial entry - use prescribed value of hstart, if
 !           any, else default
         c(14) = c(4)
         if (c(4) .eq. 0.d0) c(14) = c(16)*tol**(1./6.)
         go to 185
-  175   if (c(23) .gt. 1.d0) go to 180
+  175   if (c(23) > 1.d0) go to 180
 !       case 2 - after a successful step, or at most  one  failure,
 !           use min(2, .9*(tol/est)**(1/6))*hmag, but avoid possible
 !           overflow. then avoid reduction by more than half.
         temp = 2.d0*c(14)
-        if (tol .lt. (2.d0/.9d0)**6*c(19))
+        if (tol < (2.d0/.9d0)**6*c(19))
      +      temp = .9d0*(tol/c(19))**(1./6.)*c(14)
         c(14) = dmax1(temp, .5d0*c(14))
         go to 185
@@ -1020,7 +1020,7 @@
  1111   continue
 !
 !       calculate hmag, xtrial - depending on preliminary hmag, xend
-        if (c(14) .ge. dabs(xend - x)) go to 190
+        if (c(14) >= dabs(xend - x)) go to 190
 !       do not step more than half way to xend
         c(14) = dmin1(c(14), .5d0*dabs(xend - x))
         c(17) = x + dsign(c(14), xend - x)
@@ -1192,7 +1192,7 @@
 !
 !       set ind=5 if step acceptable, else set ind=6
         ind = 5
-        if (c(19) .gt. tol) ind = 6
+        if (c(19) > tol) ind = 6
 !
 !***********interrupt no 2 if requested
         if (c(9) .eq. 0.d0) go to 2222
@@ -1222,8 +1222,8 @@
 !       step not accepted (ind .eq. 6), so add 1 to the no of
 !       successive failures
         c(23) = c(23) + 1.d0
-!**************error return (with ind=-3) if hmag .le. hmin
-        if (c(14) .gt. c(13)) go to 415
+!**************error return (with ind=-3) if hmag <= hmin
+        if (c(14) > c(13)) go to 415
         ind = -3
         return
   415   continue
