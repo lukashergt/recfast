@@ -842,21 +842,21 @@
         if (ind == 2) go to 15
 !       initial entry without options (ind == 1)
 !       set c(1) to c(9) equal to 0
-        do 10 k = 1, 9
+        do k = 1, 9
             c(k) = 0._dp
-   10   continue
+        end do
         go to 35
    15   continue
 !       initial entry with options (ind == 2)
 !       make c(1) to c(9) non-negative
-        do 20 k = 1, 9
+        do k = 1, 9
             c(k) = dabs(c(k))
-   20   continue
+        end do
 !       make floor values non-negative if they are to be used
         if (c(1) /= 4._dp .and. c(1) /= 5._dp) go to 30
-        do 25 k = 1, n
+        do k = 1, n
             c(k + 30) = dabs(c(k + 30))
-   25   continue
+        end do
    30   continue
    35   continue
 !       initialize rreb, dwarf, prev xend, flag, counts
@@ -864,9 +864,9 @@
         c(11) = 1.d - 35
 !       set previous xend initially to initial value of x
         c(20) = x
-        do 40 k = 21, 24
+        do k = 21, 24
             c(k) = 0._dp
-   40   continue
+        end do
         go to 50
 !       case 2 - normal re-entry (ind == 3)
 !  .........abort if xend reached, and either x changed or xend not
@@ -923,9 +923,9 @@
         temp = 0._dp
         if (c(1) /= 1._dp) go to 115
 !       absolute error control - weights are 1
-        do 110 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(y(k)))
-  110   continue
+        end do
         c(12) = temp
         go to 160
   115   if (c(1) /= 2._dp) go to 120
@@ -935,30 +935,30 @@
         go to 160
   120   if (c(1) /= 3._dp) go to 130
 !       weights are 1/max(c(2), abs(y(k)))
-        do 125 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(2))
-  125   continue
+        end do
         c(12) = dmin1(temp, 1._dp)
         go to 160
   130   if (c(1) /= 4._dp) go to 140
 !       weights are 1/max(c(k + 30), abs(y(k)))
-        do 135 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(k + 30))
-  135   continue
+        end do
         c(12) = dmin1(temp, 1._dp)
         go to 160
   140   if (c(1) /= 5._dp) go to 150
 !       weights are 1 / c(k + 30)
-        do 145 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(k + 30))
-  145   continue
+        end do
         c(12) = temp
         go to 160
   150   continue
 !       default case - weights are 1/max(1, abs(y(k)))
-        do 155 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(y(k)))
-  155   continue
+        end do
         c(12) = dmin1(temp, 1._dp)
   160   continue
         c(13) = 10._dp * dmax1(c(11), c(10) * dmax1(c(12) / tol, dabs(x)))
@@ -1045,70 +1045,70 @@
 !
         temp = c(18) / 1398169080000._dp
 !
-        do 200 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * w(k,1) * 233028180000._dp
-  200   continue
+        end do
         call fcn(n, x + c(18) / 6._dp, w(1,9), w(1,2))
 !
-        do 205 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * (   w(k,1) * 74569017600._dp &
                                       + w(k,2) * 298276070400._dp  )
-  205   continue
+        end do
         call fcn(n, x + c(18) * (4._dp / 15._dp), w(1,9), w(1,3))
 !
-        do 210 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * (   w(k,1) * 1165140900000._dp &
                 - w(k,2) * 3728450880000._dp &
                 + w(k,3) * 3495422700000._dp )
-  210   continue
+        end do
         call fcn(n, x + c(18) * (2._dp / 3._dp), w(1,9), w(1,4))
 !
-        do 215 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * ( - w(k,1) * 3604654659375._dp &
                 + w(k,2) * 12816549900000._dp &
                 - w(k,3) * 9284716546875._dp &
                 + w(k,4) * 1237962206250._dp )
-  215   continue
+        end do
         call fcn(n, x + c(18) * (5._dp / 6._dp), w(1,9), w(1,5))
 !
-        do 220 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * (   w(k,1) * 3355605792000._dp &
                 - w(k,2) * 11185352640000._dp &
                 + w(k,3) * 9172628850000._dp &
                 - w(k,4) * 427218330000._dp &
                 + w(k,5) * 482505408000._dp  )
-  220   continue
+        end do
         call fcn(n, x + c(18), w(1,9), w(1,6))
 !
-        do 225 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * ( - w(k,1) * 770204740536._dp &
                 + w(k,2) * 2311639545600._dp &
                 - w(k,3) * 1322092233000._dp &
                 - w(k,4) * 453006781920._dp &
                 + w(k,5) * 326875481856._dp  )
-  225   continue
+        end do
         call fcn(n, x + c(18) / 15._dp, w(1,9), w(1,7))
 !
-        do 230 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * (   w(k,1) * 2845924389000._dp &
                 - w(k,2) * 9754668000000._dp &
                 + w(k,3) * 7897110375000._dp &
                 - w(k,4) * 192082660000._dp &
                 + w(k,5) * 400298976000._dp &
                 + w(k,7) * 201586000000._dp  )
-  230   continue
+        end do
         call fcn(n, x + c(18), w(1,9), w(1,8))
 !
 !       calculate ytrial, the extrapolated approximation and store
 !           in w(*,9)
-        do 235 k = 1, n
+        do k = 1, n
             w(k,9) = y(k) + temp * (   w(k,1) * 104862681000._dp &
                 + w(k,3) * 545186250000._dp &
                 + w(k,4) * 446637345000._dp &
                 + w(k,5) * 188806464000._dp &
                 + w(k,7) * 15076875000._dp &
                 + w(k,8) * 97599465000._dp   )
-  235   continue
+        end do
 !
 !       add 7 to the no of fcn evals
         c(24) = c(24) + 7._dp
@@ -1126,7 +1126,7 @@
 !       ***************************************************************
 !
 !       calculate the unweighted absolute error estimate vector
-        do 300 k = 1, n
+        do k = 1, n
             w(k,2) = (   w(k,1) * 8738556750._dp &
                 + w(k,3) * 9735468750._dp &
                 - w(k,4) * 9709507500._dp &
@@ -1134,49 +1134,49 @@
                 + w(k,6) * 95329710000._dp &
                 - w(k,7) * 15076875000._dp &
                 - w(k,8) * 97599465000._dp) / 1398169080000._dp
-  300   continue
+        end do
 !
 !       calculate the weighted max norm of w(*,2) as specified by
 !           the error control indicator c(1)
         temp = 0._dp
         if (c(1) /= 1._dp) go to 310
 !       absolute error control
-        do 305 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2)))
-  305   continue
+        end do
         go to 360
   310   if (c(1) /= 2._dp) go to 320
 !       relative error control
-        do 315 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2) / y(k)))
-  315   continue
+        end do
         go to 360
   320   if (c(1) /= 3._dp) go to 330
 !       weights are 1/max(c(2), abs(y(k)))
-        do 325 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2)) &
                 / dmax1(c(2), dabs(y(k))) )
-  325   continue
+        end do
         go to 360
   330   if (c(1) /= 4._dp) go to 340
 !       weights are 1/max(c(k + 30), abs(y(k)))
-        do 335 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2)) &
                 / dmax1(c(k + 30), dabs(y(k))) )
-  335   continue
+        end do
         go to 360
   340   if (c(1) /= 5._dp) go to 350
 !       weights are 1/c(k + 30)
-        do 345 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
-  345   continue
+        end do
         go to 360
   350   continue
 !       default case - weights are 1/max(1, abs(y(k)))
-        do 355 k = 1, n
+        do k = 1, n
             temp = dmax1(temp, dabs(w(k,2)) &
                 / dmax1(1._dp, dabs(y(k))) )
-  355   continue
+        end do
   360   continue
 !
 !       calculate est - (the weighted max norm of w(*,2)) * hmag * scale
@@ -1205,9 +1205,9 @@
 !           ytrial, add 1 to the no of successful steps, and set
 !           the no of successive failures to zero
         x = c(17)
-        do 400 k = 1, n
+        do k = 1, n
             y(k) = w(k,9)
-  400   continue
+        end do
         c(22) = c(22) + 1._dp
         c(23) = 0._dp
 !**************return(with ind=3, xend saved, flag set) if x == xend
