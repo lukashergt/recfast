@@ -260,7 +260,7 @@
         integer ind, nw
         integer Heswitch, Hswitch
 
-        character*80 fileout
+        character(len=80) :: fileout
 
 !   --- Parameter statements
         parameter(bigH = 100.0D3 / (1.0D6 * 3.0856775807D16)) !Ho in s-1
