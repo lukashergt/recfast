@@ -101,8 +101,8 @@
 !A  w0 and w1 are conformal-time-like initial and final zi and zf's
 !A  Lw0 and Lw1 are logs of w0 and w1
 !A  hw is the interval in W
-!A  C,k_B,h_P: speed of light, Boltzmann's and Planck's constants
-!A  m_e,m_H: electron mass and H atomic mass in SI
+!A  C, k_B, h_P: speed of light, Boltzmann's and Planck's constants
+!A  m_e, m_H: electron mass and H atomic mass in SI
 !A  not4: ratio of 4He atomic mass to 1H atomic mass
 !A  sigma: Thomson cross-section
 !A  a: radiation constant for u=aT^4
@@ -119,10 +119,10 @@
 !A  L_He_2p: level for He 2p (21P1-11S0) in m^-1
 !A  Lalpha: Ly alpha wavelength in SI
 !A  Lalpha_He: Helium I 2p-1s wavelength in SI
-!A  mu_H,mu_T: mass per H atom and mass per particle
+!A  mu_H, mu_T: mass per H atom and mass per particle
 !A  H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
 !A  dHdz is the derivative of H at the specific z (in ION)
-!A  CDB=DeltaB/k_B          Constants derived from B1,B2,R
+!A  CDB=DeltaB/k_B          Constants derived from B1, B2, R
 !A  CDB_He=DeltaB_He/k_B        n=2-infinity for He in Kelvin
 !A  CB1=CDB*4.          Lalpha and sigma_Th, calculated
 !A  CB1_He1: CB1 for HeI ionization potential
@@ -159,25 +159,25 @@
 !A  wGauss1 is the width of the 1st Gaussian
 !A  wGauss2 is the width of the 2nd Gaussian
 !A  tol: tolerance for the integrator
-!A  cw(24),w(3,9): work space for DVERK
+!A  cw(24), w(3,9): work space for DVERK
 !A  Ndim: number of d.e.'s to solve (integer)
 !A  Nz: number of output redshitf (integer)
 !A  I: loop index (integer)
-!A  ind,nw: work-space for DVERK (integer)
+!A  ind, nw: work-space for DVERK (integer)
 !
 !G  Global data (common blocks) referenced:
-!G  /zLIST/zinitial,zfinal,Nz
-!G  /Cfund/C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-!G  /data/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT,
-!G      fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He
-!G      /Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
-!G  /Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt,
-!G      L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
-!G  /Hmod/AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
-!G  /Switch/Heswitch,Hswitch
+!G  /zLIST/zinitial, zfinal, Nz
+!G  /Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, Pi
+!G  /data/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT,
+!G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
+!G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
+!G  /Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt,
+!G      L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+!G  /Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
+!G  /Switch/Heswitch, Hswitch
 !
 !F  File & device access:
-!F  Unit    /I,IO,O /Name (if known)
+!F  Unit    /I, IO, O /Name (if known)
 !
 !M  Modules called:
 !M  DVERK (numerical integrator)
@@ -238,27 +238,27 @@
         integer, parameter :: qp = REAL128
 
 !   --- Arguments
-        real(dp) :: Trad,Tmat
-        real(dp) :: OmegaT,OmegaB,H,HO,HOinp,bigH,G,OmegaL,OmegaK,OmegaC
-        real(dp) :: z,n,x,x0,rhs,x_H,x_He,x_H0,x_He0
-        real(dp) :: Tnow,zinitial,zfinal,Nnow,z_eq,fnu
-        real(dp) :: zstart,zend,w0,w1,Lw0,Lw1,hw
-        real(dp) :: C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        real(dp) :: Lambda,DeltaB,DeltaB_He,Lalpha,mu_H,mu_T,H_frac
-        real(dp) :: Lambda_He,Lalpha_He,Bfact,CK_He,CL_He
-        real(dp) :: L_H_ion,L_H_alpha,L_He1_ion,L_He2_ion,L_He_2s,L_He_2p
-        real(dp) :: CB1,CDB,CR,CK,CL,CT,Yp,fHe,CB1_He1,CB1_He2,CDB_He,fu,b_He
-        real(dp) :: A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt
-        real(dp) :: L_He_2Pt,L_He_2St,L_He2St_ion
-        real(dp) :: AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
+        real(dp) :: Trad, Tmat
+        real(dp) :: OmegaT, OmegaB, H, HO, HOinp, bigH, G, OmegaL, OmegaK, OmegaC
+        real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
+        real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
+        real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
+        real(dp) :: C, k_B, h_P, m_e, m_H, not4, sigma, a, Pi
+        real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
+        real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
+        real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
+        real(dp) :: CB1, CDB, CR, CK, CL, CT, Yp, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
+        real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
+        real(dp) :: L_He_2Pt, L_He_2St, L_He2St_ion
+        real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
 
         real(dp) :: tol
-        real(dp) :: cw(24),w(3,9)
+        real(dp) :: cw(24), w(3,9)
         real(dp) :: y(3)
 
-        integer Ndim,Nz,I
-        integer ind,nw
-        integer Heswitch,Hswitch
+        integer Ndim, Nz, I
+        integer ind, nw
+        integer Heswitch, Hswitch
 
         character*80 fileout
 
@@ -269,24 +269,24 @@
         external ION
 
 !   --- Commons
-        common/zLIST/zinitial,zfinal,Nz
-        common/Cfund/C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
-            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
-        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt, &
-            L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
-        common/Hmod/AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
-        common/Switch/Heswitch,Hswitch
+        common/zLIST/zinitial, zfinal, Nz
+        common/Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, Pi
+        common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
+            fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+        common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
+            L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+        common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
+        common/Switch/Heswitch, Hswitch
 
-        common/Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
+        common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
 !   --- Data
-        data    C,k_B,h_P   /2.99792458D8,1.380658D-23,6.6260755D-34/
-        data    m_e,m_H     /9.1093897D-31,1.673575D-27/    !av. H atom
+        data    C, k_B, h_P   /2.99792458D8, 1.380658D-23, 6.6260755D-34/
+        data    m_e, m_H     /9.1093897D-31, 1.673575D-27/    !av. H atom
 !   note: neglecting deuterium, making an O(e-5) effect
         data    not4        /3.9715D0/      !mass He/H atom
-        data    sigma,a     /6.6524616D-29,7.565914D-16/
+        data    sigma, a     /6.6524616D-29, 7.565914D-16/
         data    Pi      /3.141592653589d0/
         data    G       /6.6742D-11/            !new value
 !   Fundamental constants in SI units
@@ -340,13 +340,13 @@
         read(*,'(a)')fileout
 
         write(*,*)'Enter Omega_B, Omega_DM, Omega_vac (e.g. 0.04 0.20 0.76)'
-        read(*,*)OmegaB,OmegaC,OmegaL
+        read(*,*)OmegaB, OmegaC, OmegaL
         OmegaT=OmegaC+OmegaB            !total dark matter + baryons
         OmegaK=1.d0-OmegaT-OmegaL   !curvature
         write(*,'(1x,''Omega_K = '',f4.2)')OmegaK
         write(*,*)
         write(*,*)'Enter H_0 (in km/s/Mpc), T_0, Y_p (e.g. 70 2.725 0.25)'
-        read(*,*)HOinp,Tnow,Yp
+        read(*,*)HOinp, Tnow, Yp
 
 !   convert the Hubble constant units
         H = HOinp/100.d0
@@ -427,15 +427,15 @@
         y(3) = Tnow*(1.d0+z)            !Initial rad. & mat. temperature
         Tmat = y(3)
 
-        call get_init(z,x_H0,x_He0,x0)
+        call get_init(z, x_H0, x_He0, x0)
 
         y(1) = x_H0
         y(2) = x_He0
 
 !   OK that's the initial conditions, now start writing output file
 
-        open(unit=7,status='new',form='formatted',file=fileout)
-        write(7,'(1x,''  z    '',1x,''     x_e   '')')
+        open(unit=7, status='new', form='formatted', file=fileout)
+        write(7, '(1x,''  z    '', 1x, ''     x_e   '')')
 
         w0=1.d0/ dsqrt(1.d0 + zinitial) !like a conformal time
         w1=1.d0/ dsqrt(1.d0 + zfinal)
@@ -447,11 +447,11 @@
 !   Set up work-space stuff for DVERK
         ind  = 1
         nw   = 3
-        do i = 1,24
+        do i = 1, 24
             cw(i) = 0.d0
         end do
 
-        do i = 1,Nz
+        do i = 1, Nz
 !       calculate the start and end redshift for the interval at each z
 !   or just at each z
             zstart = zinitial + dfloat(i-1)*(zfinal-zinitial)/dfloat(Nz)
@@ -516,13 +516,13 @@
                     - CB1/(Tnow*(1.d0+z)) ) / Nnow
                 x_H0 = 0.5d0 * (dsqrt( rhs**2+4.d0*rhs ) - rhs )
 
-                call DVERK(nw,ION,zstart,y,zend,tol,ind,cw,nw,w)
+                call DVERK(nw, ION, zstart, y, zend, tol, ind, cw, nw, w)
                 y(1) = x_H0
                 x0 = y(1) + fHe*y(2)
 
             else
 
-                call DVERK(nw,ION,zstart,y,zend,tol,ind,cw,nw,w)
+                call DVERK(nw, ION, zstart, y, zend, tol, ind, cw, nw, w)
 
                 x0 = y(1) + fHe*y(2)
 
@@ -534,8 +534,8 @@
             x_He = y(2)
             x = x0
 
-            write(7,'(1x,f8.2,2x,g15.8)') &
-                zend,x
+            write(7, '(1x,f8.2,2x,g15.8)') &
+                zend, x
 
         end do
 
@@ -543,7 +543,7 @@
     end
 
 !   ===============================================================
-    subroutine GET_INIT(z,x_H0,x_He0,x0)
+    subroutine GET_INIT(z, x_H0, x_He0, x0)
 
 !   Set up the initial conditions so it will work for general,
 !   but not pathological choices of zstart
@@ -551,16 +551,16 @@
 
         implicit none
 
-        real(dp) :: OmegaT,HO,OmegaL,OmegaK
-        real(dp) :: z,x0,rhs,x_H0,x_He0
-        real(dp) :: Tnow,Nnow,z_eq
-        real(dp) :: Lambda,H_frac
-        real(dp) :: Lambda_He,Bfact,CK_He,CL_He
-        real(dp) :: CB1,CDB,CR,CK,CL,CT,fHe,CB1_He1,CB1_He2,CDB_He,fu
+        real(dp) :: OmegaT, HO, OmegaL, OmegaK
+        real(dp) :: z, x0, rhs, x_H0, x_He0
+        real(dp) :: Tnow, Nnow, z_eq
+        real(dp) :: Lambda, H_frac
+        real(dp) :: Lambda_He, Bfact, CK_He, CL_He
+        real(dp) :: CB1, CDB, CR, CK, CL, CT, fHe, CB1_He1, CB1_He2, CDB_He, fu
 
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
-            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
-        common/Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
+        common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
+            fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+        common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
         if(z.gt.8000.d0)then
@@ -605,39 +605,39 @@
     end
 
 !   ===============================================================
-    subroutine ION(Ndim,z,Y,f)
+    subroutine ION(Ndim, z, Y, f)
 
         implicit none
 
-        integer Ndim,Heflag,Heswitch,Hswitch
+        integer Ndim, Heflag, Heswitch, Hswitch
 
-        real(dp) :: z,x,n,n_He,Trad,Tmat,x_H,x_He
-        real(dp) :: y(Ndim),f(Ndim)
-        real(dp) :: C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        real(dp) :: Lambda,H_frac,Lambda_He
-        real(dp) :: Tnow,HO,Nnow,z_eq,Hz,OmegaT,OmegaL,OmegaK
-        real(dp) :: Rup,Rdown,K,K_He,Rup_He,Rdown_He,He_Boltz
-        real(dp) :: timeTh,timeH,factor
-        real(dp) :: CB1,CDB,CR,CK,CL,CT,fHe,CB1_He1,CB1_He2,CDB_He,fu,b_He
-        real(dp) :: Bfact,CK_He,CL_He
-        real(dp) :: a_VF,b_VF,T_0,T_1,sq_0,sq_1,a_PPB,b_PPB,c_PPB,d_PPB
-        real(dp) :: tauHe_s,pHe_s
-        real(dp) :: A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt
-        real(dp) :: Doppler,gamma_2Ps,pb,qb,AHcon
-        real(dp) :: L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
-        real(dp) :: a_trip,b_trip,Rdown_trip,Rup_trip
-        real(dp) :: tauHe_t,pHe_t,CL_PSt,CfHe_t,gamma_2Pt
-        real(dp) :: AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
-        real(dp) :: dHdz,epsilon
+        real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
+        real(dp) :: y(Ndim), f(Ndim)
+        real(dp) :: C, k_B, h_P, m_e, m_H, not4, sigma, a, Pi
+        real(dp) :: Lambda, H_frac, Lambda_He
+        real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
+        real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
+        real(dp) :: timeTh, timeH, factor
+        real(dp) :: CB1, CDB, CR, CK, CL, CT, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
+        real(dp) :: Bfact, CK_He, CL_He
+        real(dp) :: a_VF, b_VF, T_0, T_1, sq_0, sq_1, a_PPB, b_PPB, c_PPB, d_PPB
+        real(dp) :: tauHe_s, pHe_s
+        real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
+        real(dp) :: Doppler, gamma_2Ps, pb, qb, AHcon
+        real(dp) :: L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+        real(dp) :: a_trip, b_trip, Rdown_trip, Rup_trip
+        real(dp) :: tauHe_t, pHe_t, CL_PSt, CfHe_t, gamma_2Pt
+        real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
+        real(dp) :: dHdz, epsilon
 
-        common/Cfund/C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
-            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
-        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt, &
-            L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
-        common/Hmod/AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
-        common/Switch/Heswitch,Hswitch
-        common/Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
+        common/Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, Pi
+        common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
+            fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+        common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
+            L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+        common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
+        common/Switch/Heswitch, Hswitch
+        common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !       ===============================================================
 
 !       the Pequignot, Petitjean & Boisson fitting parameters for Hydrogen
@@ -731,7 +731,7 @@
                     /((C*L_He_2p)**2.d0)
                 pb = 0.36d0  !value from KIV (2007)
                 qb = b_He
-!               calculate AHcon, the value of A*p_(con,H) for H continuum opacity
+!               calculate AHcon, the value of A*p_(con, H) for H continuum opacity
                 AHcon = A2P_s/(1.d0+pb*(gamma_2Ps**qb))
                 K_He=1.d0/((A2P_s*pHe_s+AHcon)*3.d0*n_He*(1.d0-x_He))
             end if
@@ -934,14 +934,14 @@
         c(12) = 1.d0
         go to 160
   120   if (c(1) .ne. 3.d0) go to 130
-!       weights are 1/max(c(2),abs(y(k)))
+!       weights are 1/max(c(2), abs(y(k)))
         do 125 k = 1, n
             temp = dmax1(temp, dabs(y(k))/c(2))
   125   continue
         c(12) = dmin1(temp, 1.d0)
         go to 160
   130   if (c(1) .ne. 4.d0) go to 140
-!       weights are 1/max(c(k+30),abs(y(k)))
+!       weights are 1/max(c(k+30), abs(y(k)))
         do 135 k = 1, n
             temp = dmax1(temp, dabs(y(k))/c(k+30))
   135   continue
@@ -955,13 +955,13 @@
         c(12) = temp
         go to 160
   150   continue
-!       default case - weights are 1/max(1,abs(y(k)))
+!       default case - weights are 1/max(1, abs(y(k)))
         do 155 k = 1, n
             temp = dmax1(temp, dabs(y(k)))
   155   continue
         c(12) = dmin1(temp, 1.d0)
   160   continue
-        c(13) = 10.d0*dmax1(c(11),c(10)*dmax1(c(12)/tol,dabs(x)))
+        c(13) = 10.d0*dmax1(c(11), c(10)*dmax1(c(12)/tol, dabs(x)))
   165   continue
 !
 !       calculate scale - use default unless value prescribed
@@ -1142,7 +1142,7 @@
         if (c(1) .ne. 1.d0) go to 310
 !       absolute error control
         do 305 k = 1, n
-            temp = dmax1(temp,dabs(w(k,2)))
+            temp = dmax1(temp, dabs(w(k,2)))
   305   continue
         go to 360
   310   if (c(1) .ne. 2.d0) go to 320
@@ -1152,14 +1152,14 @@
   315   continue
         go to 360
   320   if (c(1) .ne. 3.d0) go to 330
-!       weights are 1/max(c(2),abs(y(k)))
+!       weights are 1/max(c(2), abs(y(k)))
         do 325 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
      +          / dmax1(c(2), dabs(y(k))) )
   325   continue
         go to 360
   330   if (c(1) .ne. 4.d0) go to 340
-!       weights are 1/max(c(k+30),abs(y(k)))
+!       weights are 1/max(c(k+30), abs(y(k)))
         do 335 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
      +          / dmax1(c(k+30), dabs(y(k))) )
@@ -1172,7 +1172,7 @@
   345   continue
         go to 360
   350   continue
-!       default case - weights are 1/max(1,abs(y(k)))
+!       default case - weights are 1/max(1, abs(y(k)))
         do 355 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
      +          / dmax1(1.d0, dabs(y(k))) )
