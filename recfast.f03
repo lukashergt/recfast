@@ -54,7 +54,7 @@
 !A  Name, Description
 !A  Double precision throughout
 !A
-!A  z is redshift - W is sqrt(1+z), like conformal time
+!A  z is redshift - W is sqrt(1 + z), like conformal time
 !A  x is total ionised fraction, relative to H
 !A  x_H is ionized fraction of H - y(1) in R-K routine
 !A  x_He is ionized fraction of He - y(2) in R-K routine
@@ -74,11 +74,11 @@
 !A  Tnow is the observed CMB temperature today
 !A  OmegaT is the total Omega_0
 !A      OmegaL is the Omega_0 contribution from a Cosmological constant
-!A      OmegaK is the Omega_0 contribution in curvature (1-O_T-O_L)
+!A      OmegaK is the Omega_0 contribution in curvature (1 - O_T - O_L)
 !A      OmegaB is Omega in baryons today
-!A  OmegaC is the Omega_0 in (cold) dark matter: OmegaT=OmegaC+OmegaB
+!A  OmegaC is the Omega_0 in (cold) dark matter: OmegaT = OmegaC + OmegaB
 !A  Yp is the primordial helium abundace
-!A  fHe is He/H number ratio = Yp/4(1-Yp)
+!A  fHe is He/H number ratio = Yp / 4(1 - Yp)
 !A  Trad and Tmat are radiation and matter temperatures
 !A  epsilon is the approximate difference (=Trad-Tmat) at high z
 !A  OmegaB is Omega in baryons today
@@ -122,18 +122,18 @@
 !A  mu_H, mu_T: mass per H atom and mass per particle
 !A  H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
 !A  dHdz is the derivative of H at the specific z (in ION)
-!A  CDB=DeltaB/k_B          Constants derived from B1, B2, R
-!A  CDB_He=DeltaB_He/k_B        n=2-infinity for He in Kelvin
-!A  CB1=CDB*4.          Lalpha and sigma_Th, calculated
+!A  CDB = DeltaB / k_B          Constants derived from B1, B2, R
+!A  CDB_He = DeltaB_He / k_B        n=2-infinity for He in Kelvin
+!A  CB1 = CDB * 4.          Lalpha and sigma_Th, calculated
 !A  CB1_He1: CB1 for HeI ionization potential
 !A  CB1_He2: CB1 for HeII ionization potential
-!A  CR=2*Pi*(m_e/h_P)*(k_B/h_P) once and passed in a common block
-!A  CK=Lalpha**3/(8.*Pi)
-!A  CK_He=Lalpha_He**3/(8.*Pi)
-!A  CL=C*h_P/(k_B*Lalpha)
-!A  CL_He=C*h_P/(k_B*Lalpha_He)
-!A  CT=(8./3.)*(sigma/(m_e*C))*a
-!A  Bfact=exp((E_2p-E_2s)/kT)   Extra Boltzmann factor
+!A  CR = 2 * Pi * (m_e / h_P) * (k_B / h_P) once and passed in a common block
+!A  CK = Lalpha**3 / (8. * Pi)
+!A  CK_He = Lalpha_He**3 / (8. * Pi)
+!A  CL = C * h_P / (k_B * Lalpha)
+!A  CL_He = C * h_P / (k_B * Lalpha_He)
+!A  CT = (8. / 3.) * (sigma / (m_e * C)) * a
+!A  Bfact = exp((E_2p - E_2s) / kT)   Extra Boltzmann factor
 !A  fu is a "fudge factor" for H, to approximate low z behaviour
 !A  b_He is a "fudge factor" for HeI, to approximate higher z behaviour
 !A  Heswitch is an integer for modifying HeI recombination
@@ -149,13 +149,13 @@
 !A  A2P_t: Einstein A coefficient for He 23P1-11S0
 !A  sigma_He_2Ps: H ionization x-section at HeI 21P1-11S0 freq. in m^2
 !A  sigma_He_2Pt: H ionization x-section at HeI 23P1-11S0 freq. in m^2
-!A  CL_PSt = h_P*C*(L_He_2Pt - L_He_2st)/k_B
+!A  CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
 !A  CfHe_t: triplet statistical correction
 !A  Hswitch is an integer for modifying the H recombination
 !A  AGauss1 is the amplitude of the 1st Gaussian for the H fudging
 !A  AGauss2 is the amplitude of the 2nd Gaussian for the H fudging
-!A  zGauss1 is the ln(1+z) central value of the 1st Gaussian
-!A  zGauss2 is the ln(1+z) central value of the 2nd Gaussian
+!A  zGauss1 is the ln(1 + z) central value of the 1st Gaussian
+!A  zGauss2 is the ln(1 + z) central value of the 2nd Gaussian
 !A  wGauss1 is the width of the 1st Gaussian
 !A  wGauss2 is the width of the 2nd Gaussian
 !A  tol: tolerance for the integrator
@@ -263,8 +263,8 @@
         character*80 fileout
 
 !   --- Parameter statements
-        parameter(bigH=100.0D3/(1.0D6*3.0856775807D16)) !Ho in s-1
-        parameter(tol=1.D-5)                !Tolerance for R-K
+        parameter(bigH = 100.0D3 / (1.0D6 * 3.0856775807D16)) !Ho in s-1
+        parameter(tol = 1.D-5)                !Tolerance for R-K
 
         external ION
 
@@ -313,8 +313,8 @@
 
         data    AGauss1     /-0.14D0/   !Amplitude of 1st Gaussian
         data    AGauss2     /0.079D0/   !Amplitude of 2nd Gaussian
-        data    zGauss1     /7.28D0/    !ln(1+z) of 1st Gaussian
-        data    zGauss2     /6.73D0/    !ln(1+z) of 2nd Gaussian
+        data    zGauss1     /7.28D0/    !ln(1 + z) of 1st Gaussian
+        data    zGauss2     /6.73D0/    !ln(1 + z) of 2nd Gaussian
         data    wGauss1     /0.18D0/    !Width of 1st Gaussian
         data    wGauss2     /0.33D0/    !Width of 2nd Gaussian
 !   Gaussian fits for extra H physics (fit by Adam Moss, modified by
@@ -333,7 +333,7 @@
 !   These are easy to inquire as input, but let's use simple values
         zinitial = 1.d4
         z = zinitial
-        zfinal=0.d0
+        zfinal = 0.d0
 !   will output every 10 in z, but this is easily changed also
 
         write(*,*)'Enter output file name'
@@ -341,46 +341,46 @@
 
         write(*,*)'Enter Omega_B, Omega_DM, Omega_vac (e.g. 0.04 0.20 0.76)'
         read(*,*)OmegaB, OmegaC, OmegaL
-        OmegaT=OmegaC+OmegaB            !total dark matter + baryons
-        OmegaK=1.d0-OmegaT-OmegaL   !curvature
+        OmegaT = OmegaC + OmegaB            !total dark matter + baryons
+        OmegaK = 1.d0 - OmegaT - OmegaL   !curvature
         write(*,'(1x,''Omega_K = '',f4.2)')OmegaK
         write(*,*)
         write(*,*)'Enter H_0 (in km/s/Mpc), T_0, Y_p (e.g. 70 2.725 0.25)'
         read(*,*)HOinp, Tnow, Yp
 
 !   convert the Hubble constant units
-        H = HOinp/100.d0
-        HO = H*bigH
+        H = HOinp / 100.d0
+        HO = H * bigH
 
 !   sort out the helium abundance parameters
-        mu_H = 1.d0/(1.d0-Yp)           !Mass per H atom
-        mu_T = not4/(not4-(not4-1.d0)*Yp)   !Mass per atom
-        fHe = Yp/(not4*(1.d0-Yp))       !n_He_tot / n_H_tot
+        mu_H = 1.d0 / (1.d0 - Yp)           !Mass per H atom
+        mu_T = not4 / (not4 - (not4 - 1.d0) * Yp)   !Mass per atom
+        fHe = Yp / (not4 * (1.d0 - Yp))       !n_He_tot / n_H_tot
 
-        Nnow = 3.d0*HO*HO*OmegaB/(8.d0*Pi*G*mu_H*m_H)
-        n = Nnow * (1.d0+z)**3
-        fnu = (21.d0/8.d0)*(4.d0/11.d0)**(4.d0/3.d0)
+        Nnow = 3.d0 * HO * HO * OmegaB / (8.d0 * Pi * G * mu_H * m_H)
+        n = Nnow * (1.d0 + z)**3
+        fnu = (21.d0 / 8.d0) * (4.d0 / 11.d0)**(4.d0 / 3.d0)
 !   (this is explictly for 3 massless neutrinos - change if N_nu .ne. 3)
-        z_eq = (3.d0*(HO*C)**2/(8.d0*Pi*G*a*(1.d0+fnu)*Tnow**4))*OmegaT
+        z_eq = (3.d0 * (HO * C)**2 / (8.d0 * Pi * G * a * (1.d0 + fnu) * Tnow**4)) * OmegaT
         z_eq = z_eq - 1.d0
 
 !   Set up some constants so they don't have to be calculated later
-        Lalpha = 1.d0/L_H_alpha
-        Lalpha_He = 1.d0/L_He_2p
-        DeltaB = h_P*C*(L_H_ion-L_H_alpha)
-        CDB = DeltaB/k_B
-        DeltaB_He = h_P*C*(L_He1_ion-L_He_2s)   !2s, not 2p
-        CDB_He = DeltaB_He/k_B
-        CB1 = h_P*C*L_H_ion/k_B
-        CB1_He1 = h_P*C*L_He1_ion/k_B   !ionization for HeI
-        CB1_He2 = h_P*C*L_He2_ion/k_B   !ionization for HeII
-        CR = 2.d0*Pi*(m_e/h_P)*(k_B/h_P)
-        CK = Lalpha**3/(8.d0*Pi)
-        CK_He = Lalpha_He**3/(8.d0*Pi)
-        CL = C*h_P/(k_B*Lalpha)
-        CL_He = C*h_P/(k_B/L_He_2s) !comes from det.bal. of 2s-1s
-        CT = (8.d0/3.d0)*(sigma/(m_e*C))*a
-        Bfact = h_P*C*(L_He_2p-L_He_2s)/k_B
+        Lalpha = 1.d0 / L_H_alpha
+        Lalpha_He = 1.d0 / L_He_2p
+        DeltaB = h_P * C * (L_H_ion - L_H_alpha)
+        CDB = DeltaB / k_B
+        DeltaB_He = h_P * C * (L_He1_ion - L_He_2s)   !2s, not 2p
+        CDB_He = DeltaB_He / k_B
+        CB1 = h_P * C * L_H_ion / k_B
+        CB1_He1 = h_P * C * L_He1_ion / k_B   !ionization for HeI
+        CB1_He2 = h_P * C * L_He2_ion / k_B   !ionization for HeII
+        CR = 2.d0 * Pi * (m_e / h_P) * (k_B / h_P)
+        CK = Lalpha**3 / (8.d0 * Pi)
+        CK_He = Lalpha_He**3 / (8.d0 * Pi)
+        CL = C * h_P / (k_B * Lalpha)
+        CL_He = C * h_P / (k_B / L_He_2s) !comes from det.bal. of 2s-1s
+        CT = (8.d0 / 3.d0) * (sigma / (m_e * C)) * a
+        Bfact = h_P * C * (L_He_2p - L_He_2s) / k_B
 
 !   Matter departs from radiation when t(Th) > H_frac * t(H)
 !   choose some safely small number
@@ -395,9 +395,9 @@
 
 !   Fudge factor to approximate the low z out of equilibrium effect
         if (Hswitch .eq. 0) then
-            fu=1.14d0
+            fu = 1.14d0
         else
-            fu=1.125d0
+            fu = 1.125d0
         end if
 
 !   Modification for HeI recombination (Heswitch):
@@ -424,7 +424,7 @@
         b_He = 0.86
 
 !   Set initial matter temperature
-        y(3) = Tnow*(1.d0+z)            !Initial rad. & mat. temperature
+        y(3) = Tnow * (1.d0 + z)            !Initial rad. & mat. temperature
         Tmat = y(3)
 
         call get_init(z, x_H0, x_He0, x0)
@@ -437,12 +437,12 @@
         open(unit=7, status='new', form='formatted', file=fileout)
         write(7, '(1x,''  z    '', 1x, ''     x_e   '')')
 
-        w0=1.d0/ dsqrt(1.d0 + zinitial) !like a conformal time
-        w1=1.d0/ dsqrt(1.d0 + zfinal)
+        w0 = 1.d0/ dsqrt(1.d0 + zinitial) !like a conformal time
+        w1 = 1.d0/ dsqrt(1.d0 + zfinal)
         Lw0 = dLog(w0)
         Lw1 = dLog(w1)
-        Nz=1000
-        hW=(Lw1-Lw0)/dfloat(Nz)     !interval in log of conf time
+        Nz = 1000
+        hW = (Lw1 - Lw0) / dfloat(Nz)     !interval in log of conf time
 
 !   Set up work-space stuff for DVERK
         ind  = 1
@@ -454,8 +454,8 @@
         do i = 1, Nz
 !       calculate the start and end redshift for the interval at each z
 !   or just at each z
-            zstart = zinitial + dfloat(i-1)*(zfinal-zinitial)/dfloat(Nz)
-            zend   = zinitial + dfloat(i)*(zfinal-zinitial)/dfloat(Nz)
+            zstart = zinitial + dfloat(i - 1) * (zfinal - zinitial) / dfloat(Nz)
+            zend   = zinitial + dfloat(i) * (zfinal - zinitial) / dfloat(Nz)
 
 ! Use Saha to get x_e, using the equation for x_e for ionized helium
 ! and for neutral helium.
@@ -469,66 +469,66 @@
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
-                x0 = 1.d0+2.d0*fHe
+                x0 = 1.d0 + 2.d0 * fHe
                 y(1) = x_H0
                 y(2) = x_He0
-                y(3) = Tnow*(1.d0+z)
+                y(3) = Tnow * (1.d0 + z)
 
             else if(z > 5000.d0)then
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-                    - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
-                rhs = rhs*1.d0      !ratio of g's is 1 for He++ <-> He+
-                x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2 &
-                    + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
+                rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+                    - CB1_He2 / (Tnow * (1.d0 + z)) ) / Nnow
+                rhs = rhs * 1.d0      !ratio of g's is 1 for He++ <-> He+
+                x0 = 0.5d0 * ( dsqrt( (rhs - 1.d0 - fHe)**2 &
+                    + 4.d0 * (1.d0 + 2.d0 * fHe) * rhs) - (rhs - 1.d0 - fHe) )
                 y(1) = x_H0
                 y(2) = x_He0
-                y(3) = Tnow*(1.d0+z)
+                y(3) = Tnow * (1.d0 + z)
 
             else if(z > 3500.d0)then
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
-                x0 = x_H0 + fHe*x_He0
+                x0 = x_H0 + fHe * x_He0
                 y(1) = x_H0
                 y(2) = x_He0
-                y(3) = Tnow*(1.d0+z)
+                y(3) = Tnow * (1.d0 + z)
 
             else if(y(2) > 0.99)then
 
                 x_H0 = 1.d0
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-                    - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
-                rhs = rhs*4.d0      !ratio of g's is 4 for He+ <-> He0
-                x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs ) &
-                    - (rhs-1.d0))
+                rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+                    - CB1_He1 / (Tnow * (1.d0 + z)) ) / Nnow
+                rhs = rhs * 4.d0      !ratio of g's is 4 for He+ <-> He0
+                x_He0 = 0.5d0 * ( dsqrt( (rhs - 1.d0)**2 + 4.d0 * (1.d0 + fHe) * rhs ) &
+                    - (rhs - 1.d0))
                 x0 = x_He0
-                x_He0 = (x0 - 1.d0)/fHe
+                x_He0 = (x0 - 1.d0) / fHe
                 y(1) = x_H0
                 y(2) = x_He0
-                y(3) = Tnow*(1.d0+z)
+                y(3) = Tnow * (1.d0 + z)
 
             else if (y(1) > 0.99d0) then
 
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-                    - CB1/(Tnow*(1.d0+z)) ) / Nnow
-                x_H0 = 0.5d0 * (dsqrt( rhs**2+4.d0*rhs ) - rhs )
+                rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+                    - CB1 / (Tnow * (1.d0 + z)) ) / Nnow
+                x_H0 = 0.5d0 * (dsqrt( rhs**2 + 4.d0 * rhs ) - rhs )
 
                 call DVERK(nw, ION, zstart, y, zend, tol, ind, cw, nw, w)
                 y(1) = x_H0
-                x0 = y(1) + fHe*y(2)
+                x0 = y(1) + fHe * y(2)
 
             else
 
                 call DVERK(nw, ION, zstart, y, zend, tol, ind, cw, nw, w)
 
-                x0 = y(1) + fHe*y(2)
+                x0 = y(1) + fHe * y(2)
 
             end if
 
-            Trad = Tnow * (1.d0+zend)
+            Trad = Tnow * (1.d0 + zend)
             Tmat = y(3)
             x_H = y(1)
             x_He = y(2)
@@ -567,34 +567,34 @@
 
             x_H0 = 1.d0
             x_He0 = 1.d0
-            x0 = 1.d0+2.d0*fHe
+            x0 = 1.d0 + 2.d0 * fHe
 
         else if(z > 3500.d0)then
 
             x_H0 = 1.d0
             x_He0 = 1.d0
-            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-                - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
-            rhs = rhs*1.d0      !ratio of g's is 1 for He++ <-> He+
-            x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2 &
-                + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
+            rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+                - CB1_He2 / (Tnow * (1.d0 + z)) ) / Nnow
+            rhs = rhs * 1.d0      !ratio of g's is 1 for He++ <-> He+
+            x0 = 0.5d0 * ( dsqrt( (rhs - 1.d0 - fHe)**2 &
+                + 4.d0 * (1.d0 + 2.d0 * fHe) * rhs) - (rhs - 1.d0 - fHe) )
 
         else if(z > 2000.d0)then
 
         x_H0 = 1.d0
-        rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-            - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
-        rhs = rhs*4.d0      !ratio of g's is 4 for He+ <-> He0
-        x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs ) &
-            - (rhs-1.d0))
+        rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+            - CB1_He1 / (Tnow * (1.d0 + z)) ) / Nnow
+        rhs = rhs * 4.d0      !ratio of g's is 4 for He+ <-> He0
+        x_He0 = 0.5d0 * ( dsqrt( (rhs - 1.d0)**2 + 4.d0 * (1.d0 + fHe) * rhs ) &
+            - (rhs - 1.d0))
         x0 = x_He0
-        x_He0 = (x0 - 1.d0)/fHe
+        x_He0 = (x0 - 1.d0) / fHe
 
         else
 
-            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
-                - CB1/(Tnow*(1.d0+z)) ) / Nnow
-            x_H0 = 0.5d0 * (dsqrt( rhs**2+4.d0*rhs ) - rhs )
+            rhs = dexp( 1.5d0 * dLog(CR * Tnow / (1.d0 + z)) &
+                - CB1 / (Tnow * (1.d0 + z)) ) / Nnow
+            x_H0 = 0.5d0 * (dsqrt( rhs**2 + 4.d0 * rhs ) - rhs )
             x_He0 = 0.d0
             x0 = x_H0
 
@@ -661,51 +661,51 @@
         x = x_H + fHe * x_He
         Tmat = y(3)
 
-        n = Nnow * (1.d0+z)**3
-        n_He = fHe * Nnow * (1.d0+z)**3
-        Trad = Tnow * (1.d0+z)
-        Hz = HO * dsqrt((1.d0+z)**4/(1.d0+z_eq)*OmegaT + OmegaT*(1.d0+z)**3 &
-            + OmegaK*(1.d0+z)**2 + OmegaL)
+        n = Nnow * (1.d0 + z)**3
+        n_He = fHe * Nnow * (1.d0 + z)**3
+        Trad = Tnow * (1.d0 + z)
+        Hz = HO * dsqrt((1.d0 + z)**4 / (1.d0 + z_eq) * OmegaT + OmegaT * (1.d0 + z)**3 &
+            + OmegaK * (1.d0 + z)**2 + OmegaL)
 
 !       Also calculate derivative for use later
-        dHdz = (HO**2/2.d0/Hz)*(4.d0*(1.d0+z)**3/(1.d0+z_eq)*OmegaT &
-            + 3.d0*OmegaT*(1.d0+z)**2 + 2.d0*OmegaK*(1.d0+z) )
+        dHdz = (HO**2 / 2.d0 / Hz) * (4.d0 * (1.d0 + z)**3 / (1.d0 + z_eq) * OmegaT &
+            + 3.d0 * OmegaT * (1.d0 + z)**2 + 2.d0 * OmegaK * (1.d0 + z) )
 
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
-        Rdown=1.d-19*a_PPB*(Tmat/1.d4)**b_PPB &
-            /(1.d0+c_PPB*(Tmat/1.d4)**d_PPB)
-        Rup = Rdown * (CR*Tmat)**(1.5d0)*dexp(-CDB/Tmat)
+        Rdown = 1.d - 19 * a_PPB * (Tmat / 1.d4)**b_PPB &
+            /(1.d0 + c_PPB * (Tmat / 1.d4)**d_PPB)
+        Rup = Rdown * (CR * Tmat)**(1.5d0) * dexp(-CDB / Tmat)
 
 !       calculate He using a fit to a Verner & Ferland type formula
-        sq_0 = dsqrt(Tmat/T_0)
-        sq_1 = dsqrt(Tmat/T_1)
+        sq_0 = dsqrt(Tmat / T_0)
+        sq_1 = dsqrt(Tmat / T_1)
 !       typo here corrected by Wayne Hu and Savita Gahlaut
-        Rdown_He = a_VF/(sq_0*(1.d0+sq_0)**(1.d0-b_VF))
-        Rdown_He = Rdown_He/(1.d0+sq_1)**(1.d0+b_VF)
-        Rup_He = Rdown_He*(CR*Tmat)**(1.5d0)*dexp(-CDB_He/Tmat)
-        Rup_He = 4.d0*Rup_He    !statistical weights factor for HeI
+        Rdown_He = a_VF / (sq_0 * (1.d0 + sq_0)**(1.d0 - b_VF))
+        Rdown_He = Rdown_He / (1.d0 + sq_1)**(1.d0 + b_VF)
+        Rup_He = Rdown_He * (CR * Tmat)**(1.5d0) * dexp(-CDB_He / Tmat)
+        Rup_He = 4.d0 * Rup_He    !statistical weights factor for HeI
 !       Avoid overflow (pointed out by Jacques Roland)
-        if((Bfact/Tmat) > 680.d0)then
+        if((Bfact / Tmat) > 680.d0)then
             He_Boltz = dexp(680.d0)
         else
-            He_Boltz = dexp(Bfact/Tmat)
+            He_Boltz = dexp(Bfact / Tmat)
         end if
 
 !       now deal with H and its fudges
         if (Hswitch .eq. 0) then
-            K = CK/Hz     !Peebles coefficient K=lambda_a^3/8piH
+            K = CK / Hz     !Peebles coefficient K=lambda_a^3/8piH
         else
 !       fit a double Gaussian correction function
-        K = CK/Hz*(1.0d0 &
-            +AGauss1*dexp(-((log(1.0d0+z)-zGauss1)/wGauss1)**2.d0) &
-            +AGauss2*dexp(-((log(1.0d0+z)-zGauss2)/wGauss2)**2.d0))
+        K = CK / Hz * (1.0d0 &
+            +AGauss1 * dexp(-((log(1.0d0 + z) - zGauss1) / wGauss1)**2.d0) &
+            +AGauss2 * dexp(-((log(1.0d0 + z) - zGauss2) / wGauss2)**2.d0))
         end if
 
 !       add the HeI part, using same T_0 and T_1 values
-        Rdown_trip = a_trip/(sq_0*(1.d0+sq_0)**(1.0-b_trip))
-        Rdown_trip = Rdown_trip/((1.d0+sq_1)**(1.d0+b_trip))
-        Rup_trip = Rdown_trip*dexp(-h_P*C*L_He2St_ion/(k_B*Tmat))
-        Rup_trip = Rup_trip*((CR*Tmat)**(1.5d0))*(4.d0/3.d0)
+        Rdown_trip = a_trip / (sq_0 * (1.d0 + sq_0)**(1.0 - b_trip))
+        Rdown_trip = Rdown_trip / ((1.d0 + sq_1)**(1.d0 + b_trip))
+        Rup_trip = Rdown_trip * dexp(-h_P * C * L_He2St_ion / (k_B * Tmat))
+        Rup_trip = Rup_trip * ((CR * Tmat)**(1.5d0)) * (4.d0 / 3.d0)
 !       last factor here is the statistical weight
 
 !       try to avoid "NaN" when x_He gets too small
@@ -715,54 +715,54 @@
             Heflag = Heswitch
         end if
         if (Heflag .eq. 0)then        !use Peebles coeff. for He
-            K_He = CK_He/Hz
+            K_He = CK_He / Hz
         else    !for Heflag>0       !use Sobolev escape probability
-            tauHe_s = A2P_s*CK_He*3.d0*n_He*(1.d0-x_He)/Hz
-            pHe_s = (1.d0 - dexp(-tauHe_s))/tauHe_s
-            K_He = 1.d0/(A2P_s*pHe_s*3.d0*n_He*(1.d0-x_He))
+            tauHe_s = A2P_s * CK_He * 3.d0 * n_He * (1.d0 - x_He) / Hz
+            pHe_s = (1.d0 - dexp(-tauHe_s)) / tauHe_s
+            K_He = 1.d0 / (A2P_s * pHe_s * 3.d0 * n_He * (1.d0 - x_He))
 !           smoother criterion here from Antony Lewis & Chad Fendt
             if (((Heflag .eq. 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999d0))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
-                Doppler = 2.D0*k_B*Tmat/(m_H*not4*C*C)
-                Doppler = C*L_He_2p*dsqrt(Doppler)
-                gamma_2Ps = 3.d0*A2P_s*fHe*(1.d0-x_He)*C*C &
-                    /(dsqrt(Pi)*sigma_He_2Ps*8.d0*Pi*Doppler*(1.d0-x_H)) &
-                    /((C*L_He_2p)**2.d0)
+                Doppler = 2.D0 * k_B * Tmat / (m_H * not4 * C * C)
+                Doppler = C * L_He_2p * dsqrt(Doppler)
+                gamma_2Ps = 3.d0 * A2P_s * fHe * (1.d0 - x_He) * C * C &
+                    /(dsqrt(Pi) * sigma_He_2Ps * 8.d0 * Pi * Doppler * (1.d0 - x_H)) &
+                    /((C * L_He_2p)**2.d0)
                 pb = 0.36d0  !value from KIV (2007)
                 qb = b_He
-!               calculate AHcon, the value of A*p_(con, H) for H continuum opacity
-                AHcon = A2P_s/(1.d0+pb*(gamma_2Ps**qb))
-                K_He=1.d0/((A2P_s*pHe_s+AHcon)*3.d0*n_He*(1.d0-x_He))
+!               calculate AHcon, the value of A * p_(con, H) for H continuum opacity
+                AHcon = A2P_s / (1.d0 + pb * (gamma_2Ps**qb))
+                K_He = 1.d0 / ((A2P_s * pHe_s + AHcon) * 3.d0 * n_He * (1.d0 - x_He))
             end if
             if (Heflag >= 3) then     !include triplet effects
-                tauHe_t = A2P_t*n_He*(1.d0-x_He)*3.d0
-                tauHe_t = tauHe_t /(8.d0*Pi*Hz*L_He_2Pt**(3.d0))
-                pHe_t = (1.d0 - dexp(-tauHe_t))/tauHe_t
-                CL_PSt = h_P*C*(L_He_2Pt - L_He_2st)/k_B
+                tauHe_t = A2P_t * n_He * (1.d0 - x_He) * 3.d0
+                tauHe_t = tauHe_t /(8.d0 * Pi * Hz * L_He_2Pt**(3.d0))
+                pHe_t = (1.d0 - dexp(-tauHe_t)) / tauHe_t
+                CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
                 if ((Heflag .eq. 3) .or. (Heflag .eq. 5) .or. (x_H > 0.99999d0)) then
 !                   no H cont. effect
-                    CfHe_t = A2P_t*pHe_t*dexp(-CL_PSt/Tmat)
-                    CfHe_t = CfHe_t/(Rup_trip+CfHe_t)   !"C" factor for triplets
+                    CfHe_t = A2P_t * pHe_t * dexp(-CL_PSt / Tmat)
+                    CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
                 else                  !include H cont. effect
-                    Doppler = 2.d0*k_B*Tmat/(m_H*not4*C*C)
-                    Doppler = C*L_He_2Pt*dsqrt(Doppler)
-                    gamma_2Pt = 3.d0*A2P_t*fHe*(1.d0-x_He)*C*C &
-                        /(dsqrt(Pi)*sigma_He_2Pt*8.d0*Pi*Doppler*(1.d0-x_H)) &
-                        /((C*L_He_2Pt)**2.d0)
+                    Doppler = 2.d0 * k_B * Tmat / (m_H * not4 * C * C)
+                    Doppler = C * L_He_2Pt * dsqrt(Doppler)
+                    gamma_2Pt = 3.d0 * A2P_t * fHe * (1.d0 - x_He) * C * C &
+                        /(dsqrt(Pi) * sigma_He_2Pt * 8.d0 * Pi * Doppler * (1.d0 - x_H)) &
+                        /((C * L_He_2Pt)**2.d0)
 !                   use the fitting parameters from KIV (2007) in this case
                     pb = 0.66d0
                     qb = 0.9d0
-                    AHcon = A2P_t/(1.d0+pb*gamma_2Pt**qb)/3.d0
-                    CfHe_t = (A2P_t*pHe_t+AHcon)*dexp(-CL_PSt/Tmat)
-                    CfHe_t = CfHe_t/(Rup_trip+CfHe_t)   !"C" factor for triplets
+                    AHcon = A2P_t / (1.d0 + pb * gamma_2Pt**qb) / 3.d0
+                    CfHe_t = (A2P_t * pHe_t + AHcon) * dexp(-CL_PSt / Tmat)
+                    CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
                 end if
             end if
         end if
 
 !       Estimates of Thomson scattering time and Hubble time
-        timeTh=(1.d0/(CT*Trad**4))*(1.d0+x+fHe)/x   !Thomson time
-        timeH=2.d0/(3.d0*HO*(1.d0+z)**1.5)      !Hubble time
+        timeTh = (1.d0 / (CT * Trad**4)) * (1.d0 + x + fHe) / x   !Thomson time
+        timeH = 2.d0 / (3.d0 * HO * (1.d0 + z)**1.5)      !Hubble time
 
 !       calculate the derivatives
 !       turn on H only for x_H<0.99, and use Saha derivative for 0.98<x_H<0.99
@@ -771,49 +771,49 @@
             f(1) = 0.d0
 !c      else if ((x_H > 0.98d0) .and. (Heflag .eq. 0)) then    !don't modify
         else if (x_H > 0.985d0) then     !use Saha rate for Hydrogen
-            f(1) = (x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat)) &
-                /(Hz*(1.d0+z))
+            f(1) = (x * x_H * n * Rdown - Rup * (1.d0 - x_H) * dexp(-CL / Tmat)) &
+                /(Hz * (1.d0 + z))
 !           for interest, calculate the correction factor compared to Saha
 !           (without the fudge)
-            factor=(1.d0 + K*Lambda*n*(1.d0-x_H)) &
-                /(Hz*(1.d0+z)*(1.d0+K*Lambda*n*(1.d0-x) &
-                +K*Rup*n*(1.d0-x)))
+            factor = (1.d0 + K * Lambda * n * (1.d0 - x_H)) &
+                /(Hz * (1.d0 + z) * (1.d0 + K * Lambda * n * (1.d0 - x) &
+                +K * Rup * n * (1.d0 - x)))
         else                  !use full rate for H
-            f(1) = ((x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat)) &
-                *(1.d0 + K*Lambda*n*(1.d0-x_H))) &
-                /(Hz*(1.d0+z)*(1.d0/fu+K*Lambda*n*(1.d0-x_H)/fu &
-                +K*Rup*n*(1.d0-x_H)))
+            f(1) = ((x * x_H * n * Rdown - Rup * (1.d0 - x_H) * dexp(-CL / Tmat)) &
+                *(1.d0 + K * Lambda * n * (1.d0 - x_H))) &
+                /(Hz * (1.d0 + z) * (1.d0 / fu + K * Lambda * n * (1.d0 - x_H) / fu &
+                +K * Rup * n * (1.d0 - x_H)))
         end if
 !       turn off the He once it is small
-        if (x_He < 1.d-15) then
-            f(2)=0.d0
+        if (x_He < 1.d - 15) then
+            f(2) = 0.d0
         else
-            f(2) = ((x*x_He*n*Rdown_He &
-                - Rup_He*(1.d0-x_He)*dexp(-CL_He/Tmat)) &
-                *(1.d0+ K_He*Lambda_He*n_He*(1.d0-x_He)*He_Boltz)) &
-                /(Hz*(1.d0+z) &
-                * (1.d0 + K_He*(Lambda_He+Rup_He)*n_He*(1.d0-x_He)*He_Boltz))
+            f(2) = ((x * x_He * n * Rdown_He &
+                - Rup_He * (1.d0 - x_He) * dexp(-CL_He / Tmat)) &
+                *(1.d0+ K_He * Lambda_He * n_He * (1.d0 - x_He) * He_Boltz)) &
+                /(Hz * (1.d0 + z) &
+                * (1.d0 + K_He * (Lambda_He + Rup_He) * n_He * (1.d0 - x_He) * He_Boltz))
 !           Modification to HeI recombination including channel via triplets
             if (Heflag >= 3) then
-                f(2) = f(2)+ (x*x_He*n*Rdown_trip &
-                    - (1.d0-x_He)*3.d0*Rup_trip*dexp(-h_P*C*L_He_2st/(k_B*Tmat))) &
-                    *CfHe_t/(Hz*(1.d0+z))
+                f(2) = f(2)+ (x * x_He * n * Rdown_trip &
+                    - (1.d0 - x_He) * 3.d0 * Rup_trip * dexp(-h_P * C * L_He_2st / (k_B * Tmat))) &
+                    *CfHe_t / (Hz * (1.d0 + z))
             end if
         end if
 
 !       follow the matter temperature once it has a chance of diverging
 
-        if (timeTh < H_frac*timeH) then
-!           f(3)=Tmat/(1.d0+z)  !Tmat follows Trad
+        if (timeTh < H_frac * timeH) then
+!           f(3) = Tmat / (1.d0 + z)  !Tmat follows Trad
 !       additional term to smooth transition to Tmat evolution,
 !       (suggested by Adam Moss)
-            epsilon = Hz*(1.d0+x+fHe)/(CT*Trad**3*x)
+            epsilon = Hz * (1.d0 + x + fHe) / (CT * Trad**3 * x)
             f(3) = Tnow &
-                + epsilon*((1.d0+fHe)/(1.d0+fHe+x))*((f(1)+fHe*f(2))/x) &
-                - epsilon* dHdz/Hz + 3.0d0*epsilon/(1.d0+z)
+                + epsilon * ((1.d0 + fHe) / (1.d0 + fHe + x)) * ((f(1) + fHe * f(2)) / x) &
+                - epsilon* dHdz / Hz + 3.0d0 * epsilon / (1.d0 + z)
         else
-            f(3)= CT * (Trad**4) * x / (1.d0+x+fHe) &
-                * (Tmat-Trad) / (Hz*(1.d0+z)) + 2.d0*Tmat/(1.d0+z)
+            f(3)= CT * (Trad**4) * x / (1.d0 + x + fHe) &
+                * (Tmat - Trad) / (Hz * (1.d0 + z)) + 2.d0 * Tmat / (1.d0 + z)
         end if
 
         return
@@ -855,13 +855,13 @@
 !       make floor values non-negative if they are to be used
         if (c(1) .ne. 4.d0 .and. c(1) .ne. 5.d0) go to 30
         do 25 k = 1, n
-            c(k+30) = dabs(c(k+30))
+            c(k + 30) = dabs(c(k + 30))
    25   continue
    30   continue
    35   continue
 !       initialize rreb, dwarf, prev xend, flag, counts
         c(10) = 2.d0**(-56)
-        c(11) = 1.d-35
+        c(11) = 1.d - 35
 !       set previous xend initially to initial value of x
         c(20) = x
         do 40 k = 21, 24
@@ -936,21 +936,21 @@
   120   if (c(1) .ne. 3.d0) go to 130
 !       weights are 1/max(c(2), abs(y(k)))
         do 125 k = 1, n
-            temp = dmax1(temp, dabs(y(k))/c(2))
+            temp = dmax1(temp, dabs(y(k)) / c(2))
   125   continue
         c(12) = dmin1(temp, 1.d0)
         go to 160
   130   if (c(1) .ne. 4.d0) go to 140
-!       weights are 1/max(c(k+30), abs(y(k)))
+!       weights are 1/max(c(k + 30), abs(y(k)))
         do 135 k = 1, n
-            temp = dmax1(temp, dabs(y(k))/c(k+30))
+            temp = dmax1(temp, dabs(y(k)) / c(k + 30))
   135   continue
         c(12) = dmin1(temp, 1.d0)
         go to 160
   140   if (c(1) .ne. 5.d0) go to 150
-!       weights are 1/c(k+30)
+!       weights are 1 / c(k + 30)
         do 145 k = 1, n
-            temp = dmax1(temp, dabs(y(k))/c(k+30))
+            temp = dmax1(temp, dabs(y(k)) / c(k + 30))
   145   continue
         c(12) = temp
         go to 160
@@ -961,7 +961,7 @@
   155   continue
         c(12) = dmin1(temp, 1.d0)
   160   continue
-        c(13) = 10.d0*dmax1(c(11), c(10)*dmax1(c(12)/tol, dabs(x)))
+        c(13) = 10.d0 * dmax1(c(11), c(10) * dmax1(c(12) / tol, dabs(x)))
   165   continue
 !
 !       calculate scale - use default unless value prescribed
@@ -971,11 +971,11 @@
 !       calculate hmax - consider 4 cases
 !       case 1 both hmax and scale prescribed
         if (c(6) .ne. 0.d0 .and. c(5) .ne. 0.d0)
-     +      c(16) = dmin1(c(6), 2.d0/c(5))
+     +      c(16) = dmin1(c(6), 2.d0 / c(5))
 !       case 2 - hmax prescribed, but scale not
         if (c(6) .ne. 0.d0 .and. c(5) .eq. 0.d0) c(16) = c(6)
 !       case 3 - hmax not prescribed, but scale is
-        if (c(6) .eq. 0.d0 .and. c(5) .ne. 0.d0) c(16) = 2.d0/c(5)
+        if (c(6) .eq. 0.d0 .and. c(5) .ne. 0.d0) c(16) = 2.d0 / c(5)
 !       case 4 - neither hmax nor scale is provided
         if (c(6) .eq. 0.d0 .and. c(5) .eq. 0.d0) c(16) = 2.d0
 !
@@ -990,20 +990,20 @@
 !       case 1 - initial entry - use prescribed value of hstart, if
 !           any, else default
         c(14) = c(4)
-        if (c(4) .eq. 0.d0) c(14) = c(16)*tol**(1./6.)
+        if (c(4) .eq. 0.d0) c(14) = c(16) * tol**(1. / 6.)
         go to 185
   175   if (c(23) > 1.d0) go to 180
 !       case 2 - after a successful step, or at most  one  failure,
-!           use min(2, .9*(tol/est)**(1/6))*hmag, but avoid possible
+!           use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
 !           overflow. then avoid reduction by more than half.
-        temp = 2.d0*c(14)
-        if (tol < (2.d0/.9d0)**6*c(19))
-     +      temp = .9d0*(tol/c(19))**(1./6.)*c(14)
-        c(14) = dmax1(temp, .5d0*c(14))
+        temp = 2.d0 * c(14)
+        if (tol < (2.d0 / .9d0)**6 * c(19))
+     +      temp = .9d0 * (tol / c(19))**(1. / 6.) * c(14)
+        c(14) = dmax1(temp, .5d0 * c(14))
         go to 185
   180   continue
 !       case 3 - after two or more successive failures
-        c(14) = .5d0*c(14)
+        c(14) = .5d0 * c(14)
   185   continue
 !
 !       check against hmax
@@ -1022,7 +1022,7 @@
 !       calculate hmag, xtrial - depending on preliminary hmag, xend
         if (c(14) >= dabs(xend - x)) go to 190
 !       do not step more than half way to xend
-        c(14) = dmin1(c(14), .5d0*dabs(xend - x))
+        c(14) = dmin1(c(14), .5d0 * dabs(xend - x))
         c(17) = x + dsign(c(14), xend - x)
         go to 195
   190   continue
@@ -1043,71 +1043,71 @@
 !       * ytrial.                                                     *
 !       ***************************************************************
 !
-        temp = c(18)/1398169080000.d0
+        temp = c(18) / 1398169080000.d0
 !
         do 200 k = 1, n
-            w(k,9) = y(k) + temp*w(k,1)*233028180000.d0
+            w(k,9) = y(k) + temp * w(k,1) * 233028180000.d0
   200   continue
-        call fcn(n, x + c(18)/6.d0, w(1,9), w(1,2))
+        call fcn(n, x + c(18) / 6.d0, w(1,9), w(1,2))
 !
         do 205 k = 1, n
-            w(k,9) = y(k) + temp*(   w(k,1)*74569017600.d0
-     +                                + w(k,2)*298276070400.d0  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 74569017600.d0
+     +                                + w(k,2) * 298276070400.d0  )
   205   continue
-        call fcn(n, x + c(18)*(4.d0/15.d0), w(1,9), w(1,3))
+        call fcn(n, x + c(18) * (4.d0 / 15.d0), w(1,9), w(1,3))
 !
         do 210 k = 1, n
-            w(k,9) = y(k) + temp*(   w(k,1)*1165140900000.d0
-     +          - w(k,2)*3728450880000.d0
-     +          + w(k,3)*3495422700000.d0 )
+            w(k,9) = y(k) + temp * (   w(k,1) * 1165140900000.d0
+     +          - w(k,2) * 3728450880000.d0
+     +          + w(k,3) * 3495422700000.d0 )
   210   continue
-        call fcn(n, x + c(18)*(2.d0/3.d0), w(1,9), w(1,4))
+        call fcn(n, x + c(18) * (2.d0 / 3.d0), w(1,9), w(1,4))
 !
         do 215 k = 1, n
-            w(k,9) = y(k) + temp*( - w(k,1)*3604654659375.d0
-     +          + w(k,2)*12816549900000.d0
-     +          - w(k,3)*9284716546875.d0
-     +          + w(k,4)*1237962206250.d0 )
+            w(k,9) = y(k) + temp * ( - w(k,1) * 3604654659375.d0
+     +          + w(k,2) * 12816549900000.d0
+     +          - w(k,3) * 9284716546875.d0
+     +          + w(k,4) * 1237962206250.d0 )
   215   continue
-        call fcn(n, x + c(18)*(5.d0/6.d0), w(1,9), w(1,5))
+        call fcn(n, x + c(18) * (5.d0 / 6.d0), w(1,9), w(1,5))
 !
         do 220 k = 1, n
-            w(k,9) = y(k) + temp*(   w(k,1)*3355605792000.d0
-     +          - w(k,2)*11185352640000.d0
-     +          + w(k,3)*9172628850000.d0
-     +          - w(k,4)*427218330000.d0
-     +          + w(k,5)*482505408000.d0  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 3355605792000.d0
+     +          - w(k,2) * 11185352640000.d0
+     +          + w(k,3) * 9172628850000.d0
+     +          - w(k,4) * 427218330000.d0
+     +          + w(k,5) * 482505408000.d0  )
   220   continue
         call fcn(n, x + c(18), w(1,9), w(1,6))
 !
         do 225 k = 1, n
-            w(k,9) = y(k) + temp*( - w(k,1)*770204740536.d0
-     +          + w(k,2)*2311639545600.d0
-     +          - w(k,3)*1322092233000.d0
-     +          - w(k,4)*453006781920.d0
-     +          + w(k,5)*326875481856.d0  )
+            w(k,9) = y(k) + temp * ( - w(k,1) * 770204740536.d0
+     +          + w(k,2) * 2311639545600.d0
+     +          - w(k,3) * 1322092233000.d0
+     +          - w(k,4) * 453006781920.d0
+     +          + w(k,5) * 326875481856.d0  )
   225   continue
-        call fcn(n, x + c(18)/15.d0, w(1,9), w(1,7))
+        call fcn(n, x + c(18) / 15.d0, w(1,9), w(1,7))
 !
         do 230 k = 1, n
-            w(k,9) = y(k) + temp*(   w(k,1)*2845924389000.d0
-     +          - w(k,2)*9754668000000.d0
-     +          + w(k,3)*7897110375000.d0
-     +          - w(k,4)*192082660000.d0
-     +          + w(k,5)*400298976000.d0
-     +          + w(k,7)*201586000000.d0  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 2845924389000.d0
+     +          - w(k,2) * 9754668000000.d0
+     +          + w(k,3) * 7897110375000.d0
+     +          - w(k,4) * 192082660000.d0
+     +          + w(k,5) * 400298976000.d0
+     +          + w(k,7) * 201586000000.d0  )
   230   continue
         call fcn(n, x + c(18), w(1,9), w(1,8))
 !
 !       calculate ytrial, the extrapolated approximation and store
 !           in w(*,9)
         do 235 k = 1, n
-            w(k,9) = y(k) + temp*(   w(k,1)*104862681000.d0
-     +          + w(k,3)*545186250000.d0
-     +          + w(k,4)*446637345000.d0
-     +          + w(k,5)*188806464000.d0
-     +          + w(k,7)*15076875000.d0
-     +          + w(k,8)*97599465000.d0   )
+            w(k,9) = y(k) + temp * (   w(k,1) * 104862681000.d0
+     +          + w(k,3) * 545186250000.d0
+     +          + w(k,4) * 446637345000.d0
+     +          + w(k,5) * 188806464000.d0
+     +          + w(k,7) * 15076875000.d0
+     +          + w(k,8) * 97599465000.d0   )
   235   continue
 !
 !       add 7 to the no of fcn evals
@@ -1127,13 +1127,13 @@
 !
 !       calculate the unweighted absolute error estimate vector
         do 300 k = 1, n
-            w(k,2) = (   w(k,1)*8738556750.d0
-     +          + w(k,3)*9735468750.d0
-     +          - w(k,4)*9709507500.d0
-     +          + w(k,5)*8582112000.d0
-     +          + w(k,6)*95329710000.d0
-     +          - w(k,7)*15076875000.d0
-     +          - w(k,8)*97599465000.d0)/1398169080000.d0
+            w(k,2) = (   w(k,1) * 8738556750.d0
+     +          + w(k,3) * 9735468750.d0
+     +          - w(k,4) * 9709507500.d0
+     +          + w(k,5) * 8582112000.d0
+     +          + w(k,6) * 95329710000.d0
+     +          - w(k,7) * 15076875000.d0
+     +          - w(k,8) * 97599465000.d0) / 1398169080000.d0
   300   continue
 !
 !       calculate the weighted max norm of w(*,2) as specified by
@@ -1148,7 +1148,7 @@
   310   if (c(1) .ne. 2.d0) go to 320
 !       relative error control
         do 315 k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)/y(k)))
+            temp = dmax1(temp, dabs(w(k,2) / y(k)))
   315   continue
         go to 360
   320   if (c(1) .ne. 3.d0) go to 330
@@ -1159,16 +1159,16 @@
   325   continue
         go to 360
   330   if (c(1) .ne. 4.d0) go to 340
-!       weights are 1/max(c(k+30), abs(y(k)))
+!       weights are 1/max(c(k + 30), abs(y(k)))
         do 335 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
-     +          / dmax1(c(k+30), dabs(y(k))) )
+     +          / dmax1(c(k + 30), dabs(y(k))) )
   335   continue
         go to 360
   340   if (c(1) .ne. 5.d0) go to 350
-!       weights are 1/c(k+30)
+!       weights are 1/c(k + 30)
         do 345 k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)/c(k+30)))
+            temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
   345   continue
         go to 360
   350   continue
@@ -1179,10 +1179,10 @@
   355   continue
   360   continue
 !
-!       calculate est - (the weighted max norm of w(*,2))*hmag*scale
+!       calculate est - (the weighted max norm of w(*,2)) * hmag * scale
 !           - est is intended to be a measure of the error  per  unit
 !              step in ytrial
-        c(19) = temp*c(14)*c(15)
+        c(19) = temp * c(14) * c(15)
 !
 !       end stage 3
 !
