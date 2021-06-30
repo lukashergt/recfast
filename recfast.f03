@@ -870,8 +870,8 @@
         go to 50
 !       case 2 - normal re-entry (ind == 3)
 !  .........abort if xend reached, and either x changed or xend not
-   45   if (c(21) /= 0._dp .and.
-     +                        (x /= c(20) .or. xend == c(20))) go to 500
+   45   if (c(21) /= 0._dp .and. &
+                              (x /= c(20) .or. xend == c(20))) go to 500
 !           re-initialize flag
             c(21) = 0._dp
             go to 50
@@ -970,8 +970,8 @@
 !
 !       calculate hmax - consider 4 cases
 !       case 1 both hmax and scale prescribed
-        if (c(6) /= 0._dp .and. c(5) /= 0._dp)
-     +      c(16) = dmin1(c(6), 2._dp / c(5))
+            if (c(6) /= 0._dp .and. c(5) /= 0._dp) &
+            c(16) = dmin1(c(6), 2._dp / c(5))
 !       case 2 - hmax prescribed, but scale not
         if (c(6) /= 0._dp .and. c(5) == 0._dp) c(16) = c(6)
 !       case 3 - hmax not prescribed, but scale is
@@ -997,8 +997,8 @@
 !           use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
 !           overflow. then avoid reduction by more than half.
         temp = 2._dp * c(14)
-        if (tol < (2._dp / .9_dp)**6 * c(19))
-     +      temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
+            if (tol < (2._dp / .9_dp)**6 * c(19)) &
+                temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
         c(14) = dmax1(temp, .5_dp * c(14))
         go to 185
   180   continue
@@ -1051,63 +1051,63 @@
         call fcn(n, x + c(18) / 6._dp, w(1,9), w(1,2))
 !
         do 205 k = 1, n
-            w(k,9) = y(k) + temp * (   w(k,1) * 74569017600._dp
-     +                                + w(k,2) * 298276070400._dp  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 74569017600._dp &
+                                      + w(k,2) * 298276070400._dp  )
   205   continue
         call fcn(n, x + c(18) * (4._dp / 15._dp), w(1,9), w(1,3))
 !
         do 210 k = 1, n
-            w(k,9) = y(k) + temp * (   w(k,1) * 1165140900000._dp
-     +          - w(k,2) * 3728450880000._dp
-     +          + w(k,3) * 3495422700000._dp )
+            w(k,9) = y(k) + temp * (   w(k,1) * 1165140900000._dp &
+                - w(k,2) * 3728450880000._dp &
+                + w(k,3) * 3495422700000._dp )
   210   continue
         call fcn(n, x + c(18) * (2._dp / 3._dp), w(1,9), w(1,4))
 !
         do 215 k = 1, n
-            w(k,9) = y(k) + temp * ( - w(k,1) * 3604654659375._dp
-     +          + w(k,2) * 12816549900000._dp
-     +          - w(k,3) * 9284716546875._dp
-     +          + w(k,4) * 1237962206250._dp )
+            w(k,9) = y(k) + temp * ( - w(k,1) * 3604654659375._dp &
+                + w(k,2) * 12816549900000._dp &
+                - w(k,3) * 9284716546875._dp &
+                + w(k,4) * 1237962206250._dp )
   215   continue
         call fcn(n, x + c(18) * (5._dp / 6._dp), w(1,9), w(1,5))
 !
         do 220 k = 1, n
-            w(k,9) = y(k) + temp * (   w(k,1) * 3355605792000._dp
-     +          - w(k,2) * 11185352640000._dp
-     +          + w(k,3) * 9172628850000._dp
-     +          - w(k,4) * 427218330000._dp
-     +          + w(k,5) * 482505408000._dp  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 3355605792000._dp &
+                - w(k,2) * 11185352640000._dp &
+                + w(k,3) * 9172628850000._dp &
+                - w(k,4) * 427218330000._dp &
+                + w(k,5) * 482505408000._dp  )
   220   continue
         call fcn(n, x + c(18), w(1,9), w(1,6))
 !
         do 225 k = 1, n
-            w(k,9) = y(k) + temp * ( - w(k,1) * 770204740536._dp
-     +          + w(k,2) * 2311639545600._dp
-     +          - w(k,3) * 1322092233000._dp
-     +          - w(k,4) * 453006781920._dp
-     +          + w(k,5) * 326875481856._dp  )
+            w(k,9) = y(k) + temp * ( - w(k,1) * 770204740536._dp &
+                + w(k,2) * 2311639545600._dp &
+                - w(k,3) * 1322092233000._dp &
+                - w(k,4) * 453006781920._dp &
+                + w(k,5) * 326875481856._dp  )
   225   continue
         call fcn(n, x + c(18) / 15._dp, w(1,9), w(1,7))
 !
         do 230 k = 1, n
-            w(k,9) = y(k) + temp * (   w(k,1) * 2845924389000._dp
-     +          - w(k,2) * 9754668000000._dp
-     +          + w(k,3) * 7897110375000._dp
-     +          - w(k,4) * 192082660000._dp
-     +          + w(k,5) * 400298976000._dp
-     +          + w(k,7) * 201586000000._dp  )
+            w(k,9) = y(k) + temp * (   w(k,1) * 2845924389000._dp &
+                - w(k,2) * 9754668000000._dp &
+                + w(k,3) * 7897110375000._dp &
+                - w(k,4) * 192082660000._dp &
+                + w(k,5) * 400298976000._dp &
+                + w(k,7) * 201586000000._dp  )
   230   continue
         call fcn(n, x + c(18), w(1,9), w(1,8))
 !
 !       calculate ytrial, the extrapolated approximation and store
 !           in w(*,9)
         do 235 k = 1, n
-            w(k,9) = y(k) + temp * (   w(k,1) * 104862681000._dp
-     +          + w(k,3) * 545186250000._dp
-     +          + w(k,4) * 446637345000._dp
-     +          + w(k,5) * 188806464000._dp
-     +          + w(k,7) * 15076875000._dp
-     +          + w(k,8) * 97599465000._dp   )
+            w(k,9) = y(k) + temp * (   w(k,1) * 104862681000._dp &
+                + w(k,3) * 545186250000._dp &
+                + w(k,4) * 446637345000._dp &
+                + w(k,5) * 188806464000._dp &
+                + w(k,7) * 15076875000._dp &
+                + w(k,8) * 97599465000._dp   )
   235   continue
 !
 !       add 7 to the no of fcn evals
@@ -1127,13 +1127,13 @@
 !
 !       calculate the unweighted absolute error estimate vector
         do 300 k = 1, n
-            w(k,2) = (   w(k,1) * 8738556750._dp
-     +          + w(k,3) * 9735468750._dp
-     +          - w(k,4) * 9709507500._dp
-     +          + w(k,5) * 8582112000._dp
-     +          + w(k,6) * 95329710000._dp
-     +          - w(k,7) * 15076875000._dp
-     +          - w(k,8) * 97599465000._dp) / 1398169080000._dp
+            w(k,2) = (   w(k,1) * 8738556750._dp &
+                + w(k,3) * 9735468750._dp &
+                - w(k,4) * 9709507500._dp &
+                + w(k,5) * 8582112000._dp &
+                + w(k,6) * 95329710000._dp &
+                - w(k,7) * 15076875000._dp &
+                - w(k,8) * 97599465000._dp) / 1398169080000._dp
   300   continue
 !
 !       calculate the weighted max norm of w(*,2) as specified by
@@ -1154,15 +1154,15 @@
   320   if (c(1) /= 3._dp) go to 330
 !       weights are 1/max(c(2), abs(y(k)))
         do 325 k = 1, n
-            temp = dmax1(temp, dabs(w(k,2))
-     +          / dmax1(c(2), dabs(y(k))) )
+            temp = dmax1(temp, dabs(w(k,2)) &
+                / dmax1(c(2), dabs(y(k))) )
   325   continue
         go to 360
   330   if (c(1) /= 4._dp) go to 340
 !       weights are 1/max(c(k + 30), abs(y(k)))
         do 335 k = 1, n
-            temp = dmax1(temp, dabs(w(k,2))
-     +          / dmax1(c(k + 30), dabs(y(k))) )
+            temp = dmax1(temp, dabs(w(k,2)) &
+                / dmax1(c(k + 30), dabs(y(k))) )
   335   continue
         go to 360
   340   if (c(1) /= 5._dp) go to 350
@@ -1174,8 +1174,8 @@
   350   continue
 !       default case - weights are 1/max(1, abs(y(k)))
         do 355 k = 1, n
-            temp = dmax1(temp, dabs(w(k,2))
-     +          / dmax1(1._dp, dabs(y(k))) )
+            temp = dmax1(temp, dabs(w(k,2)) &
+                / dmax1(1._dp, dabs(y(k))) )
   355   continue
   360   continue
 !
@@ -1237,21 +1237,21 @@
 !       begin abort action
   500   continue
 !
-        write(*,505) ind, tol, x, n, c(13), xend, nw, c(16), c(20),
-     +      c(22), c(23), c(24), (y(k), k = 1, n)
-  505   format( /// 1h0, 58hcomputation stopped in DVERK with the followin
-     +      g values -
-     +      / 1h0, 5hind =, i4, 5x, 6htol  =, 1pd13.6, 5x, 11hx         =,
-     +          1pd22.15
-     +      / 1h , 5hn   =, i4, 5x, 6hhmin =, 1pd13.6, 5x, 11hxend      =,
-     +          1pd22.15
-     +      / 1h , 5hnw  =, i4, 5x, 6hhmax =, 1pd13.6, 5x, 11hprev xend =,
-     +          1pd22.15
-     +      / 1h0, 14x, 27hno of successful steps    =, 0pf8.0
-     +      / 1h , 14x, 27hno of successive failures =, 0pf8.0
-     +      / 1h , 14x, 27hno of function evals      =, 0pf8.0
-     +      / 1h0, 23hthe components of y are
-     +      // (1h , 1p5d24.15)                                           )
+        write(*,505) ind, tol, x, n, c(13), xend, nw, c(16), c(20), &
+            c(22), c(23), c(24), (y(k), k = 1, n)
+  505   format( /// 1h0, 58hcomputation stopped in DVERK with the followin &
+            g values - &
+            / 1h0, 5hind =, i4, 5x, 6htol  =, 1pd13.6, 5x, 11hx         =, &
+                1pd22.15 &
+            / 1h , 5hn   =, i4, 5x, 6hhmin =, 1pd13.6, 5x, 11hxend      =, &
+                1pd22.15 &
+            / 1h , 5hnw  =, i4, 5x, 6hhmax =, 1pd13.6, 5x, 11hprev xend =, &
+                1pd22.15 &
+            / 1h0, 14x, 27hno of successful steps    =, 0pf8.0 &
+            / 1h , 14x, 27hno of successive failures =, 0pf8.0 &
+            / 1h , 14x, 27hno of function evals      =, 0pf8.0 &
+            / 1h0, 23hthe components of y are &
+            // (1h , 1p5d24.15)                                           )
 !
         stop
 !
