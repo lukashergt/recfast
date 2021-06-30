@@ -360,7 +360,7 @@
         Nnow = 3.d0 * HO * HO * OmegaB / (8.d0 * Pi * G * mu_H * m_H)
         n = Nnow * (1.d0 + z)**3
         fnu = (21.d0 / 8.d0) * (4.d0 / 11.d0)**(4.d0 / 3.d0)
-!   (this is explictly for 3 massless neutrinos - change if N_nu .ne. 3)
+!   (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
         z_eq = (3.d0 * (HO * C)**2 / (8.d0 * Pi * G * a * (1.d0 + fnu) * Tnow**4)) * OmegaT
         z_eq = z_eq - 1.d0
 
@@ -394,7 +394,7 @@
             read(*,*)Hswitch
 
 !   Fudge factor to approximate the low z out of equilibrium effect
-        if (Hswitch .eq. 0) then
+        if (Hswitch == 0) then
             fu = 1.14d0
         else
             fu = 1.125d0
@@ -417,7 +417,7 @@
         read(*,*)Heswitch
      
 !   Set the He fudge factor
-!c  if((Heswitch .eq. 2) .or. (Heswitch .eq. 5) .or. (Heswitch .eq. 6))then
+!c  if((Heswitch == 2) .or. (Heswitch == 5) .or. (Heswitch == 6))then
 !c    write(*,*)'Enter the fudge factor b_He'
 !c    read(*,*)b_He
 !c  endif
@@ -692,7 +692,7 @@
         end if
 
 !       now deal with H and its fudges
-        if (Hswitch .eq. 0) then
+        if (Hswitch == 0) then
             K = CK / Hz     !Peebles coefficient K=lambda_a^3/8piH
         else
 !       fit a double Gaussian correction function
@@ -714,14 +714,14 @@
         else
             Heflag = Heswitch
         end if
-        if (Heflag .eq. 0)then        !use Peebles coeff. for He
+        if (Heflag == 0)then        !use Peebles coeff. for He
             K_He = CK_He / Hz
         else    !for Heflag>0       !use Sobolev escape probability
             tauHe_s = A2P_s * CK_He * 3.d0 * n_He * (1.d0 - x_He) / Hz
             pHe_s = (1.d0 - dexp(-tauHe_s)) / tauHe_s
             K_He = 1.d0 / (A2P_s * pHe_s * 3.d0 * n_He * (1.d0 - x_He))
 !           smoother criterion here from Antony Lewis & Chad Fendt
-            if (((Heflag .eq. 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999d0))then
+            if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999d0))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
                 Doppler = 2.D0 * k_B * Tmat / (m_H * not4 * C * C)
@@ -740,7 +740,7 @@
                 tauHe_t = tauHe_t /(8.d0 * Pi * Hz * L_He_2Pt**(3.d0))
                 pHe_t = (1.d0 - dexp(-tauHe_t)) / tauHe_t
                 CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
-                if ((Heflag .eq. 3) .or. (Heflag .eq. 5) .or. (x_H > 0.99999d0)) then
+                if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999d0)) then
 !                   no H cont. effect
                     CfHe_t = A2P_t * pHe_t * dexp(-CL_PSt / Tmat)
                     CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
@@ -769,7 +769,7 @@
 !       (clunky, but seems to work)
         if (x_H > 0.99d0) then         !don't change at all
             f(1) = 0.d0
-!c      else if ((x_H > 0.98d0) .and. (Heflag .eq. 0)) then    !don't modify
+!c      else if ((x_H > 0.98d0) .and. (Heflag == 0)) then    !don't modify
         else if (x_H > 0.985d0) then     !use Saha rate for Hydrogen
             f(1) = (x * x_H * n * Rdown - Rup * (1.d0 - x_H) * dexp(-CL / Tmat)) &
                 /(Hz * (1.d0 + z))
@@ -836,24 +836,24 @@
 !
 !       cases - initial entry, normal re-entry, interrupt re-entries
         go to (5, 5, 45, 1111, 2222, 2222), ind
-!       case 1 - initial entry (ind .eq. 1 or 2)
+!       case 1 - initial entry (ind == 1 or 2)
 !  .........abort if n > nw or tol <= 0
     5   if (n > nw .or. tol <= 0.d0) go to 500
-        if (ind .eq. 2) go to 15
-!       initial entry without options (ind .eq. 1)
+        if (ind == 2) go to 15
+!       initial entry without options (ind == 1)
 !       set c(1) to c(9) equal to 0
         do 10 k = 1, 9
             c(k) = 0.d0
    10   continue
         go to 35
    15   continue
-!       initial entry with options (ind .eq. 2)
+!       initial entry with options (ind == 2)
 !       make c(1) to c(9) non-negative
         do 20 k = 1, 9
             c(k) = dabs(c(k))
    20   continue
 !       make floor values non-negative if they are to be used
-        if (c(1) .ne. 4.d0 .and. c(1) .ne. 5.d0) go to 30
+        if (c(1) /= 4.d0 .and. c(1) /= 5.d0) go to 30
         do 25 k = 1, n
             c(k + 30) = dabs(c(k + 30))
    25   continue
@@ -868,14 +868,14 @@
             c(k) = 0.d0
    40   continue
         go to 50
-!       case 2 - normal re-entry (ind .eq. 3)
+!       case 2 - normal re-entry (ind == 3)
 !  .........abort if xend reached, and either x changed or xend not
-   45   if (c(21) .ne. 0.d0 .and.
-     +                        (x .ne. c(20) .or. xend .eq. c(20))) go to 500
+   45   if (c(21) /= 0.d0 .and.
+     +                        (x /= c(20) .or. xend == c(20))) go to 500
 !           re-initialize flag
             c(21) = 0.d0
             go to 50
-!       case 3 - re-entry following an interrupt (ind .eq. 4 to 6)
+!       case 3 - re-entry following an interrupt (ind == 4 to 6)
 !       transfer control to the appropriate re-entry point..........
 !       this has already been handled by the computed go to        .
 !       end cases                                                     v
@@ -886,10 +886,10 @@
 !       ******************************************************************
 !       * loop through the following 4 stages, once for each trial  step *
 !       * until the occurrence of one of the following                   *
-!       *    (a) the normal return (with ind .eq. 3) on reaching xend in *
+!       *    (a) the normal return (with ind == 3) on reaching xend in *
 !       *        stage 4                                                 *
 !       *    (b) an error return (with ind < 0) in stage 1 or stage 4 *
-!       *    (c) an interrupt return (with ind  .eq.  4,  5  or  6),  if *
+!       *    (c) an interrupt return (with ind  ==  4,  5  or  6),  if *
 !       *        requested, in stage 1 or stage 4                        *
 !       ******************************************************************
 !
@@ -903,51 +903,51 @@
 !       ***************************************************************
 !
 !***********error return (with ind=-1) if no of fcn evals too great
-        if (c(7) .eq. 0.d0 .or. c(24) < c(7)) go to 100
+        if (c(7) == 0.d0 .or. c(24) < c(7)) go to 100
             ind = -1
             return
   100   continue
 !
-!       calculate slope (adding 1 to no of fcn evals) if ind .ne. 6
-        if (ind .eq. 6) go to 105
+!       calculate slope (adding 1 to no of fcn evals) if ind /= 6
+        if (ind == 6) go to 105
             call fcn(n, x, y, w(1,1))
             c(24) = c(24) + 1.d0
   105   continue
 !
 !       calculate hmin - use default unless value prescribed
         c(13) = c(3)
-        if (c(3) .ne. 0.d0) go to 165
+        if (c(3) /= 0.d0) go to 165
 !       calculate default value of hmin
 !       first calculate weighted norm y - c(12) - as specified
 !       by the error control indicator c(1)
         temp = 0.d0
-        if (c(1) .ne. 1.d0) go to 115
+        if (c(1) /= 1.d0) go to 115
 !       absolute error control - weights are 1
         do 110 k = 1, n
             temp = dmax1(temp, dabs(y(k)))
   110   continue
         c(12) = temp
         go to 160
-  115   if (c(1) .ne. 2.d0) go to 120
+  115   if (c(1) /= 2.d0) go to 120
 !       relative error control - weights are 1/dabs(y(k)) so
 !       weighted norm y is 1
         c(12) = 1.d0
         go to 160
-  120   if (c(1) .ne. 3.d0) go to 130
+  120   if (c(1) /= 3.d0) go to 130
 !       weights are 1/max(c(2), abs(y(k)))
         do 125 k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(2))
   125   continue
         c(12) = dmin1(temp, 1.d0)
         go to 160
-  130   if (c(1) .ne. 4.d0) go to 140
+  130   if (c(1) /= 4.d0) go to 140
 !       weights are 1/max(c(k + 30), abs(y(k)))
         do 135 k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(k + 30))
   135   continue
         c(12) = dmin1(temp, 1.d0)
         go to 160
-  140   if (c(1) .ne. 5.d0) go to 150
+  140   if (c(1) /= 5.d0) go to 150
 !       weights are 1 / c(k + 30)
         do 145 k = 1, n
             temp = dmax1(temp, dabs(y(k)) / c(k + 30))
@@ -966,18 +966,18 @@
 !
 !       calculate scale - use default unless value prescribed
         c(15) = c(5)
-        if (c(5) .eq. 0.d0) c(15) = 1.d0
+        if (c(5) == 0.d0) c(15) = 1.d0
 !
 !       calculate hmax - consider 4 cases
 !       case 1 both hmax and scale prescribed
-        if (c(6) .ne. 0.d0 .and. c(5) .ne. 0.d0)
+        if (c(6) /= 0.d0 .and. c(5) /= 0.d0)
      +      c(16) = dmin1(c(6), 2.d0 / c(5))
 !       case 2 - hmax prescribed, but scale not
-        if (c(6) .ne. 0.d0 .and. c(5) .eq. 0.d0) c(16) = c(6)
+        if (c(6) /= 0.d0 .and. c(5) == 0.d0) c(16) = c(6)
 !       case 3 - hmax not prescribed, but scale is
-        if (c(6) .eq. 0.d0 .and. c(5) .ne. 0.d0) c(16) = 2.d0 / c(5)
+        if (c(6) == 0.d0 .and. c(5) /= 0.d0) c(16) = 2.d0 / c(5)
 !       case 4 - neither hmax nor scale is provided
-        if (c(6) .eq. 0.d0 .and. c(5) .eq. 0.d0) c(16) = 2.d0
+        if (c(6) == 0.d0 .and. c(5) == 0.d0) c(16) = 2.d0
 !
 !***********error return (with ind=-2) if hmin > hmax
         if (c(13) <= c(16)) go to 170
@@ -990,7 +990,7 @@
 !       case 1 - initial entry - use prescribed value of hstart, if
 !           any, else default
         c(14) = c(4)
-        if (c(4) .eq. 0.d0) c(14) = c(16) * tol**(1. / 6.)
+        if (c(4) == 0.d0) c(14) = c(16) * tol**(1. / 6.)
         go to 185
   175   if (c(23) > 1.d0) go to 180
 !       case 2 - after a successful step, or at most  one  failure,
@@ -1013,10 +1013,10 @@
         c(14) = dmax1(c(14), c(13))
 !
 !***********interrupt no 1 (with ind=4) if requested
-        if (c(8) .eq. 0.d0) go to 1111
+        if (c(8) == 0.d0) go to 1111
         ind = 4
         return
-!       resume here on re-entry with ind .eq. 4   ........re-entry..
+!       resume here on re-entry with ind == 4   ........re-entry..
  1111   continue
 !
 !       calculate hmag, xtrial - depending on preliminary hmag, xend
@@ -1139,33 +1139,33 @@
 !       calculate the weighted max norm of w(*,2) as specified by
 !           the error control indicator c(1)
         temp = 0.d0
-        if (c(1) .ne. 1.d0) go to 310
+        if (c(1) /= 1.d0) go to 310
 !       absolute error control
         do 305 k = 1, n
             temp = dmax1(temp, dabs(w(k,2)))
   305   continue
         go to 360
-  310   if (c(1) .ne. 2.d0) go to 320
+  310   if (c(1) /= 2.d0) go to 320
 !       relative error control
         do 315 k = 1, n
             temp = dmax1(temp, dabs(w(k,2) / y(k)))
   315   continue
         go to 360
-  320   if (c(1) .ne. 3.d0) go to 330
+  320   if (c(1) /= 3.d0) go to 330
 !       weights are 1/max(c(2), abs(y(k)))
         do 325 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
      +          / dmax1(c(2), dabs(y(k))) )
   325   continue
         go to 360
-  330   if (c(1) .ne. 4.d0) go to 340
+  330   if (c(1) /= 4.d0) go to 340
 !       weights are 1/max(c(k + 30), abs(y(k)))
         do 335 k = 1, n
             temp = dmax1(temp, dabs(w(k,2))
      +          / dmax1(c(k + 30), dabs(y(k))) )
   335   continue
         go to 360
-  340   if (c(1) .ne. 5.d0) go to 350
+  340   if (c(1) /= 5.d0) go to 350
 !       weights are 1/c(k + 30)
         do 345 k = 1, n
             temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
@@ -1195,13 +1195,13 @@
         if (c(19) > tol) ind = 6
 !
 !***********interrupt no 2 if requested
-        if (c(9) .eq. 0.d0) go to 2222
+        if (c(9) == 0.d0) go to 2222
         return
-!       resume here on re-entry with ind .eq. 5 or 6   ...re-entry..
+!       resume here on re-entry with ind == 5 or 6   ...re-entry..
  2222   continue
 !
-        if (ind .eq. 6) go to 410
-!       step accepted (ind .eq. 5), so update x, y from xtrial,
+        if (ind == 6) go to 410
+!       step accepted (ind == 5), so update x, y from xtrial,
 !           ytrial, add 1 to the no of successful steps, and set
 !           the no of successive failures to zero
         x = c(17)
@@ -1210,8 +1210,8 @@
   400   continue
         c(22) = c(22) + 1.d0
         c(23) = 0.d0
-!**************return(with ind=3, xend saved, flag set) if x .eq. xend
-        if (x .ne. xend) go to 405
+!**************return(with ind=3, xend saved, flag set) if x == xend
+        if (x /= xend) go to 405
         ind = 3
         c(20) = xend
         c(21) = 1.d0
@@ -1219,7 +1219,7 @@
   405   continue
         go to 420
   410   continue
-!       step not accepted (ind .eq. 6), so add 1 to the no of
+!       step not accepted (ind == 6), so add 1 to the no of
 !       successive failures
         c(23) = c(23) + 1.d0
 !**************error return (with ind=-3) if hmag <= hmin
