@@ -271,10 +271,10 @@
 !   --- Commons
         common/zLIST/zinitial,zfinal,Nz
         common/Cfund/C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT,
-    1       fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
-        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt,
-    1       L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
+        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
+            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
+        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt, &
+            L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
         common/Hmod/AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
         common/Switch/Heswitch,Hswitch
 
@@ -478,11 +478,11 @@
 
                 x_H0 = 1.d0
                 x_He0 = 1.d0
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1           - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
+                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+                    - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
                 rhs = rhs*1.d0      !ratio of g's is 1 for He++ <-> He+
-                x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2
-    1           + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
+                x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2 &
+                    + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
                 y(1) = x_H0
                 y(2) = x_He0
                 y(3) = Tnow*(1.d0+z)
@@ -499,11 +499,11 @@
             else if(y(2).gt.0.99)then
 
                 x_H0 = 1.d0
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1           - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
+                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+                    - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
                 rhs = rhs*4.d0      !ratio of g's is 4 for He+ <-> He0
-                x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs )
-    1           - (rhs-1.d0))
+                x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs ) &
+                    - (rhs-1.d0))
                 x0 = x_He0
                 x_He0 = (x0 - 1.d0)/fHe
                 y(1) = x_H0
@@ -512,8 +512,8 @@
 
             else if (y(1).gt.0.99d0) then
 
-                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1           - CB1/(Tnow*(1.d0+z)) ) / Nnow
+                rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+                    - CB1/(Tnow*(1.d0+z)) ) / Nnow
                 x_H0 = 0.5d0 * (dsqrt( rhs**2+4.d0*rhs ) - rhs )
 
                 call DVERK(nw,ION,zstart,y,zend,tol,ind,cw,nw,w)
@@ -534,8 +534,8 @@
             x_He = y(2)
             x = x0
 
-            write(7,'(1x,f8.2,2x,g15.8)')
-    1       zend,x
+            write(7,'(1x,f8.2,2x,g15.8)') &
+                zend,x
 
         end do
 
@@ -558,8 +558,8 @@
         real(dp) :: Lambda_He,Bfact,CK_He,CL_He
         real(dp) :: CB1,CDB,CR,CK,CL,CT,fHe,CB1_He1,CB1_He2,CDB_He,fu
 
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT,
-    1       fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
+        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
+            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
         common/Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
 !   ===============================================================
 
@@ -573,27 +573,27 @@
 
             x_H0 = 1.d0
             x_He0 = 1.d0
-            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1       - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
+            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+                - CB1_He2/(Tnow*(1.d0+z)) ) / Nnow
             rhs = rhs*1.d0      !ratio of g's is 1 for He++ <-> He+
-            x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2
-    1       + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
+            x0 = 0.5d0 * ( dsqrt( (rhs-1.d0-fHe)**2 &
+                + 4.d0*(1.d0+2.d0*fHe)*rhs) - (rhs-1.d0-fHe) )
 
         else if(z.gt.2000.d0)then
 
         x_H0 = 1.d0
-        rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1   - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
+        rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+            - CB1_He1/(Tnow*(1.d0+z)) ) / Nnow
         rhs = rhs*4.d0      !ratio of g's is 4 for He+ <-> He0
-        x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs )
-    1   - (rhs-1.d0))
+        x_He0 = 0.5d0 * ( dsqrt( (rhs-1.d0)**2 + 4.d0*(1.d0+fHe)*rhs ) &
+            - (rhs-1.d0))
         x0 = x_He0
         x_He0 = (x0 - 1.d0)/fHe
 
         else
 
-            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z))
-    1       - CB1/(Tnow*(1.d0+z)) ) / Nnow
+            rhs = dexp( 1.5d0 * dLog(CR*Tnow/(1.d0+z)) &
+                - CB1/(Tnow*(1.d0+z)) ) / Nnow
             x_H0 = 0.5d0 * (dsqrt( rhs**2+4.d0*rhs ) - rhs )
             x_He0 = 0.d0
             x0 = x_H0
@@ -631,10 +631,10 @@
         real(dp) :: dHdz,epsilon
 
         common/Cfund/C,k_B,h_P,m_e,m_H,not4,sigma,a,Pi
-        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT,
-    1       fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
-        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt,
-    1       L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
+        common/Cdata/Lambda,H_frac,CB1,CDB,CR,CK,CL,CT, &
+            fHe,CB1_He1,CB1_He2,CDB_He,Lambda_He,Bfact,CK_He,CL_He,fu
+        common/Hemod/b_He,A2P_s,A2P_t,sigma_He_2Ps,sigma_He_2Pt, &
+            L_He_2p,L_He_2Pt,L_He_2St,L_He2St_ion
         common/Hmod/AGauss1,AGauss2,zGauss1,zGauss2,wGauss1,wGauss2
         common/Switch/Heswitch,Hswitch
         common/Cosmo/Tnow,HO,Nnow,z_eq,OmegaT,OmegaL,OmegaK
@@ -664,16 +664,16 @@
         n = Nnow * (1.d0+z)**3
         n_He = fHe * Nnow * (1.d0+z)**3
         Trad = Tnow * (1.d0+z)
-        Hz = HO * dsqrt((1.d0+z)**4/(1.d0+z_eq)*OmegaT + OmegaT*(1.d0+z)**3
-    1       + OmegaK*(1.d0+z)**2 + OmegaL)
+        Hz = HO * dsqrt((1.d0+z)**4/(1.d0+z_eq)*OmegaT + OmegaT*(1.d0+z)**3 &
+            + OmegaK*(1.d0+z)**2 + OmegaL)
 
 !       Also calculate derivative for use later
-        dHdz = (HO**2/2.d0/Hz)*(4.d0*(1.d0+z)**3/(1.d0+z_eq)*OmegaT
-    1       + 3.d0*OmegaT*(1.d0+z)**2 + 2.d0*OmegaK*(1.d0+z) )
+        dHdz = (HO**2/2.d0/Hz)*(4.d0*(1.d0+z)**3/(1.d0+z_eq)*OmegaT &
+            + 3.d0*OmegaT*(1.d0+z)**2 + 2.d0*OmegaK*(1.d0+z) )
 
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
-        Rdown=1.d-19*a_PPB*(Tmat/1.d4)**b_PPB
-    1       /(1.d0+c_PPB*(Tmat/1.d4)**d_PPB)
+        Rdown=1.d-19*a_PPB*(Tmat/1.d4)**b_PPB &
+            /(1.d0+c_PPB*(Tmat/1.d4)**d_PPB)
         Rup = Rdown * (CR*Tmat)**(1.5d0)*dexp(-CDB/Tmat)
 
 !       calculate He using a fit to a Verner & Ferland type formula
@@ -696,9 +696,9 @@
             K = CK/Hz     !Peebles coefficient K=lambda_a^3/8piH
         else
 !       fit a double Gaussian correction function
-        K = CK/Hz*(1.0d0
-    1       +AGauss1*dexp(-((log(1.0d0+z)-zGauss1)/wGauss1)**2.d0)
-    2       +AGauss2*dexp(-((log(1.0d0+z)-zGauss2)/wGauss2)**2.d0))
+        K = CK/Hz*(1.0d0 &
+            +AGauss1*dexp(-((log(1.0d0+z)-zGauss1)/wGauss1)**2.d0) &
+            +AGauss2*dexp(-((log(1.0d0+z)-zGauss2)/wGauss2)**2.d0))
         end if
 
 !       add the HeI part, using same T_0 and T_1 values
@@ -726,9 +726,9 @@
 !               first get the Doppler width parameter
                 Doppler = 2.D0*k_B*Tmat/(m_H*not4*C*C)
                 Doppler = C*L_He_2p*dsqrt(Doppler)
-                gamma_2Ps = 3.d0*A2P_s*fHe*(1.d0-x_He)*C*C
-    1               /(dsqrt(Pi)*sigma_He_2Ps*8.d0*Pi*Doppler*(1.d0-x_H))
-    2               /((C*L_He_2p)**2.d0)
+                gamma_2Ps = 3.d0*A2P_s*fHe*(1.d0-x_He)*C*C &
+                    /(dsqrt(Pi)*sigma_He_2Ps*8.d0*Pi*Doppler*(1.d0-x_H)) &
+                    /((C*L_He_2p)**2.d0)
                 pb = 0.36d0  !value from KIV (2007)
                 qb = b_He
 !               calculate AHcon, the value of A*p_(con,H) for H continuum opacity
@@ -747,9 +747,9 @@
                 else                  !include H cont. effect
                     Doppler = 2.d0*k_B*Tmat/(m_H*not4*C*C)
                     Doppler = C*L_He_2Pt*dsqrt(Doppler)
-                    gamma_2Pt = 3.d0*A2P_t*fHe*(1.d0-x_He)*C*C
-    1                   /(dsqrt(Pi)*sigma_He_2Pt*8.d0*Pi*Doppler*(1.d0-x_H))
-    2                   /((C*L_He_2Pt)**2.d0)
+                    gamma_2Pt = 3.d0*A2P_t*fHe*(1.d0-x_He)*C*C &
+                        /(dsqrt(Pi)*sigma_He_2Pt*8.d0*Pi*Doppler*(1.d0-x_H)) &
+                        /((C*L_He_2Pt)**2.d0)
 !                   use the fitting parameters from KIV (2007) in this case
                     pb = 0.66d0
                     qb = 0.9d0
@@ -771,33 +771,33 @@
             f(1) = 0.d0
 !c      else if ((x_H.gt.0.98d0).and.(Heflag.eq.0)) then    !don't modify
         else if (x_H.gt.0.985d0) then     !use Saha rate for Hydrogen
-            f(1) = (x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat))
-    1           /(Hz*(1.d0+z))
+            f(1) = (x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat)) &
+                /(Hz*(1.d0+z))
 !           for interest, calculate the correction factor compared to Saha
 !           (without the fudge)
-            factor=(1.d0 + K*Lambda*n*(1.d0-x_H))
-    1           /(Hz*(1.d0+z)*(1.d0+K*Lambda*n*(1.d0-x)
-    2           +K*Rup*n*(1.d0-x)))
+            factor=(1.d0 + K*Lambda*n*(1.d0-x_H)) &
+                /(Hz*(1.d0+z)*(1.d0+K*Lambda*n*(1.d0-x) &
+                +K*Rup*n*(1.d0-x)))
         else                  !use full rate for H
-            f(1) = ((x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat))
-    1           *(1.d0 + K*Lambda*n*(1.d0-x_H)))
-    2           /(Hz*(1.d0+z)*(1.d0/fu+K*Lambda*n*(1.d0-x_H)/fu
-    3           +K*Rup*n*(1.d0-x_H)))
+            f(1) = ((x*x_H*n*Rdown - Rup*(1.d0-x_H)*dexp(-CL/Tmat)) &
+                *(1.d0 + K*Lambda*n*(1.d0-x_H))) &
+                /(Hz*(1.d0+z)*(1.d0/fu+K*Lambda*n*(1.d0-x_H)/fu &
+                +K*Rup*n*(1.d0-x_H)))
         end if
 !       turn off the He once it is small
         if (x_He.lt.1.d-15) then
             f(2)=0.d0
         else
-            f(2) = ((x*x_He*n*Rdown_He
-    1           - Rup_He*(1.d0-x_He)*dexp(-CL_He/Tmat))
-    2           *(1.d0+ K_He*Lambda_He*n_He*(1.d0-x_He)*He_Boltz))
-    3           /(Hz*(1.d0+z)
-    4           * (1.d0 + K_He*(Lambda_He+Rup_He)*n_He*(1.d0-x_He)*He_Boltz))
+            f(2) = ((x*x_He*n*Rdown_He &
+                - Rup_He*(1.d0-x_He)*dexp(-CL_He/Tmat)) &
+                *(1.d0+ K_He*Lambda_He*n_He*(1.d0-x_He)*He_Boltz)) &
+                /(Hz*(1.d0+z) &
+                * (1.d0 + K_He*(Lambda_He+Rup_He)*n_He*(1.d0-x_He)*He_Boltz))
 !           Modification to HeI recombination including channel via triplets
             if (Heflag.ge.3) then
-                f(2) = f(2)+ (x*x_He*n*Rdown_trip
-    1               - (1.d0-x_He)*3.d0*Rup_trip*dexp(-h_P*C*L_He_2st/(k_B*Tmat)))
-    2               *CfHe_t/(Hz*(1.d0+z))
+                f(2) = f(2)+ (x*x_He*n*Rdown_trip &
+                    - (1.d0-x_He)*3.d0*Rup_trip*dexp(-h_P*C*L_He_2st/(k_B*Tmat))) &
+                    *CfHe_t/(Hz*(1.d0+z))
             end if
         end if
 
@@ -808,12 +808,12 @@
 !       additional term to smooth transition to Tmat evolution,
 !       (suggested by Adam Moss)
             epsilon = Hz*(1.d0+x+fHe)/(CT*Trad**3*x)
-            f(3) = Tnow
-    1           + epsilon*((1.d0+fHe)/(1.d0+fHe+x))*((f(1)+fHe*f(2))/x)
-    2           - epsilon* dHdz/Hz + 3.0d0*epsilon/(1.d0+z)
+            f(3) = Tnow &
+                + epsilon*((1.d0+fHe)/(1.d0+fHe+x))*((f(1)+fHe*f(2))/x) &
+                - epsilon* dHdz/Hz + 3.0d0*epsilon/(1.d0+z)
         else
-            f(3)= CT * (Trad**4) * x / (1.d0+x+fHe)
-    1           * (Tmat-Trad) / (Hz*(1.d0+z)) + 2.d0*Tmat/(1.d0+z)
+            f(3)= CT * (Trad**4) * x / (1.d0+x+fHe) &
+                * (Tmat-Trad) / (Hz*(1.d0+z)) + 2.d0*Tmat/(1.d0+z)
         end if
 
         return
