@@ -227,15 +227,18 @@
 !-
 !   ===============================================================
 
-    PROGRAM recfast
-
+    module precision
         use, intrinsic :: iso_fortran_env
-
         implicit none
 
         integer, parameter :: sp = REAL32
         integer, parameter :: dp = REAL64
         integer, parameter :: qp = REAL128
+    end module precision
+
+    PROGRAM recfast
+        use precision, only : dp
+        implicit none
 
 !   --- Arguments
         real(dp) :: Trad, Tmat
@@ -549,6 +552,7 @@
 !   but not pathological choices of zstart
 !   Initial ionization fraction using Saha for relevant species
 
+        use precision, only : dp
         implicit none
 
         real(dp) :: OmegaT, HO, OmegaL, OmegaK
@@ -607,6 +611,7 @@
 !   ===============================================================
     subroutine ION(Ndim, z, Y, f)
 
+        use precision, only : dp
         implicit none
 
         integer Ndim, Heflag, Heswitch, Hswitch
@@ -672,7 +677,7 @@
             + 3._dp * OmegaT * (1._dp + z)**2 + 2._dp * OmegaK * (1._dp + z) )
 
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
-        Rdown = 1.d - 19 * a_PPB * (Tmat / 1.e4_dp)**b_PPB &
+        Rdown = 1.e-19_dp * a_PPB * (Tmat / 1.e4_dp)**b_PPB &
             /(1._dp + c_PPB * (Tmat / 1.e4_dp)**d_PPB)
         Rup = Rdown * (CR * Tmat)**(1.5_dp) * dexp(-CDB / Tmat)
 
@@ -785,7 +790,7 @@
                 +K * Rup * n * (1._dp - x_H)))
         end if
 !       turn off the He once it is small
-        if (x_He < 1.d - 15) then
+        if (x_He < 1.e-15_dp) then
             f(2) = 0._dp
         else
             f(2) = ((x * x_He * n * Rdown_He &
@@ -810,7 +815,7 @@
             epsilon = Hz * (1._dp + x + fHe) / (CT * Trad**3 * x)
             f(3) = Tnow &
                 + epsilon * ((1._dp + fHe) / (1._dp + fHe + x)) * ((f(1) + fHe * f(2)) / x) &
-                - epsilon* dHdz / Hz + 3.0_dp * epsilon / (1._dp + z)
+                - epsilon * dHdz / Hz + 3.0_dp * epsilon / (1._dp + z)
         else
             f(3)= CT * (Trad**4) * x / (1._dp + x + fHe) &
                 * (Tmat - Trad) / (Hz * (1._dp + z)) + 2._dp * Tmat / (1._dp + z)
@@ -861,7 +866,7 @@
    35   continue
 !       initialize rreb, dwarf, prev xend, flag, counts
         c(10) = 2._dp**(-56)
-        c(11) = 1.d - 35
+        c(11) = 1.e-35_dp
 !       set previous xend initially to initial value of x
         c(20) = x
         do k = 21, 24
