@@ -440,12 +440,12 @@ program recfast
     open(unit=7, status='new', form='formatted', file=fileout)
     write(7, '(1x,''  z    '', 1x, ''     x_e   '')')
 
-    w0 = 1._dp / dsqrt(1._dp + zinitial) !like a conformal time
-    w1 = 1._dp / dsqrt(1._dp + zfinal)
-    Lw0 = dLog(w0)
-    Lw1 = dLog(w1)
+    w0 = 1._dp / sqrt(1._dp + zinitial) !like a conformal time
+    w1 = 1._dp / sqrt(1._dp + zfinal)
+    Lw0 = log(w0)
+    Lw1 = log(w1)
     Nz = 1000
-    hW = (Lw1 - Lw0) / dfloat(Nz)     !interval in log of conf time
+    hW = (Lw1 - Lw0) / real(Nz, kind=dp)     !interval in log of conf time
 
 !   Set up work-space stuff for dverk
     ind  = 1
@@ -457,8 +457,8 @@ program recfast
     do i = 1, Nz
 !       calculate the start and end redshift for the interval at each z
 !   or just at each z
-        zstart = zinitial + dfloat(i - 1) * (zfinal - zinitial) / dfloat(Nz)
-        zend   = zinitial + dfloat(i) * (zfinal - zinitial) / dfloat(Nz)
+        zstart = zinitial + real(i - 1, kind=dp) * (zfinal - zinitial) / real(Nz, kind=dp)
+        zend   = zinitial + real(i, kind=dp) * (zfinal - zinitial) / real(Nz, kind=dp)
 
 ! Use Saha to get x_e, using the equation for x_e for ionized helium
 ! and for neutral helium.
@@ -481,10 +481,10 @@ program recfast
 
             x_H0 = 1._dp
             x_He0 = 1._dp
-            rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+            rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
                 - CB1_He2 / (Tnow * (1._dp + z)) ) / Nnow
             rhs = rhs * 1._dp      !ratio of g's is 1 for He++ <-> He+
-            x0 = 0.5_dp * ( dsqrt( (rhs - 1._dp - fHe)**2 &
+            x0 = 0.5_dp * ( sqrt( (rhs - 1._dp - fHe)**2 &
                 + 4._dp * (1._dp + 2._dp * fHe) * rhs) - (rhs - 1._dp - fHe) )
             y(1) = x_H0
             y(2) = x_He0
@@ -502,10 +502,10 @@ program recfast
         else if(y(2) > 0.99)then
 
             x_H0 = 1._dp
-            rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+            rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
                 - CB1_He1 / (Tnow * (1._dp + z)) ) / Nnow
             rhs = rhs * 4._dp      !ratio of g's is 4 for He+ <-> He0
-            x_He0 = 0.5_dp * ( dsqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
+            x_He0 = 0.5_dp * ( sqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
                 - (rhs - 1._dp))
             x0 = x_He0
             x_He0 = (x0 - 1._dp) / fHe
@@ -515,9 +515,9 @@ program recfast
 
         else if (y(1) > 0.99_dp) then
 
-            rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+            rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
                 - CB1 / (Tnow * (1._dp + z)) ) / Nnow
-            x_H0 = 0.5_dp * (dsqrt( rhs**2 + 4._dp * rhs ) - rhs )
+            x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
 
             call dverk(nw, ion, zstart, y, zend, tol, ind, cw, nw, w)
             y(1) = x_H0
@@ -577,28 +577,28 @@ subroutine get_init(z, x_H0, x_He0, x0)
 
         x_H0 = 1._dp
         x_He0 = 1._dp
-        rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+        rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
             - CB1_He2 / (Tnow * (1._dp + z)) ) / Nnow
         rhs = rhs * 1._dp      !ratio of g's is 1 for He++ <-> He+
-        x0 = 0.5_dp * ( dsqrt( (rhs - 1._dp - fHe)**2 &
+        x0 = 0.5_dp * ( sqrt( (rhs - 1._dp - fHe)**2 &
             + 4._dp * (1._dp + 2._dp * fHe) * rhs) - (rhs - 1._dp - fHe) )
 
     else if(z > 2000._dp)then
 
     x_H0 = 1._dp
-    rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+    rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
         - CB1_He1 / (Tnow * (1._dp + z)) ) / Nnow
     rhs = rhs * 4._dp      !ratio of g's is 4 for He+ <-> He0
-    x_He0 = 0.5_dp * ( dsqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
+    x_He0 = 0.5_dp * ( sqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
         - (rhs - 1._dp))
     x0 = x_He0
     x_He0 = (x0 - 1._dp) / fHe
 
     else
 
-        rhs = dexp( 1.5_dp * dLog(CR * Tnow / (1._dp + z)) &
+        rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
             - CB1 / (Tnow * (1._dp + z)) ) / Nnow
-        x_H0 = 0.5_dp * (dsqrt( rhs**2 + 4._dp * rhs ) - rhs )
+        x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
         x_He0 = 0._dp
         x0 = x_H0
 
@@ -669,7 +669,7 @@ subroutine ion(Ndim, z, Y, f)
     n = Nnow * (1._dp + z)**3
     n_He = fHe * Nnow * (1._dp + z)**3
     Trad = Tnow * (1._dp + z)
-    Hz = HO * dsqrt((1._dp + z)**4 / (1._dp + z_eq) * OmegaT + OmegaT * (1._dp + z)**3 &
+    Hz = HO * sqrt((1._dp + z)**4 / (1._dp + z_eq) * OmegaT + OmegaT * (1._dp + z)**3 &
         + OmegaK * (1._dp + z)**2 + OmegaL)
 
 !       Also calculate derivative for use later
@@ -679,21 +679,21 @@ subroutine ion(Ndim, z, Y, f)
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
     Rdown = 1.e-19_dp * a_PPB * (Tmat / 1.e4_dp)**b_PPB &
         /(1._dp + c_PPB * (Tmat / 1.e4_dp)**d_PPB)
-    Rup = Rdown * (CR * Tmat)**(1.5_dp) * dexp(-CDB / Tmat)
+    Rup = Rdown * (CR * Tmat)**(1.5_dp) * exp(-CDB / Tmat)
 
 !       calculate He using a fit to a Verner & Ferland type formula
-    sq_0 = dsqrt(Tmat / T_0)
-    sq_1 = dsqrt(Tmat / T_1)
+    sq_0 = sqrt(Tmat / T_0)
+    sq_1 = sqrt(Tmat / T_1)
 !       typo here corrected by Wayne Hu and Savita Gahlaut
     Rdown_He = a_VF / (sq_0 * (1._dp + sq_0)**(1._dp - b_VF))
     Rdown_He = Rdown_He / (1._dp + sq_1)**(1._dp + b_VF)
-    Rup_He = Rdown_He * (CR * Tmat)**(1.5_dp) * dexp(-CDB_He / Tmat)
+    Rup_He = Rdown_He * (CR * Tmat)**(1.5_dp) * exp(-CDB_He / Tmat)
     Rup_He = 4._dp * Rup_He    !statistical weights factor for HeI
 !       Avoid overflow (pointed out by Jacques Roland)
     if((Bfact / Tmat) > 680._dp)then
-        He_Boltz = dexp(680._dp)
+        He_Boltz = exp(680._dp)
     else
-        He_Boltz = dexp(Bfact / Tmat)
+        He_Boltz = exp(Bfact / Tmat)
     end if
 
 !       now deal with H and its fudges
@@ -702,14 +702,14 @@ subroutine ion(Ndim, z, Y, f)
     else
 !       fit a double Gaussian correction function
     K = CK / Hz * (1.0_dp &
-        +AGauss1 * dexp(-((log(1.0_dp + z) - zGauss1) / wGauss1)**2._dp) &
-        +AGauss2 * dexp(-((log(1.0_dp + z) - zGauss2) / wGauss2)**2._dp))
+        +AGauss1 * exp(-((log(1.0_dp + z) - zGauss1) / wGauss1)**2._dp) &
+        +AGauss2 * exp(-((log(1.0_dp + z) - zGauss2) / wGauss2)**2._dp))
     end if
 
 !       add the HeI part, using same T_0 and T_1 values
     Rdown_trip = a_trip / (sq_0 * (1._dp + sq_0)**(1.0 - b_trip))
     Rdown_trip = Rdown_trip / ((1._dp + sq_1)**(1._dp + b_trip))
-    Rup_trip = Rdown_trip * dexp(-h_P * C * L_He2St_ion / (k_B * Tmat))
+    Rup_trip = Rdown_trip * exp(-h_P * C * L_He2St_ion / (k_B * Tmat))
     Rup_trip = Rup_trip * ((CR * Tmat)**(1.5_dp)) * (4._dp / 3._dp)
 !       last factor here is the statistical weight
 
@@ -723,16 +723,16 @@ subroutine ion(Ndim, z, Y, f)
         K_He = CK_He / Hz
     else    !for Heflag>0       !use Sobolev escape probability
         tauHe_s = A2P_s * CK_He * 3._dp * n_He * (1._dp - x_He) / Hz
-        pHe_s = (1._dp - dexp(-tauHe_s)) / tauHe_s
+        pHe_s = (1._dp - exp(-tauHe_s)) / tauHe_s
         K_He = 1._dp / (A2P_s * pHe_s * 3._dp * n_He * (1._dp - x_He))
 !           smoother criterion here from Antony Lewis & Chad Fendt
         if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
             Doppler = 2._dp * k_B * Tmat / (m_H * not4 * C * C)
-            Doppler = C * L_He_2p * dsqrt(Doppler)
+            Doppler = C * L_He_2p * sqrt(Doppler)
             gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * C * C &
-                /(dsqrt(Pi) * sigma_He_2Ps * 8._dp * Pi * Doppler * (1._dp - x_H)) &
+                /(sqrt(Pi) * sigma_He_2Ps * 8._dp * Pi * Doppler * (1._dp - x_H)) &
                 /((C * L_He_2p)**2._dp)
             pb = 0.36_dp  !value from KIV (2007)
             qb = b_He
@@ -743,23 +743,23 @@ subroutine ion(Ndim, z, Y, f)
         if (Heflag >= 3) then     !include triplet effects
             tauHe_t = A2P_t * n_He * (1._dp - x_He) * 3._dp
             tauHe_t = tauHe_t /(8._dp * Pi * Hz * L_He_2Pt**(3._dp))
-            pHe_t = (1._dp - dexp(-tauHe_t)) / tauHe_t
+            pHe_t = (1._dp - exp(-tauHe_t)) / tauHe_t
             CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
             if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999_dp)) then
 !                   no H cont. effect
-                CfHe_t = A2P_t * pHe_t * dexp(-CL_PSt / Tmat)
+                CfHe_t = A2P_t * pHe_t * exp(-CL_PSt / Tmat)
                 CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
             else                  !include H cont. effect
                 Doppler = 2._dp * k_B * Tmat / (m_H * not4 * C * C)
-                Doppler = C * L_He_2Pt * dsqrt(Doppler)
+                Doppler = C * L_He_2Pt * sqrt(Doppler)
                 gamma_2Pt = 3._dp * A2P_t * fHe * (1._dp - x_He) * C * C &
-                    /(dsqrt(Pi) * sigma_He_2Pt * 8._dp * Pi * Doppler * (1._dp - x_H)) &
+                    /(sqrt(Pi) * sigma_He_2Pt * 8._dp * Pi * Doppler * (1._dp - x_H)) &
                     /((C * L_He_2Pt)**2._dp)
 !                   use the fitting parameters from KIV (2007) in this case
                 pb = 0.66_dp
                 qb = 0.9_dp
                 AHcon = A2P_t / (1._dp + pb * gamma_2Pt**qb) / 3._dp
-                CfHe_t = (A2P_t * pHe_t + AHcon) * dexp(-CL_PSt / Tmat)
+                CfHe_t = (A2P_t * pHe_t + AHcon) * exp(-CL_PSt / Tmat)
                 CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
             end if
         end if
@@ -776,7 +776,7 @@ subroutine ion(Ndim, z, Y, f)
         f(1) = 0._dp
 !c      else if ((x_H > 0.98_dp) .and. (Heflag == 0)) then    !don't modify
     else if (x_H > 0.985_dp) then     !use Saha rate for Hydrogen
-        f(1) = (x * x_H * n * Rdown - Rup * (1._dp - x_H) * dexp(-CL / Tmat)) &
+        f(1) = (x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL / Tmat)) &
             /(Hz * (1._dp + z))
 !           for interest, calculate the correction factor compared to Saha
 !           (without the fudge)
@@ -784,7 +784,7 @@ subroutine ion(Ndim, z, Y, f)
             /(Hz * (1._dp + z) * (1._dp + K * Lambda * n * (1._dp - x) &
             +K * Rup * n * (1._dp - x)))
     else                  !use full rate for H
-        f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * dexp(-CL / Tmat)) &
+        f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL / Tmat)) &
             *(1._dp + K * Lambda * n * (1._dp - x_H))) &
             /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda * n * (1._dp - x_H) / fu &
             +K * Rup * n * (1._dp - x_H)))
@@ -794,14 +794,14 @@ subroutine ion(Ndim, z, Y, f)
         f(2) = 0._dp
     else
         f(2) = ((x * x_He * n * Rdown_He &
-            - Rup_He * (1._dp - x_He) * dexp(-CL_He / Tmat)) &
+            - Rup_He * (1._dp - x_He) * exp(-CL_He / Tmat)) &
             *(1._dp+ K_He * Lambda_He * n_He * (1._dp - x_He) * He_Boltz)) &
             /(Hz * (1._dp + z) &
             * (1._dp + K_He * (Lambda_He + Rup_He) * n_He * (1._dp - x_He) * He_Boltz))
 !           Modification to HeI recombination including channel via triplets
         if (Heflag >= 3) then
             f(2) = f(2)+ (x * x_He * n * Rdown_trip &
-                - (1._dp - x_He) * 3._dp * Rup_trip * dexp(-h_P * C * L_He_2st / (k_B * Tmat))) &
+                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * C * L_He_2st / (k_B * Tmat))) &
                 *CfHe_t / (Hz * (1._dp + z))
         end if
     end if
@@ -857,12 +857,12 @@ end subroutine ion
 !           initial entry with options (ind == 2)
 !           make c(1) to c(9) non-negative
             do k = 1, 9
-                c(k) = dabs(c(k))
+                c(k) = abs(c(k))
             end do
 !           make floor values non-negative if they are to be used
             if (c(1) == 4._dp .or. c(1) == 5._dp) then
                 do k = 1, n
-                    c(k + 30) = dabs(c(k + 30))
+                    c(k + 30) = abs(c(k + 30))
                 end do
             end if
         end if
@@ -930,39 +930,39 @@ end subroutine ion
             if (c(1) == 1._dp) then
                 ! absolute error control - weights are 1
                 do k = 1, n
-                    temp = dmax1(temp, dabs(y(k)))
+                    temp = max(temp, abs(y(k)))
                 end do
                 c(12) = temp
             else if (c(1) == 2._dp) then
-                ! relative error control - weights are 1/dabs(y(k)) so
+                ! relative error control - weights are 1/abs(y(k)) so
                 ! weighted norm y is 1
                 c(12) = 1._dp
             else if (c(1) == 3._dp) then
                 ! weights are 1/max(c(2), abs(y(k)))
                 do k = 1, n
-                    temp = dmax1(temp, dabs(y(k)) / c(2))
+                    temp = max(temp, abs(y(k)) / c(2))
                 end do
-                c(12) = dmin1(temp, 1._dp)
+                c(12) = min(temp, 1._dp)
             else if (c(1) == 4._dp) then
                 ! weights are 1/max(c(k + 30), abs(y(k)))
                 do k = 1, n
-                    temp = dmax1(temp, dabs(y(k)) / c(k + 30))
+                    temp = max(temp, abs(y(k)) / c(k + 30))
                 end do
-                c(12) = dmin1(temp, 1._dp)
+                c(12) = min(temp, 1._dp)
             else if (c(1) == 5._dp) then
                 ! weights are 1 / c(k + 30)
                 do k = 1, n
-                    temp = dmax1(temp, dabs(y(k)) / c(k + 30))
+                    temp = max(temp, abs(y(k)) / c(k + 30))
                 end do
                 c(12) = temp
             else
                 ! default case - weights are 1/max(1, abs(y(k)))
                 do k = 1, n
-                    temp = dmax1(temp, dabs(y(k)))
+                    temp = max(temp, abs(y(k)))
                 end do
-                c(12) = dmin1(temp, 1._dp)
+                c(12) = min(temp, 1._dp)
             end if
-            c(13) = 10._dp * dmax1(c(11), c(10) * dmax1(c(12) / tol, dabs(x)))
+            c(13) = 10._dp * max(c(11), c(10) * max(c(12) / tol, abs(x)))
         end if
 !
 !       calculate scale - use default unless value prescribed
@@ -972,7 +972,7 @@ end subroutine ion
 !       calculate hmax - consider 4 cases
 !       case 1 both hmax and scale prescribed
             if (c(6) /= 0._dp .and. c(5) /= 0._dp) &
-            c(16) = dmin1(c(6), 2._dp / c(5))
+            c(16) = min(c(6), 2._dp / c(5))
 !       case 2 - hmax prescribed, but scale not
         if (c(6) /= 0._dp .and. c(5) == 0._dp) c(16) = c(6)
 !       case 3 - hmax not prescribed, but scale is
@@ -999,17 +999,17 @@ end subroutine ion
             temp = 2._dp * c(14)
                 if (tol < (2._dp / .9_dp)**6 * c(19)) &
                     temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
-            c(14) = dmax1(temp, .5_dp * c(14))
+            c(14) = max(temp, .5_dp * c(14))
         else
             ! case 3 - after two or more successive failures
             c(14) = .5_dp * c(14)
         end if
         !
         !       check against hmax
-        c(14) = dmin1(c(14), c(16))
+        c(14) = min(c(14), c(16))
 !
 !       check against hmin
-        c(14) = dmax1(c(14), c(13))
+        c(14) = max(c(14), c(13))
 !
 !***********interrupt no 1 (with ind=4) if requested
         if (c(8) /= 0._dp) then
@@ -1020,13 +1020,13 @@ end subroutine ion
  1111   continue
 !
 !       calculate hmag, xtrial - depending on preliminary hmag, xend
-        if (c(14) < dabs(xend - x)) then
+        if (c(14) < abs(xend - x)) then
 !           do not step more than half way to xend
-            c(14) = dmin1(c(14), .5_dp * dabs(xend - x))
+            c(14) = min(c(14), .5_dp * abs(xend - x))
             c(17) = x + dsign(c(14), xend - x)
         else
 !           hit xend exactly
-            c(14) = dabs(xend - x)
+            c(14) = abs(xend - x)
             c(17) = xend
         end if
 !
@@ -1141,35 +1141,35 @@ end subroutine ion
         if (c(1) == 1._dp) then
             ! absolute error control
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2)))
+                temp = max(temp, abs(w(k,2)))
             end do
         else if (c(1) == 2._dp) then
             ! relative error control
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2) / y(k)))
+                temp = max(temp, abs(w(k,2) / y(k)))
             end do
         else if (c(1) == 3._dp) then
             ! weights are 1/max(c(2), abs(y(k)))
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2)) &
-                    / dmax1(c(2), dabs(y(k))) )
+                temp = max(temp, abs(w(k,2)) &
+                    / max(c(2), abs(y(k))) )
             end do
         else if (c(1) == 4._dp) then
             ! weights are 1/max(c(k + 30), abs(y(k)))
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2)) &
-                    / dmax1(c(k + 30), dabs(y(k))) )
+                temp = max(temp, abs(w(k,2)) &
+                    / max(c(k + 30), abs(y(k))) )
             end do
         else if (c(1) == 5._dp) then
             ! weights are 1/c(k + 30)
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
+                temp = max(temp, abs(w(k,2) / c(k + 30)))
             end do
         else
             ! default case - weights are 1/max(1, abs(y(k)))
             do k = 1, n
-                temp = dmax1(temp, dabs(w(k,2)) &
-                    / dmax1(1._dp, dabs(y(k))) )
+                temp = max(temp, abs(w(k,2)) &
+                    / max(1._dp, abs(y(k))) )
             end do
         end if
 !
