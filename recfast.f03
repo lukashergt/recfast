@@ -827,6 +827,9 @@
 
 !===============================================================================
     subroutine DVERK (n, fcn, x, y, xend, tol, ind, c, nw, w)
+        use precision, only : dp
+        implicit none
+
         integer n, ind, nw, k
         real(dp) :: x, y(n), xend, tol, c(24), w(nw,9), temp
 !
