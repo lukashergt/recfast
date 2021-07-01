@@ -110,7 +110,7 @@ endif
 SRCS := $(wildcard *.f03)
 BINS := $(SRCS:%.f03=%)
 
-all: clean $(BINS) test
+all: $(BINS) test
 
 # Build step for executable
 %: $(BUILD_DIR)/%.o
@@ -129,11 +129,9 @@ test: $(BINS)
 	@echo
 
 clean:
-	@echo
 	@echo "Cleaning recfast"
 	@echo "================"
 	rm -rvf $(BUILD_DIR)
 	rm -vf $(MAKE_DIR)/$(BINS)
 	rm -vf $(MAKE_DIR)/test.out
-	@echo
 
