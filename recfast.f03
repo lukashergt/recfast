@@ -853,11 +853,11 @@
             c(k) = dabs(c(k))
         end do
 !       make floor values non-negative if they are to be used
-        if (c(1) /= 4._dp .and. c(1) /= 5._dp) go to 30
-        do k = 1, n
-            c(k + 30) = dabs(c(k + 30))
-        end do
-   30   continue
+        if (c(1) == 4._dp .or. c(1) == 5._dp) then
+            do k = 1, n
+                c(k + 30) = dabs(c(k + 30))
+            end do
+        end if
    35   continue
 !       initialize rreb, dwarf, prev xend, flag, counts
         c(10) = 2._dp**(-56)
@@ -903,66 +903,61 @@
 !       ***************************************************************
 !
 !***********error return (with ind=-1) if no of fcn evals too great
-        if (c(7) == 0._dp .or. c(24) < c(7)) go to 100
+        if (c(7) /= 0._dp .and. c(24) >= c(7)) then
             ind = -1
             return
-  100   continue
+        end if
 !
 !       calculate slope (adding 1 to no of fcn evals) if ind /= 6
-        if (ind == 6) go to 105
+        if (ind /= 6) then
             call fcn(n, x, y, w(1,1))
             c(24) = c(24) + 1._dp
-  105   continue
+        end if
 !
 !       calculate hmin - use default unless value prescribed
         c(13) = c(3)
-        if (c(3) /= 0._dp) go to 165
-!       calculate default value of hmin
-!       first calculate weighted norm y - c(12) - as specified
-!       by the error control indicator c(1)
-        temp = 0._dp
-        if (c(1) /= 1._dp) go to 115
-!       absolute error control - weights are 1
-        do k = 1, n
-            temp = dmax1(temp, dabs(y(k)))
-        end do
-        c(12) = temp
-        go to 160
-  115   if (c(1) /= 2._dp) go to 120
-!       relative error control - weights are 1/dabs(y(k)) so
-!       weighted norm y is 1
-        c(12) = 1._dp
-        go to 160
-  120   if (c(1) /= 3._dp) go to 130
-!       weights are 1/max(c(2), abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(y(k)) / c(2))
-        end do
-        c(12) = dmin1(temp, 1._dp)
-        go to 160
-  130   if (c(1) /= 4._dp) go to 140
-!       weights are 1/max(c(k + 30), abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(y(k)) / c(k + 30))
-        end do
-        c(12) = dmin1(temp, 1._dp)
-        go to 160
-  140   if (c(1) /= 5._dp) go to 150
-!       weights are 1 / c(k + 30)
-        do k = 1, n
-            temp = dmax1(temp, dabs(y(k)) / c(k + 30))
-        end do
-        c(12) = temp
-        go to 160
-  150   continue
-!       default case - weights are 1/max(1, abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(y(k)))
-        end do
-        c(12) = dmin1(temp, 1._dp)
-  160   continue
-        c(13) = 10._dp * dmax1(c(11), c(10) * dmax1(c(12) / tol, dabs(x)))
-  165   continue
+        if (c(3) == 0._dp) then
+            ! calculate default value of hmin
+            ! first calculate weighted norm y - c(12) - as specified
+            ! by the error control indicator c(1)
+            temp = 0._dp
+            if (c(1) == 1._dp) then
+                ! absolute error control - weights are 1
+                do k = 1, n
+                    temp = dmax1(temp, dabs(y(k)))
+                end do
+                c(12) = temp
+            else if (c(1) == 2._dp) then
+                ! relative error control - weights are 1/dabs(y(k)) so
+                ! weighted norm y is 1
+                c(12) = 1._dp
+            else if (c(1) == 3._dp) then
+                ! weights are 1/max(c(2), abs(y(k)))
+                do k = 1, n
+                    temp = dmax1(temp, dabs(y(k)) / c(2))
+                end do
+                c(12) = dmin1(temp, 1._dp)
+            else if (c(1) == 4._dp) then
+                ! weights are 1/max(c(k + 30), abs(y(k)))
+                do k = 1, n
+                    temp = dmax1(temp, dabs(y(k)) / c(k + 30))
+                end do
+                c(12) = dmin1(temp, 1._dp)
+            else if (c(1) == 5._dp) then
+                ! weights are 1 / c(k + 30)
+                do k = 1, n
+                    temp = dmax1(temp, dabs(y(k)) / c(k + 30))
+                end do
+                c(12) = temp
+            else
+                ! default case - weights are 1/max(1, abs(y(k)))
+                do k = 1, n
+                    temp = dmax1(temp, dabs(y(k)))
+                end do
+                c(12) = dmin1(temp, 1._dp)
+            end if
+            c(13) = 10._dp * dmax1(c(11), c(10) * dmax1(c(12) / tol, dabs(x)))
+        end if
 !
 !       calculate scale - use default unless value prescribed
         c(15) = c(5)
@@ -980,56 +975,54 @@
         if (c(6) == 0._dp .and. c(5) == 0._dp) c(16) = 2._dp
 !
 !***********error return (with ind=-2) if hmin > hmax
-        if (c(13) <= c(16)) go to 170
-        ind = -2
-        return
-  170   continue
+        if (c(13) > c(16)) then
+            ind = -2
+            return
+        end if
 !
 !       calculate preliminary hmag - consider 3 cases
-        if (ind > 2) go to 175
-!       case 1 - initial entry - use prescribed value of hstart, if
-!           any, else default
-        c(14) = c(4)
-        if (c(4) == 0._dp) c(14) = c(16) * tol**(1. / 6.)
-        go to 185
-  175   if (c(23) > 1._dp) go to 180
-!       case 2 - after a successful step, or at most  one  failure,
-!           use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
-!           overflow. then avoid reduction by more than half.
-        temp = 2._dp * c(14)
-            if (tol < (2._dp / .9_dp)**6 * c(19)) &
-                temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
-        c(14) = dmax1(temp, .5_dp * c(14))
-        go to 185
-  180   continue
-!       case 3 - after two or more successive failures
-        c(14) = .5_dp * c(14)
-  185   continue
-!
-!       check against hmax
+        if (ind <= 2) then
+            ! case 1 - initial entry - use prescribed value of hstart, if
+            ! any, else default
+            c(14) = c(4)
+            if (c(4) == 0._dp) c(14) = c(16) * tol**(1. / 6.)
+        else if (c(23) <= 1._dp) then
+            ! case 2 - after a successful step, or at most  one  failure,
+            ! use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
+            ! overflow. then avoid reduction by more than half.
+            temp = 2._dp * c(14)
+                if (tol < (2._dp / .9_dp)**6 * c(19)) &
+                    temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
+            c(14) = dmax1(temp, .5_dp * c(14))
+        else
+            ! case 3 - after two or more successive failures
+            c(14) = .5_dp * c(14)
+        end if
+        !
+        !       check against hmax
         c(14) = dmin1(c(14), c(16))
 !
 !       check against hmin
         c(14) = dmax1(c(14), c(13))
 !
 !***********interrupt no 1 (with ind=4) if requested
-        if (c(8) == 0._dp) go to 1111
-        ind = 4
-        return
+        if (c(8) /= 0._dp) then
+            ind = 4
+            return
+        end if
 !       resume here on re-entry with ind == 4   ........re-entry..
  1111   continue
 !
 !       calculate hmag, xtrial - depending on preliminary hmag, xend
-        if (c(14) >= dabs(xend - x)) go to 190
-!       do not step more than half way to xend
-        c(14) = dmin1(c(14), .5_dp * dabs(xend - x))
-        c(17) = x + dsign(c(14), xend - x)
-        go to 195
-  190   continue
-!       hit xend exactly
-        c(14) = dabs(xend - x)
-        c(17) = xend
-  195   continue
+        if (c(14) < dabs(xend - x)) then
+!           do not step more than half way to xend
+            c(14) = dmin1(c(14), .5_dp * dabs(xend - x))
+            c(17) = x + dsign(c(14), xend - x)
+        else
+!           hit xend exactly
+            c(14) = dabs(xend - x)
+            c(17) = xend
+        end if
 !
 !       calculate htrial
         c(18) = c(17) - x
@@ -1139,45 +1132,40 @@
 !       calculate the weighted max norm of w(*,2) as specified by
 !           the error control indicator c(1)
         temp = 0._dp
-        if (c(1) /= 1._dp) go to 310
-!       absolute error control
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)))
-        end do
-        go to 360
-  310   if (c(1) /= 2._dp) go to 320
-!       relative error control
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2) / y(k)))
-        end do
-        go to 360
-  320   if (c(1) /= 3._dp) go to 330
-!       weights are 1/max(c(2), abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)) &
-                / dmax1(c(2), dabs(y(k))) )
-        end do
-        go to 360
-  330   if (c(1) /= 4._dp) go to 340
-!       weights are 1/max(c(k + 30), abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)) &
-                / dmax1(c(k + 30), dabs(y(k))) )
-        end do
-        go to 360
-  340   if (c(1) /= 5._dp) go to 350
-!       weights are 1/c(k + 30)
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
-        end do
-        go to 360
-  350   continue
-!       default case - weights are 1/max(1, abs(y(k)))
-        do k = 1, n
-            temp = dmax1(temp, dabs(w(k,2)) &
-                / dmax1(1._dp, dabs(y(k))) )
-        end do
-  360   continue
+        if (c(1) == 1._dp) then
+            ! absolute error control
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2)))
+            end do
+        else if (c(1) == 2._dp) then
+            ! relative error control
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2) / y(k)))
+            end do
+        else if (c(1) == 3._dp) then
+            ! weights are 1/max(c(2), abs(y(k)))
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2)) &
+                    / dmax1(c(2), dabs(y(k))) )
+            end do
+        else if (c(1) == 4._dp) then
+            ! weights are 1/max(c(k + 30), abs(y(k)))
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2)) &
+                    / dmax1(c(k + 30), dabs(y(k))) )
+            end do
+        else if (c(1) == 5._dp) then
+            ! weights are 1/c(k + 30)
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2) / c(k + 30)))
+            end do
+        else
+            ! default case - weights are 1/max(1, abs(y(k)))
+            do k = 1, n
+                temp = dmax1(temp, dabs(w(k,2)) &
+                    / dmax1(1._dp, dabs(y(k))) )
+            end do
+        end if
 !
 !       calculate est - (the weighted max norm of w(*,2)) * hmag * scale
 !           - est is intended to be a measure of the error  per  unit
@@ -1195,39 +1183,39 @@
         if (c(19) > tol) ind = 6
 !
 !***********interrupt no 2 if requested
-        if (c(9) == 0._dp) go to 2222
-        return
+        if (c(9) /= 0._dp) then
+            return
+        end if
 !       resume here on re-entry with ind == 5 or 6   ...re-entry..
  2222   continue
 !
-        if (ind == 6) go to 410
-!       step accepted (ind == 5), so update x, y from xtrial,
-!           ytrial, add 1 to the no of successful steps, and set
-!           the no of successive failures to zero
-        x = c(17)
-        do k = 1, n
-            y(k) = w(k,9)
-        end do
-        c(22) = c(22) + 1._dp
-        c(23) = 0._dp
+        if (ind /= 6) then
+!           step accepted (ind == 5), so update x, y from xtrial,
+!               ytrial, add 1 to the no of successful steps, and set
+!               the no of successive failures to zero
+            x = c(17)
+            do k = 1, n
+                y(k) = w(k,9)
+            end do
+            c(22) = c(22) + 1._dp
+            c(23) = 0._dp
 !**************return(with ind=3, xend saved, flag set) if x == xend
-        if (x /= xend) go to 405
-        ind = 3
-        c(20) = xend
-        c(21) = 1._dp
-        return
-  405   continue
-        go to 420
-  410   continue
-!       step not accepted (ind == 6), so add 1 to the no of
-!       successive failures
-        c(23) = c(23) + 1._dp
+            if (x == xend) then
+                ind = 3
+                c(20) = xend
+                c(21) = 1._dp
+                return
+            end if
+        else
+!           step not accepted (ind == 6), so add 1 to the no of
+!           successive failures
+            c(23) = c(23) + 1._dp
 !**************error return (with ind=-3) if hmag <= hmin
-        if (c(14) > c(13)) go to 415
-        ind = -3
-        return
-  415   continue
-  420   continue
+            if (c(14) <= c(13)) then
+                ind = -3
+                return
+            end if
+        end if
 !
 !       end stage 4
 !
