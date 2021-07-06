@@ -104,7 +104,7 @@
 !A  c, k_B, h_P: speed of light, Boltzmann's and Planck's constants
 !A  m_e, m_H: electron mass and H atomic mass in SI
 !A  not4: ratio of 4He atomic mass to 1H atomic mass
-!A  sigma: Thomson cross-section
+!A  sigma_e: Thomson cross-section
 !A  a: radiation constant for u=aT^4
 !A  pi: pi
 !A  Lambda: 2s-1s two photon rate for Hydrogen
@@ -132,7 +132,7 @@
 !A  CK_He = Lalpha_He**3 / (8. * pi)
 !A  CL = c * h_P / (k_B * Lalpha)
 !A  CL_He = c * h_P / (k_B * Lalpha_He)
-!A  CT = (8. / 3.) * (sigma / (m_e * c)) * a
+!A  CT = (8. / 3.) * (sigma_e / (m_e * c)) * a
 !A  Bfact = exp((E_2p - E_2s) / kT)   Extra Boltzmann factor
 !A  fu is a "fudge factor" for H, to approximate low z behaviour
 !A  b_He is a "fudge factor" for HeI, to approximate higher z behaviour
@@ -167,7 +167,7 @@
 !
 !G  Global data (common blocks) referenced:
 !G  /zLIST/zinitial, zfinal, Nz
-!G  /Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+!G  /Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
 !G  /data/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
 !G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
@@ -246,7 +246,7 @@ program recfast
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
     real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
@@ -273,7 +273,7 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
@@ -289,7 +289,7 @@ program recfast
     data    m_e, m_H     /9.1093897e-31_dp, 1.673575e-27_dp/    !av. H atom
 !   note: neglecting deuterium, making an O(e-5) effect
     data    not4        /3.9715_dp/      !mass He/H atom
-    data    sigma, a     /6.6524616e-29_dp, 7.565914e-16_dp/
+    data    sigma_e, a     /6.6524616e-29_dp, 7.565914e-16_dp/
     data    pi      /3.141592653589_dp/
     data    G       /6.6742e-11_dp/            !new value
 !   Fundamental constants in SI units
@@ -382,7 +382,7 @@ program recfast
     CK_He = Lalpha_He**3 / (8._dp * pi)
     CL = c * h_P / (k_B * Lalpha)
     CL_He = c * h_P / (k_B / L_He_2s) !comes from det.bal. of 2s-1s
-    CT = (8._dp / 3._dp) * (sigma / (m_e * c)) * a
+    CT = (8._dp / 3._dp) * (sigma_e / (m_e * c)) * a
     Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B
 
 !   Matter departs from radiation when t(Th) > H_frac * t(H)
@@ -618,7 +618,7 @@ subroutine ion(Ndim, z, Y, f)
 
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
-    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
     real(dp) :: Lambda, H_frac, Lambda_He
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
@@ -635,7 +635,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
