@@ -101,7 +101,7 @@
 !A  w0 and w1 are conformal-time-like initial and final zi and zf's
 !A  Lw0 and Lw1 are logs of w0 and w1
 !A  hw is the interval in W
-!A  C, k_B, h_P: speed of light, Boltzmann's and Planck's constants
+!A  c, k_B, h_P: speed of light, Boltzmann's and Planck's constants
 !A  m_e, m_H: electron mass and H atomic mass in SI
 !A  not4: ratio of 4He atomic mass to 1H atomic mass
 !A  sigma: Thomson cross-section
@@ -130,9 +130,9 @@
 !A  CR = 2 * pi * (m_e / h_P) * (k_B / h_P) once and passed in a common block
 !A  CK = Lalpha**3 / (8. * pi)
 !A  CK_He = Lalpha_He**3 / (8. * pi)
-!A  CL = C * h_P / (k_B * Lalpha)
-!A  CL_He = C * h_P / (k_B * Lalpha_He)
-!A  CT = (8. / 3.) * (sigma / (m_e * C)) * a
+!A  CL = c * h_P / (k_B * Lalpha)
+!A  CL_He = c * h_P / (k_B * Lalpha_He)
+!A  CT = (8. / 3.) * (sigma / (m_e * c)) * a
 !A  Bfact = exp((E_2p - E_2s) / kT)   Extra Boltzmann factor
 !A  fu is a "fudge factor" for H, to approximate low z behaviour
 !A  b_He is a "fudge factor" for HeI, to approximate higher z behaviour
@@ -149,7 +149,7 @@
 !A  A2P_t: Einstein A coefficient for He 23P1-11S0
 !A  sigma_He_2Ps: H ionization x-section at HeI 21P1-11S0 freq. in m^2
 !A  sigma_He_2Pt: H ionization x-section at HeI 23P1-11S0 freq. in m^2
-!A  CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
+!A  CL_PSt = h_P * c * (L_He_2Pt - L_He_2st) / k_B
 !A  CfHe_t: triplet statistical correction
 !A  Hswitch is an integer for modifying the H recombination
 !A  AGauss1 is the amplitude of the 1st Gaussian for the H fudging
@@ -167,7 +167,7 @@
 !
 !G  Global data (common blocks) referenced:
 !G  /zLIST/zinitial, zfinal, Nz
-!G  /Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+!G  /Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
 !G  /data/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
 !G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
@@ -246,7 +246,7 @@ program recfast
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: C, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
     real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
@@ -273,7 +273,7 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
@@ -285,7 +285,7 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    C, k_B, h_P   /2.99792458e8_dp, 1.380658e-23_dp, 6.6260755e-34_dp/
+    data    c, k_B, h_P   /2.99792458e8_dp, 1.380658e-23_dp, 6.6260755e-34_dp/
     data    m_e, m_H     /9.1093897e-31_dp, 1.673575e-27_dp/    !av. H atom
 !   note: neglecting deuterium, making an O(e-5) effect
     data    not4        /3.9715_dp/      !mass He/H atom
@@ -364,26 +364,26 @@ program recfast
     n = Nnow * (1._dp + z)**3
     fnu = (21._dp / 8._dp) * (4._dp / 11._dp)**(4._dp / 3._dp)
 !   (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
-    z_eq = (3._dp * (HO * C)**2 / (8._dp * pi * G * a * (1._dp + fnu) * Tnow**4)) * OmegaT
+    z_eq = (3._dp * (HO * c)**2 / (8._dp * pi * G * a * (1._dp + fnu) * Tnow**4)) * OmegaT
     z_eq = z_eq - 1._dp
 
 !   Set up some constants so they don't have to be calculated later
     Lalpha = 1._dp / L_H_alpha
     Lalpha_He = 1._dp / L_He_2p
-    DeltaB = h_P * C * (L_H_ion - L_H_alpha)
+    DeltaB = h_P * c * (L_H_ion - L_H_alpha)
     CDB = DeltaB / k_B
-    DeltaB_He = h_P * C * (L_He1_ion - L_He_2s)   !2s, not 2p
+    DeltaB_He = h_P * c * (L_He1_ion - L_He_2s)   !2s, not 2p
     CDB_He = DeltaB_He / k_B
-    CB1 = h_P * C * L_H_ion / k_B
-    CB1_He1 = h_P * C * L_He1_ion / k_B   !ionization for HeI
-    CB1_He2 = h_P * C * L_He2_ion / k_B   !ionization for HeII
+    CB1 = h_P * c * L_H_ion / k_B
+    CB1_He1 = h_P * c * L_He1_ion / k_B   !ionization for HeI
+    CB1_He2 = h_P * c * L_He2_ion / k_B   !ionization for HeII
     CR = 2._dp * pi * (m_e / h_P) * (k_B / h_P)
     CK = Lalpha**3 / (8._dp * pi)
     CK_He = Lalpha_He**3 / (8._dp * pi)
-    CL = C * h_P / (k_B * Lalpha)
-    CL_He = C * h_P / (k_B / L_He_2s) !comes from det.bal. of 2s-1s
-    CT = (8._dp / 3._dp) * (sigma / (m_e * C)) * a
-    Bfact = h_P * C * (L_He_2p - L_He_2s) / k_B
+    CL = c * h_P / (k_B * Lalpha)
+    CL_He = c * h_P / (k_B / L_He_2s) !comes from det.bal. of 2s-1s
+    CT = (8._dp / 3._dp) * (sigma / (m_e * c)) * a
+    Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B
 
 !   Matter departs from radiation when t(Th) > H_frac * t(H)
 !   choose some safely small number
@@ -618,7 +618,7 @@ subroutine ion(Ndim, z, Y, f)
 
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
-    real(dp) :: C, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
     real(dp) :: Lambda, H_frac, Lambda_He
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
@@ -635,7 +635,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cfund/C, k_B, h_P, m_e, m_H, not4, sigma, a, pi
+    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma, a, pi
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
@@ -709,7 +709,7 @@ subroutine ion(Ndim, z, Y, f)
 !       add the HeI part, using same T_0 and T_1 values
     Rdown_trip = a_trip / (sq_0 * (1._dp + sq_0)**(1.0 - b_trip))
     Rdown_trip = Rdown_trip / ((1._dp + sq_1)**(1._dp + b_trip))
-    Rup_trip = Rdown_trip * exp(-h_P * C * L_He2St_ion / (k_B * Tmat))
+    Rup_trip = Rdown_trip * exp(-h_P * c * L_He2St_ion / (k_B * Tmat))
     Rup_trip = Rup_trip * ((CR * Tmat)**(1.5_dp)) * (4._dp / 3._dp)
 !       last factor here is the statistical weight
 
@@ -729,11 +729,11 @@ subroutine ion(Ndim, z, Y, f)
         if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
-            Doppler = 2._dp * k_B * Tmat / (m_H * not4 * C * C)
-            Doppler = C * L_He_2p * sqrt(Doppler)
-            gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * C * C &
+            Doppler = 2._dp * k_B * Tmat / (m_H * not4 * c * c)
+            Doppler = c * L_He_2p * sqrt(Doppler)
+            gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * c * c &
                 /(sqrt(pi) * sigma_He_2Ps * 8._dp * pi * Doppler * (1._dp - x_H)) &
-                /((C * L_He_2p)**2._dp)
+                /((c * L_He_2p)**2._dp)
             pb = 0.36_dp  !value from KIV (2007)
             qb = b_He
 !               calculate AHcon, the value of A * p_(con, H) for H continuum opacity
@@ -744,17 +744,17 @@ subroutine ion(Ndim, z, Y, f)
             tauHe_t = A2P_t * n_He * (1._dp - x_He) * 3._dp
             tauHe_t = tauHe_t /(8._dp * pi * Hz * L_He_2Pt**(3._dp))
             pHe_t = (1._dp - exp(-tauHe_t)) / tauHe_t
-            CL_PSt = h_P * C * (L_He_2Pt - L_He_2st) / k_B
+            CL_PSt = h_P * c * (L_He_2Pt - L_He_2st) / k_B
             if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999_dp)) then
 !                   no H cont. effect
                 CfHe_t = A2P_t * pHe_t * exp(-CL_PSt / Tmat)
                 CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
             else                  !include H cont. effect
-                Doppler = 2._dp * k_B * Tmat / (m_H * not4 * C * C)
-                Doppler = C * L_He_2Pt * sqrt(Doppler)
-                gamma_2Pt = 3._dp * A2P_t * fHe * (1._dp - x_He) * C * C &
+                Doppler = 2._dp * k_B * Tmat / (m_H * not4 * c * c)
+                Doppler = c * L_He_2Pt * sqrt(Doppler)
+                gamma_2Pt = 3._dp * A2P_t * fHe * (1._dp - x_He) * c * c &
                     /(sqrt(pi) * sigma_He_2Pt * 8._dp * pi * Doppler * (1._dp - x_H)) &
-                    /((C * L_He_2Pt)**2._dp)
+                    /((c * L_He_2Pt)**2._dp)
 !                   use the fitting parameters from KIV (2007) in this case
                 pb = 0.66_dp
                 qb = 0.9_dp
@@ -801,7 +801,7 @@ subroutine ion(Ndim, z, Y, f)
 !           Modification to HeI recombination including channel via triplets
         if (Heflag >= 3) then
             f(2) = f(2)+ (x * x_He * n * Rdown_trip &
-                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * C * L_He_2st / (k_B * Tmat))) &
+                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * c * L_He_2st / (k_B * Tmat))) &
                 *CfHe_t / (Hz * (1._dp + z))
         end if
     end if
