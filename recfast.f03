@@ -236,17 +236,39 @@ module precision
     integer, parameter :: qp = REAL128
 end module precision
 
+
+module constants
+    use precision, only : dp
+    implicit none
+
+    ! mathematical constants
+    real(dp), parameter :: pi = 3.1415926535897932384626433832795_dp ! pi, Archimedes' constant
+
+    ! Codata internationally recommended 2018 values (in SI units):
+    real(dp), parameter :: c = 2.99792458e8_dp           ! speed of light in vacuum [m/s]
+    real(dp), parameter :: G = 6.67430e-11_dp            ! Newton's constant of gravitation [m^3/kg/s^2]
+    real(dp), parameter :: h_P = 6.62607015e-34_dp       ! Planck's constant [kg m^2/s]
+    real(dp), parameter :: k_B = 1.380649e-23_dp         ! Boltzmann's constant [kg m^2/s^2/K]
+    real(dp), parameter :: m_e = 9.1093837015e-31_dp     ! electron mass [kg]
+    real(dp), parameter :: amu = 1.66053906660e-27_dp    ! atomic mass unit [kg]
+    real(dp), parameter :: sigma_e = 6.6524587321e-29_dp ! Thomson cross section [m^2]
+
+    ! black body radiation constant for u=aT^4:
+    real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
+end module constants
+
 program recfast
     use precision, only : dp
+    use constants, only : pi, c, G, h_P, k_B, m_e, sigma_e, a
     implicit none
 
 !   --- Arguments
     real(dp) :: Trad, Tmat
-    real(dp) :: OmegaT, OmegaB, H, HO, HOinp, bigH, G, OmegaL, OmegaK, OmegaC
+    real(dp) :: OmegaT, OmegaB, H, HO, HOinp, bigH, OmegaL, OmegaK, OmegaC
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
+    real(dp) :: m_H, not4
     real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
@@ -273,7 +295,7 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
+    common/Cfund/m_H, not4
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
@@ -285,13 +307,9 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    c, k_B, h_P   /2.99792458e8_dp, 1.380658e-23_dp, 6.6260755e-34_dp/
-    data    m_e, m_H     /9.1093897e-31_dp, 1.673575e-27_dp/    !av. H atom
+    data    m_H     /1.673575e-27_dp/    !av. H atom
 !   note: neglecting deuterium, making an O(e-5) effect
     data    not4        /3.9715_dp/      !mass He/H atom
-    data    sigma_e, a     /6.6524616e-29_dp, 7.565914e-16_dp/
-    data    pi      /3.141592653589_dp/
-    data    G       /6.6742e-11_dp/            !new value
 !   Fundamental constants in SI units
 !   ("not4" pointed out by Gary Steigman)
 
@@ -612,13 +630,14 @@ end subroutine get_init
 subroutine ion(Ndim, z, Y, f)
 
     use precision, only : dp
+    use constants, only : pi, c, h_P, k_B
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
 
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
-    real(dp) :: c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
+    real(dp) :: m_H, not4
     real(dp) :: Lambda, H_frac, Lambda_He
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
@@ -635,7 +654,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
+    common/Cfund/m_H, not4
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
