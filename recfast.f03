@@ -102,7 +102,7 @@
 !A  Lw0 and Lw1 are logs of w0 and w1
 !A  hw is the interval in W
 !A  c, k_B, h_P: speed of light, Boltzmann's and Planck's constants
-!A  m_e, m_H: electron mass and H atomic mass in SI
+!A  m_e, m_1H: electron mass and H atomic mass in SI
 !A  not4: ratio of 4He atomic mass to 1H atomic mass
 !A  sigma_e: Thomson cross-section
 !A  a: radiation constant for u=aT^4
@@ -167,7 +167,7 @@
 !
 !G  Global data (common blocks) referenced:
 !G  /zLIST/zinitial, zfinal, Nz
-!G  /Cfund/c, k_B, h_P, m_e, m_H, not4, sigma_e, a, pi
+!G  /Cfund/c, k_B, h_P, m_e, m_1H, not4, sigma_e, a, pi
 !G  /data/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
 !G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
@@ -209,7 +209,7 @@
 !H          June 2003 (fixed He recombination coefficients)
 !H          June 2003 (comments to point out fixed N_nu etc.)
 !H          Oct 2006 (included new value for G)
-!H          Oct 2006 (improved m_He/m_H to be "not4")
+!H          Oct 2006 (improved m_He/m_1H to be "not4")
 !H          Oct 2006 (fixed error, x for x_H in part of f(1))
 !H          Jan 2008 (improved HeI recombination effects,
 !H                        including HeI rec. fudge factor)
@@ -257,23 +257,21 @@ module constants
     real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
 
     ! Atomic mass evaluation (AME) 2020:
-    !real(dp), parameter :: m_1H_u = 1.007825031898_dp    ! atomic mass of 1H in atomic mass units [u]
-    !real(dp), parameter :: m_2H_u = 2.014101777844_dp    ! atomic mass of 2H in atomic mass units [u]
-    !real(dp), parameter :: m_3H_u = 3.016049281320_dp    ! atomic mass of 3H in atomic mass units [u]
-    !real(dp), parameter :: m_3He_u = 3.016029321967_dp   ! atomic mass of 3He in atomic mass units [u]
-    !real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
-    !real(dp), parameter :: m_1H = m_1H_u * amu           ! atomic mass of 1H [kg]
-    !real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
-    !real(dp), parameter :: not4 = m_4He / m_H            ! atomic mass ratio of 4He to 1H
-    real(dp), parameter :: m_H = 1.673575e-27_dp         !av. H atom
-    real(dp), parameter :: not4 = 3.9715_dp              !mass He/H atom
+    real(dp), parameter :: m_1H_u = 1.007825031898_dp    ! atomic mass of 1H in atomic mass units [u]
+    real(dp), parameter :: m_2H_u = 2.014101777844_dp    ! atomic mass of 2H in atomic mass units [u]
+    real(dp), parameter :: m_3H_u = 3.016049281320_dp    ! atomic mass of 3H in atomic mass units [u]
+    real(dp), parameter :: m_3He_u = 3.016029321967_dp   ! atomic mass of 3He in atomic mass units [u]
+    real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
+    real(dp), parameter :: m_1H = m_1H_u * amu           ! atomic mass of 1H [kg]
+    real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
+    real(dp), parameter :: not4 = m_4He_u / m_1H_u            ! atomic mass ratio of 4He to 1H
     ! ("not4" pointed out by Gary Steigman)
 end module constants
 
 program recfast
     use precision, only : dp
     use constants, only : pi, c, G, h_P, k_B, m_e, sigma_e, a
-    use constants, only : m_H, not4
+    use constants, only : m_1H, not4
     implicit none
 
 !   --- Arguments
@@ -384,7 +382,7 @@ program recfast
     mu_T = not4 / (not4 - (not4 - 1._dp) * Yp)   !Mass per atom
     fHe = Yp / (not4 * (1._dp - Yp))       !n_He_tot / n_H_tot
 
-    Nnow = 3._dp * HO * HO * OmegaB / (8._dp * pi * G * mu_H * m_H)
+    Nnow = 3._dp * HO * HO * OmegaB / (8._dp * pi * G * mu_H * m_1H)
     n = Nnow * (1._dp + z)**3
     fnu = (21._dp / 8._dp) * (4._dp / 11._dp)**(4._dp / 3._dp)
 !   (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
@@ -637,7 +635,7 @@ subroutine ion(Ndim, z, Y, f)
 
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
-    use constants, only : m_H, not4
+    use constants, only : m_1H, not4
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
@@ -753,7 +751,7 @@ subroutine ion(Ndim, z, Y, f)
         if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp))then
 !               use fitting formula for continuum opacity of H
 !               first get the Doppler width parameter
-            Doppler = 2._dp * k_B * Tmat / (m_H * not4 * c * c)
+            Doppler = 2._dp * k_B * Tmat / (m_1H * not4 * c * c)
             Doppler = c * L_He_2p * sqrt(Doppler)
             gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * c * c &
                 /(sqrt(pi) * sigma_He_2Ps * 8._dp * pi * Doppler * (1._dp - x_H)) &
@@ -774,7 +772,7 @@ subroutine ion(Ndim, z, Y, f)
                 CfHe_t = A2P_t * pHe_t * exp(-CL_PSt / Tmat)
                 CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
             else                  !include H cont. effect
-                Doppler = 2._dp * k_B * Tmat / (m_H * not4 * c * c)
+                Doppler = 2._dp * k_B * Tmat / (m_1H * not4 * c * c)
                 Doppler = c * L_He_2Pt * sqrt(Doppler)
                 gamma_2Pt = 3._dp * A2P_t * fHe * (1._dp - x_He) * c * c &
                     /(sqrt(pi) * sigma_He_2Pt * 8._dp * pi * Doppler * (1._dp - x_H)) &
