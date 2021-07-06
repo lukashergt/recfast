@@ -255,11 +255,25 @@ module constants
 
     ! black body radiation constant for u=aT^4:
     real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
+
+    ! Atomic mass evaluation (AME) 2020:
+    !real(dp), parameter :: m_1H_u = 1.007825031898_dp    ! atomic mass of 1H in atomic mass units [u]
+    !real(dp), parameter :: m_2H_u = 2.014101777844_dp    ! atomic mass of 2H in atomic mass units [u]
+    !real(dp), parameter :: m_3H_u = 3.016049281320_dp    ! atomic mass of 3H in atomic mass units [u]
+    !real(dp), parameter :: m_3He_u = 3.016029321967_dp   ! atomic mass of 3He in atomic mass units [u]
+    !real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
+    !real(dp), parameter :: m_1H = m_1H_u * amu           ! atomic mass of 1H [kg]
+    !real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
+    !real(dp), parameter :: not4 = m_4He / m_H            ! atomic mass ratio of 4He to 1H
+    real(dp), parameter :: m_H = 1.673575e-27_dp         !av. H atom
+    real(dp), parameter :: not4 = 3.9715_dp              !mass He/H atom
+    ! ("not4" pointed out by Gary Steigman)
 end module constants
 
 program recfast
     use precision, only : dp
     use constants, only : pi, c, G, h_P, k_B, m_e, sigma_e, a
+    use constants, only : m_H, not4
     implicit none
 
 !   --- Arguments
@@ -268,7 +282,6 @@ program recfast
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: m_H, not4
     real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
@@ -295,7 +308,6 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cfund/m_H, not4
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
@@ -307,12 +319,6 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    m_H     /1.673575e-27_dp/    !av. H atom
-!   note: neglecting deuterium, making an O(e-5) effect
-    data    not4        /3.9715_dp/      !mass He/H atom
-!   Fundamental constants in SI units
-!   ("not4" pointed out by Gary Steigman)
-
     data    Lambda      /8.2245809_dp/
     data    Lambda_He   /51.3_dp/    !new value from Dalgarno
     data    L_H_ion     /1.096787737e7_dp/ !level for H ion. (in m^-1)
@@ -631,13 +637,13 @@ subroutine ion(Ndim, z, Y, f)
 
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
+    use constants, only : m_H, not4
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
 
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
-    real(dp) :: m_H, not4
     real(dp) :: Lambda, H_frac, Lambda_He
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
@@ -654,7 +660,6 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cfund/m_H, not4
     common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
