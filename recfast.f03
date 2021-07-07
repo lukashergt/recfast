@@ -24,167 +24,129 @@
 !
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
-!N  Name:   RECFAST
+!N  Name: RECFAST
 !V  Version: 1.5.2
 !
-!P  Purpose:  Calculate ionised fraction as a function of redshift.
-!P        Solves for H and He simultaneously, and includes
-!P        H "fudge factor" for low z effect, as well as
-!P            HeI fudge factor.
+!P  Purpose:
+!P      Calculate ionised fraction as a function of redshift.
+!P      Solves for H and He simultaneously, and includes
+!P      H "fudge factor" for low z effect, as well as
+!P      HeI fudge factor.
 !
-!D  Description: Solves for ionisation history since recombination
-!D  using the equations in Seager, Sasselov & Scott (ApJ, 1999).
-!D  The Cosmological model can be flat or open.
-!D  The matter temperature is also followed, with an update from
-!D  Moss & Scott (2009).
-!D  The values for \alpha_B for H are from Hummer (1994).
-!D  The singlet HeI coefficient is a fit from the full code.
-!D  Additional He "fudge factors" are as described in Wong, Moss
-!D  and Scott (2008).
-!D  Extra fitting function included (in optical depth) to account
-!D  for extra H physics described in Rubino-Martin et al. (2010).
-!D  Care is taken to use the most accurate constants.
-!D  Note that some parameters are fixed (e.g. N_nu=3, nu's are
-!D  massless, w=-1, etc.) - some users may want to explictly
-!D  imput their own H(z) to account for extra physics.
-!D  This is provided as a PROGRAM, which can be easily converted
-!D  to a SUBROUTINE for use in CMB Boltzmann codes.
+!D  Description:
+!D      Solves for ionisation history since recombination
+!D      using the equations in Seager, Sasselov & Scott (ApJ, 1999).
+!D      The Cosmological model can be flat or open.
+!D      The matter temperature is also followed, with an update from
+!D      Moss & Scott (2009).
+!D      The values for \alpha_B for H are from Hummer (1994).
+!D      The singlet HeI coefficient is a fit from the full code.
+!D      Additional He "fudge factors" are as described in Wong, Moss
+!D      and Scott (2008).
+!D      Extra fitting function included (in optical depth) to account
+!D      for extra H physics described in Rubino-Martin et al. (2010).
+!D      Care is taken to use the most accurate constants.
+!D      Note that some parameters are fixed (e.g. N_nu=3, nu's are
+!D      massless, w=-1, etc.) - some users may want to explictly
+!D      imput their own H(z) to account for extra physics.
+!D      This is provided as a PROGRAM, which can be easily converted
+!D      to a SUBROUTINE for use in CMB Boltzmann codes.
 !
 !A  Arguments:
-!A  Name, Description
-!A  Double precision throughout
+!A      Name, Description
+!A      Double precision throughout
 !A
-!A  z is redshift - W is sqrt(1 + z), like conformal time
-!A  x is total ionised fraction, relative to H
-!A  x_H is ionized fraction of H - y(1) in R-K routine
-!A  x_He is ionized fraction of He - y(2) in R-K routine
-!A  (note that x_He=n_He+/n_He here and not n_He+/n_H)
-!A  Tmat is matter temperature - y(3) in R-K routine
-!A  f's are the derivatives of the Y's
-!A  alphaB is case B recombination rate
-!A  alpHe is the singlet only HeII recombination rate
-!A  a_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A  b_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A  c_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A  d_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A  a_VF is Verner and Ferland type fitting parameter for Helium
-!A  b_VF is Verner and Ferland type fitting parameter for Helium
-!A  T_0 is Verner and Ferland type fitting parameter for Helium
-!A  T_1 is Verner and Ferland type fitting parameter for Helium
-!A  Tnow is the observed CMB temperature today
-!A  OmegaT is the total Omega_0
+!A      z is redshift - W is sqrt(1 + z), like conformal time
+!A      x is total ionised fraction, relative to H
+!A      x_H is ionized fraction of H - y(1) in R-K routine
+!A      x_He is ionized fraction of He - y(2) in R-K routine
+!A      (note that x_He=n_He+/n_He here and not n_He+/n_H)
+!A      Tmat is matter temperature - y(3) in R-K routine
+!A      f's are the derivatives of the Y's
+!A      alphaB is case B recombination rate
+!A      alpHe is the singlet only HeII recombination rate
+!A      a_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
+!A      b_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
+!A      c_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
+!A      d_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
+!A      a_VF is Verner and Ferland type fitting parameter for Helium
+!A      b_VF is Verner and Ferland type fitting parameter for Helium
+!A      T_0 is Verner and Ferland type fitting parameter for Helium
+!A      T_1 is Verner and Ferland type fitting parameter for Helium
+!A      Tnow is the observed CMB temperature today
+!A      OmegaT is the total Omega_0
 !A      OmegaL is the Omega_0 contribution from a Cosmological constant
 !A      OmegaK is the Omega_0 contribution in curvature (1 - O_T - O_L)
 !A      OmegaB is Omega in baryons today
-!A  OmegaC is the Omega_0 in (cold) dark matter: OmegaT = OmegaC + OmegaB
-!A  Yp is the primordial helium abundace
-!A  fHe is He/H number ratio = Yp / 4(1 - Yp)
-!A  Trad and Tmat are radiation and matter temperatures
-!A  epsilon is the approximate difference (=Trad-Tmat) at high z
-!A  OmegaB is Omega in baryons today
-!A  H0inp is input value of Hubble constant in units of 100 km/s/Mpc
-!A  H0 is Hubble constant in SI units
-!A  bigH is 100 km/s/Mpc in SI units
-!A  Hz is the value of H at the specific z (in ion)
-!A  G is grvitational constant
-!A  n is number density of hydrogen
-!A  Nnow is number density today
-!A  x0 is initial ionized fraction
-!A  x_H0 is initial ionized fraction of Hydrogen
-!A  x_He0 is initial ionized fraction of Helium
-!A  rhs is dummy for calculating x0
-!A  zinitial and zfinal are starting and ending redshifts
-!A  fnu is the contribution of neutrinos to the radn. energy density
-!A  zeq is the redshift of matter-radiation equality
-!A  zstart and zend are for each pass to the integrator
-!A  w0 and w1 are conformal-time-like initial and final zi and zf's
-!A  Lw0 and Lw1 are logs of w0 and w1
-!A  hw is the interval in W
-!A  c, k_B, h_P: speed of light, Boltzmann's and Planck's constants
-!A  m_e, m_1H: electron mass and H atomic mass in SI
-!A  not4: ratio of 4He atomic mass to 1H atomic mass
-!A  sigma_e: Thomson cross-section
-!A  a: radiation constant for u=aT^4
-!A  pi: pi
-!A  Lambda_H: 2s-1s two photon rate for Hydrogen
-!A  Lambda_He: 2s-1s two photon rate for Helium
-!A  DeltaB_H: energy of first excited state from continuum = 3.4eV
-!A  DeltaB_He: energy of first excited state from cont. for He = 3.4eV
-!A  L_H_ion: level for H ionization in m^-1
-!A  L_H_alpha: level for H Ly alpha in m^-1
-!A  L_He1_ion: level for HeI ionization
-!A  L_He2_ion: level for HeII ionization
-!A  L_He_2s: level for HeI 2s
-!A  L_He_2p: level for He 2p (21P1-11S0) in m^-1
-!A  Lalpha: Ly alpha wavelength in SI
-!A  Lalpha_He: Helium I 2p-1s wavelength in SI
-!A  mu_H, mu_T: mass per H atom and mass per particle
-!A  H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
-!A  dHdz is the derivative of H at the specific z (in ion)
-!A  CDB = DeltaB_H / k_B          Constants derived from B1, B2, R
-!A  CDB_He = DeltaB_He / k_B        n=2-infinity for He in Kelvin
-!A  CB1_H = CDB * 4.          Lalpha and sigma_Th, calculated
-!A  CB1_He1: CB1 for HeI ionization potential
-!A  CB1_He2: CB1 for HeII ionization potential
-!A  CR = 2 * pi * (m_e / h_P) * (k_B / h_P) once and passed in a common block
-!A  CK_H = Lalpha**3 / (8. * pi)
-!A  CK_He = Lalpha_He**3 / (8. * pi)
-!A  CL_H = c * h_P / (k_B * Lalpha)
-!A  CL_He = c * h_P / (k_B * Lalpha_He)
-!A  CT = (8. / 3.) * (sigma_e / (m_e * c)) * a
-!A  Bfact = exp((E_2p - E_2s) / kT)   Extra Boltzmann factor
-!A  fu is a "fudge factor" for H, to approximate low z behaviour
-!A  b_He is a "fudge factor" for HeI, to approximate higher z behaviour
-!A  Heswitch is an integer for modifying HeI recombination
-!A  Parameters and quantities to describe the extra triplet states
-!A   and also the continuum opacity of H, with a fitting function
-!A   suggested by KIV, astro-ph/0703438
-!A  a_trip: used to fit HeI triplet recombination rate
-!A  b_trip: used to fit HeI triplet recombination rate
-!A  L_He_2Pt: level for 23P012-11S0 in m^-1
-!A  L_He_2St: level for 23S1-11S0 in m^-1
-!A  L_He2St_ion: level for 23S1-continuum in m^-1
-!A  A2P_s: Einstein A coefficient for He 21P1-11S0
-!A  A2P_t: Einstein A coefficient for He 23P1-11S0
-!A  sigma_He_2Ps: H ionization x-section at HeI 21P1-11S0 freq. in m^2
-!A  sigma_He_2Pt: H ionization x-section at HeI 23P1-11S0 freq. in m^2
-!A  CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
-!A  CfHe_t: triplet statistical correction
-!A  Hswitch is an integer for modifying the H recombination
-!A  AGauss1 is the amplitude of the 1st Gaussian for the H fudging
-!A  AGauss2 is the amplitude of the 2nd Gaussian for the H fudging
-!A  zGauss1 is the ln(1 + z) central value of the 1st Gaussian
-!A  zGauss2 is the ln(1 + z) central value of the 2nd Gaussian
-!A  wGauss1 is the width of the 1st Gaussian
-!A  wGauss2 is the width of the 2nd Gaussian
-!A  tol: tolerance for the integrator
-!A  cw(24), w(3,9): work space for dverk
-!A  Ndim: number of d.e.'s to solve (integer)
-!A  Nz: number of output redshitf (integer)
-!A  I: loop index (integer)
-!A  ind, nw: work-space for dverk (integer)
+!A      OmegaC is the Omega_0 in (cold) dark matter: OmegaT = OmegaC + OmegaB
+!A      Yp is the primordial helium abundace
+!A      fHe is He/H number ratio = Yp / 4(1 - Yp)
+!A      Trad and Tmat are radiation and matter temperatures
+!A      epsilon is the approximate difference (=Trad-Tmat) at high z
+!A      OmegaB is Omega in baryons today
+!A      H0inp is input value of Hubble constant in units of 100 km/s/Mpc
+!A      H0 is Hubble constant in SI units
+!A      Hz is the value of H at the specific z (in ion)
+!A      G is grvitational constant
+!A      n is number density of hydrogen
+!A      Nnow is number density today
+!A      x0 is initial ionized fraction
+!A      x_H0 is initial ionized fraction of Hydrogen
+!A      x_He0 is initial ionized fraction of Helium
+!A      rhs is dummy for calculating x0
+!A      zinitial and zfinal are starting and ending redshifts
+!A      fnu is the contribution of neutrinos to the radn. energy density
+!A      zeq is the redshift of matter-radiation equality
+!A      zstart and zend are for each pass to the integrator
+!A      w0 and w1 are conformal-time-like initial and final zi and zf's
+!A      Lw0 and Lw1 are logs of w0 and w1
+!A      hw is the interval in W
+!A      mu_H, mu_T: mass per H atom and mass per particle
+!A      H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
+!A      dHdz is the derivative of H at the specific z (in ion)
+!A      fu is a "fudge factor" for H, to approximate low z behaviour
+!A      b_He is a "fudge factor" for HeI, to approximate higher z behaviour
+!A      Heswitch is an integer for modifying HeI recombination
+!A      Parameters and quantities to describe the extra triplet states
+!A       and also the continuum opacity of H, with a fitting function
+!A       suggested by KIV, astro-ph/0703438
+!A      a_trip: used to fit HeI triplet recombination rate
+!A      b_trip: used to fit HeI triplet recombination rate
+!A      CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
+!A      CfHe_t: triplet statistical correction
+!A      Hswitch is an integer for modifying the H recombination
+!A      AGauss1 is the amplitude of the 1st Gaussian for the H fudging
+!A      AGauss2 is the amplitude of the 2nd Gaussian for the H fudging
+!A      zGauss1 is the ln(1 + z) central value of the 1st Gaussian
+!A      zGauss2 is the ln(1 + z) central value of the 2nd Gaussian
+!A      wGauss1 is the width of the 1st Gaussian
+!A      wGauss2 is the width of the 2nd Gaussian
+!A      tol: tolerance for the integrator
+!A      cw(24), w(3,9): work space for dverk
+!A      Ndim: number of d.e.'s to solve (integer)
+!A      Nz: number of output redshitf (integer)
+!A      I: loop index (integer)
+!A      ind, nw: work-space for dverk (integer)
 !
 !G  Global data (common blocks) referenced:
-!G  /zLIST/zinitial, zfinal, Nz
-!G  /Cfund/c, k_B, h_P, m_e, m_1H, not4, sigma_e, a, pi
-!G  /data/Lambda_H, H_frac, CB1_H, CDB, CR, CK_H, CL_H, CT,
-!G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
+!G      /zLIST/zinitial, zfinal, Nz
+!G      /data/H_frac, fHe
 !G      /Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
-!G  /Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt,
-!G      L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
-!G  /Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
-!G  /Switch/Heswitch, Hswitch
+!G      /Hemod/b_He
+!G      /Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
+!G      /Switch/Heswitch, Hswitch
 !
 !F  File & device access:
-!F  Unit    /I, IO, O /Name (if known)
+!F      Unit    /I, IO, O /Name (if known)
 !
-!M  Modules called:
-!M  dverk (numerical integrator)
-!M  get_init (initial values for ionization fractions)
-!M  ion (ionization and Temp derivatives)
-!
-!C  Comments:
-!C  none
+!M  Modules used:
+!M      precision (declares `dp` for double precision)
+!M      constants (module for mathematical and physical constants and chemical data)
+!M
+!M  Subroutines called:
+!M      dverk (numerical integrator)
+!M      get_init (initial values for ionization fractions)
+!M      ion (ionization and Temp derivatives)
 !
 !H  History:
 !H  CREATED     (simplest version) 19th March 1989
@@ -193,38 +155,34 @@
 !H          uses dverk integrator
 !H          initial conditions are Saha
 !H  TESTED      a bunch, well, OK, not really
-!H  MODIFIED    January 1995 (include Hummer's 1994 alpha table)
-!H          January 1995 (include new value for 2s-1s rate)
-!H          January 1995 (expand comments)
-!H          March 1995 (add Saha for Helium)
-!H          August 1997 (add HeII alpha table)
-!H          July 1998 (include OmegaT correction and H fudge factor)
-!H          Nov 1998 (change Trad to Tmat in Rup)
-!H          Jan 1999 (tidied up for public consumption)
-!H          Sept 1999 (switch to formula for alpha's, fix glitch)
-!H          Feb 2000 (fixed overflow problem in He_Boltz)
-!H          Oct 2001 (fixed OmegaT in z_eq)
-!H          June 2003 (fixed error in Rdown_He formula)
-!H          June 2003 (fixed He recombination coefficients)
-!H          June 2003 (comments to point out fixed N_nu etc.)
-!H          Oct 2006 (included new value for G)
-!H          Oct 2006 (improved m_He/m_1H to be "not4")
-!H          Oct 2006 (fixed error, x for x_H in part of f(1))
-!H          Jan 2008 (improved HeI recombination effects,
-!H                        including HeI rec. fudge factor)
-!H          Feb 2008 (avoid calculating gamma_2Ps and
-!H                         gamma_2Pt when x_H close to 1.0)
-!H          Aug 2008 (correction for x_H when Heflag=2
-!H                   and Helfag>=5 to be smoother)
-!H          Sept 2008 (added extra term to make transition
-!H                   smoother for Tmat evolution)
-!H          Jan 2010 (added fitting function to modify K
-!H              to match x_e(z) for new H physics)
-!H          July 2012 (modified fudge factors for better
-!H              match to codes with more detailed physics)
-!H          Sept 2012 (fixed "fu" at low z to match modifications)
-!-
+!H  MODIFIED
+!H      Jan 1995 (include Hummer's 1994 alpha table)
+!H      Jan 1995 (include new value for 2s-1s rate)
+!H      Jan 1995 (expand comments)
+!H      Mar 1995 (add Saha for Helium)
+!H      Aug 1997 (add HeII alpha table)
+!H      Jul 1998 (include OmegaT correction and H fudge factor)
+!H      Nov 1998 (change Trad to Tmat in Rup)
+!H      Jan 1999 (tidied up for public consumption)
+!H      Sep 1999 (switch to formula for alpha's, fix glitch)
+!H      Feb 2000 (fixed overflow problem in He_Boltz)
+!H      Oct 2001 (fixed OmegaT in z_eq)
+!H      Jun 2003 (fixed error in Rdown_He formula)
+!H      Jun 2003 (fixed He recombination coefficients)
+!H      Jun 2003 (comments to point out fixed N_nu etc.)
+!H      Oct 2006 (included new value for G)
+!H      Oct 2006 (improved m_He/m_1H to be "not4")
+!H      Oct 2006 (fixed error, x for x_H in part of f(1))
+!H      Jan 2008 (improved HeI recombination effects, including HeI rec. fudge factor)
+!H      Feb 2008 (avoid calculating gamma_2Ps and gamma_2Pt when x_H close to 1.0)
+!H      Aug 2008 (correction for x_H when Heflag=2 and Helfag>=5 to be smoother)
+!H      Sep 2008 (added extra term to make transition smoother for Tmat evolution)
+!H      Jan 2010 (added fitting function to modify K to match x_e(z) for new H physics)
+!H      Jul 2012 (modified fudge factors for better match to codes with more detailed physics)
+!H      Sep 2012 (fixed "fu" at low z to match modifications)
+!
 !   ===============================================================
+
 
 module precision
     use, intrinsic :: iso_fortran_env
@@ -256,44 +214,44 @@ module constants
     real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
 
     ! some astronomical units:
-    real(dp), parameter :: AU = 149597870700._dp          ! astronomical unit [m], exact definition of the IAU
-    real(dp), parameter :: parsec = 648000._dp / pi * AU  ! parsec [m], exact definition of the IAU
+    real(dp), parameter :: AU = 149597870700._dp          ! astronomical unit [m]; exact definition of the IAU
+    real(dp), parameter :: parsec = 648000._dp / pi * AU  ! parsec [m]; exact definition of the IAU
 
     ! Atomic mass evaluation (AME) 2020:
-    real(dp), parameter :: m_1H_u = 1.007825031898_dp    ! atomic mass of 1H in atomic mass units [u]
-    real(dp), parameter :: m_2H_u = 2.014101777844_dp    ! atomic mass of 2H in atomic mass units [u]
-    real(dp), parameter :: m_3H_u = 3.016049281320_dp    ! atomic mass of 3H in atomic mass units [u]
+    real(dp), parameter :: m_1H_u  = 1.007825031898_dp   ! atomic mass of 1H in atomic mass units [u]
+    real(dp), parameter :: m_2H_u  = 2.014101777844_dp   ! atomic mass of 2H in atomic mass units [u]
+    real(dp), parameter :: m_3H_u  = 3.016049281320_dp   ! atomic mass of 3H in atomic mass units [u]
     real(dp), parameter :: m_3He_u = 3.016029321967_dp   ! atomic mass of 3He in atomic mass units [u]
     real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
-    real(dp), parameter :: m_1H = m_1H_u * amu           ! atomic mass of 1H [kg]
-    real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
-    real(dp), parameter :: not4 = m_4He_u / m_1H_u       ! atomic mass ratio of 4He to 1H
+    real(dp), parameter :: m_1H    = m_1H_u * amu        ! atomic mass of 1H [kg]
+    real(dp), parameter :: m_4He   = m_4He_u * amu       ! atomic mass of 4He [kg]
+    real(dp), parameter :: not4    = m_4He_u / m_1H_u    ! atomic mass ratio of 4He to 1H
     ! ("not4" pointed out by Gary Steigman)
 
     ! 2-photon rates in SI units:
-    real(dp), parameter :: Lambda_H = 8.2290619_dp         ! 2s-1s two-photon decay rate for Hydrogen [1/s], Sommerfeldt et al (2020)
-    real(dp), parameter :: Lambda_He = 50.93_dp            ! 2s-1s two photon decay rate for Helium [1/s], Bondy, Morton and Drake (2020)
+    real(dp), parameter :: Lambda_H  =  8.2290619_dp       ! 2s-1s two-photon decay rate for Hydrogen [1/s]; Sommerfeldt et al (2020)
+    real(dp), parameter :: Lambda_He = 50.93_dp            ! 2s-1s two photon decay rate for Helium [1/s]; Bondy, Morton and Drake (2020)
     ! Atomic levels in SI units (from NIST 2020):
-    real(dp), parameter :: L_H_ion = 1.0967877174307e7_dp  ! Hydrogen ionization level [1/m], Kramida, Ralchenko, Reader, and NIST ASD (2020)
-    real(dp), parameter :: L_H_alpha = 8.2259163e6_dp      ! Hydrogen Lyman alpha wavenumber [1/m], Kramida (2010)
-    real(dp), parameter :: L_He1_ion =  1.9831066637e7_dp  ! Helium I ionization level [1/m], Kandula, Gohle, Pinkert, Ubachs, Eikema (2010)
-    real(dp), parameter :: L_He2_ion = 4.389088785e7_dp    ! Helium II ionization level [1/m], Johnson and Soff (1985), rescaled by NIST
-    real(dp), parameter :: L_He_2s = 1.66277440141e7_dp    ! Helium I 2s level [1/m], Morton, Wu and Drake, CJP (2006)
-    real(dp), parameter :: L_He_2p = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m], Morton, Wu and Drake, CJP (2006)
+    real(dp), parameter :: L_H_ion   = 1.0967877174307e7_dp  ! Hydrogen ionization level [1/m]; Kramida, Ralchenko, Reader, and NIST ASD (2020)
+    real(dp), parameter :: L_H_alpha = 8.2259163e6_dp        ! Hydrogen Lyman alpha wavenumber [1/m]; Kramida (2010)
+    real(dp), parameter :: L_He1_ion = 1.9831066637e7_dp     ! Helium I ionization level [1/m]; Kandula, Gohle, Pinkert, Ubachs, Eikema (2010)
+    real(dp), parameter :: L_He2_ion = 4.389088785e7_dp      ! Helium II ionization level [1/m]; Johnson and Soff (1985), rescaled by NIST
+    real(dp), parameter :: L_He_2s   = 1.66277440141e7_dp    ! Helium I 2s level [1/m]; Morton, Wu and Drake, CJP (2006)
+    real(dp), parameter :: L_He_2p   = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m]; Morton, Wu and Drake, CJP (2006)
     ! Atomic data for HeI:
-    real(dp), parameter :: A2P_s        = 1.798287e9_dp      ! Morton, Wu & Drake (2006)
-    real(dp), parameter :: A2P_t        = 177.58_dp          ! Lach & Pachuski (2001)
-    real(dp), parameter :: L_He_2Pt     = 1.690871466e7_dp   ! Drake & Morton (2007)
-    real(dp), parameter :: L_He_2St     = 1.5985597526e7_dp  ! Drake & Morton (2007)
-    real(dp), parameter :: L_He2St_ion  = 3.8454693845e6_dp  ! Drake & Morton (2007)
-    real(dp), parameter :: sigma_He_2Ps = 1.436289e-22_dp    ! Hummer & Storey (1998)
-    real(dp), parameter :: sigma_He_2Pt = 1.484872e-22_dp    ! Hummer & Storey (1998)
+    real(dp), parameter :: A2P_s        = 1.798287e9_dp      ! Einstein A coefficient for He 21P1-11S0; Morton, Wu & Drake (2006)
+    real(dp), parameter :: A2P_t        = 177.58_dp          ! Einstein A coefficient for He 23P1-11S0; Lach & Pachuski (2001)
+    real(dp), parameter :: L_He_2Pt     = 1.690871466e7_dp   ! level for 23P012-11S0 [1/m], Drake & Morton (2007)
+    real(dp), parameter :: L_He_2St     = 1.5985597526e7_dp  ! level for 23S1-11S0 [1/m], Drake & Morton (2007)
+    real(dp), parameter :: L_He2St_ion  = 3.8454693845e6_dp  ! level for 23S1-continuum [1/m], Drake & Morton (2007)
+    real(dp), parameter :: sigma_He_2Ps = 1.436289e-22_dp    ! H ionization x-section at HeI 21P1-11S0 freq. [m^2]; Hummer & Storey (1998)
+    real(dp), parameter :: sigma_He_2Pt = 1.484872e-22_dp    ! H ionization x-section at HeI 23P1-11S0 freq. [m^2]; Hummer & Storey (1998)
 
     ! some derived constants:
     real(dp), parameter :: Lalpha = 1._dp / L_H_alpha                   ! Hydrogen Lyman alpha wavelength [m]
     real(dp), parameter :: Lalpha_He = 1._dp / L_He_2p                  ! Helium I 2p-1s wavelength [m]
     real(dp), parameter :: DeltaB_H = h_P * c * (L_H_ion - L_H_alpha)   ! energy of first excited state from continuum = 3.4eV
-    real(dp), parameter :: CDB = DeltaB_H / k_B                         ! Constants derived from B1, B2, R
+    real(dp), parameter :: CDB_H = DeltaB_H / k_B                       ! Constants derived from B1, B2, R
     real(dp), parameter :: DeltaB_He = h_P * c * (L_He1_ion - L_He_2s)  ! 2s, not 2p; energy of first excited state from cont. for He = 3.4eV
     real(dp), parameter :: CDB_He = DeltaB_He / k_B                     ! n=2-infinity for He in Kelvin
     real(dp), parameter :: CB1_H = h_P * c * L_H_ion / k_B              ! CB1 = CDB * 4.; Lalpha and sigma_Th, calculated
@@ -307,6 +265,7 @@ module constants
     real(dp), parameter :: CT = (8._dp / 3._dp) * a * sigma_e / m_e / c !
     real(dp), parameter :: Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B  ! Bfact = exp((E_2p - E_2s) / kT); Extra Boltzmann factor
 end module constants
+
 
 program recfast
     use precision, only : dp
@@ -565,11 +524,9 @@ end program recfast
 
 !   ===============================================================
 subroutine get_init(z, x_H0, x_He0, x0)
-
 !   Set up the initial conditions so it will work for general,
 !   but not pathological choices of zstart
 !   Initial ionization fraction using Saha for relevant species
-
     use precision, only : dp
     use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     implicit none
@@ -582,16 +539,12 @@ subroutine get_init(z, x_H0, x_He0, x0)
 
     common/Cdata/H_frac, fHe, fu
     common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
-!   ===============================================================
 
-    if(z > 8000._dp)then
-
+    if (z > 8000._dp) then
         x_H0 = 1._dp
         x_He0 = 1._dp
         x0 = 1._dp + 2._dp * fHe
-
-    else if(z > 3500._dp)then
-
+    else if (z > 3500._dp) then
         x_H0 = 1._dp
         x_He0 = 1._dp
         rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
@@ -599,42 +552,35 @@ subroutine get_init(z, x_H0, x_He0, x0)
         rhs = rhs * 1._dp      !ratio of g's is 1 for He++ <-> He+
         x0 = 0.5_dp * ( sqrt( (rhs - 1._dp - fHe)**2 &
             + 4._dp * (1._dp + 2._dp * fHe) * rhs) - (rhs - 1._dp - fHe) )
-
-    else if(z > 2000._dp)then
-
-    x_H0 = 1._dp
-    rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
-        - CB1_He1 / (Tnow * (1._dp + z)) ) / Nnow
-    rhs = rhs * 4._dp      !ratio of g's is 4 for He+ <-> He0
-    x_He0 = 0.5_dp * ( sqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
-        - (rhs - 1._dp))
-    x0 = x_He0
-    x_He0 = (x0 - 1._dp) / fHe
-
+    else if (z > 2000._dp) then
+        x_H0 = 1._dp
+        rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
+            - CB1_He1 / (Tnow * (1._dp + z)) ) / Nnow
+        rhs = rhs * 4._dp      !ratio of g's is 4 for He+ <-> He0
+        x_He0 = 0.5_dp * ( sqrt( (rhs - 1._dp)**2 + 4._dp * (1._dp + fHe) * rhs ) &
+            - (rhs - 1._dp))
+        x0 = x_He0
+        x_He0 = (x0 - 1._dp) / fHe
     else
-
         rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
             - CB1_H / (Tnow * (1._dp + z)) ) / Nnow
         x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
         x_He0 = 0._dp
         x0 = x_H0
-
     end if
-
     return
-
 end subroutine get_init
+
 
 !   ===============================================================
 subroutine ion(Ndim, z, Y, f)
-
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
     use constants, only : m_1H, not4
     use constants, only : Lambda_H, Lambda_He
     use constants, only : L_He_2p
     use constants, only : A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, L_He_2Pt, L_He_2St, L_He2St_ion
-    use constants, only : CDB, CDB_He, CR, CK_H, CK_He, CL_H, CL_He, CT, Bfact
+    use constants, only : CDB_H, CDB_He, CR, CK_H, CK_He, CL_H, CL_He, CT, Bfact
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
@@ -659,7 +605,6 @@ subroutine ion(Ndim, z, Y, f)
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
     common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
-!       ===============================================================
 
 !       the Pequignot, Petitjean & Boisson fitting parameters for Hydrogen
     a_PPB = 4.309_dp
@@ -695,7 +640,7 @@ subroutine ion(Ndim, z, Y, f)
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
     Rdown = 1.e-19_dp * a_PPB * (Tmat / 1.e4_dp)**b_PPB &
         /(1._dp + c_PPB * (Tmat / 1.e4_dp)**d_PPB)
-    Rup = Rdown * (CR * Tmat)**(1.5_dp) * exp(-CDB / Tmat)
+    Rup = Rdown * (CR * Tmat)**(1.5_dp) * exp(-CDB_H / Tmat)
 
 !       calculate He using a fit to a Verner & Ferland type formula
     sq_0 = sqrt(Tmat / T_0)
@@ -836,10 +781,9 @@ subroutine ion(Ndim, z, Y, f)
         f(3)= CT * (Trad**4) * x / (1._dp + x + fHe) &
             * (Tmat - Trad) / (Hz * (1._dp + z)) + 2._dp * Tmat / (1._dp + z)
     end if
-
     return
-
 end subroutine ion
+
 
 !===============================================================================
       subroutine dverk (n, fcn, x, y, xend, tol, ind, c, nw, w)
