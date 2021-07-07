@@ -271,12 +271,25 @@ module constants
     real(dp), parameter :: Lambda_H = 8.2290619_dp         ! 2s-1s two-photon decay rate for Hydrogen [1/s], Sommerfeldt et al (2020)
     real(dp), parameter :: Lambda_He = 50.93_dp            ! 2s-1s two photon decay rate for Helium [1/s], Bondy, Morton and Drake (2020)
     ! Atomic levels in SI units:
+    !real(dp), parameter :: L_H_ion = 1.0967877174307e7_dp  ! Hydrogen ionization level [1/m], Kramida, Ralchenko, Reader, and NIST ASD (2020), NIST
+    !real(dp), parameter :: L_H_alpha = 8.2259163e6_dp      ! Hydrogen Lyman alpha wavenumber [1/m], Kramida (2010), NIST
+    !real(dp), parameter :: L_He1_ion =  1.9831066637e7_dp  ! Helium I ionization level [1/m], Kandula, Gohle, Pinkert, Ubachs, Eikema (2010), NIST
+    !real(dp), parameter :: L_He2_ion = 4.389088785e7_dp    ! Helium II ionization level [1/m], Johnson and Soff (1985), rescaled by NIST
+    !real(dp), parameter :: L_He_2s = 1.66277440141e7_dp    ! Helium I 2s level [1/m], Morton, Wu and Drake, CJP (2006), NIST
+    !real(dp), parameter :: L_He_2p = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m], Morton, Wu and Drake, CJP (2006), NIST
+    real(dp), parameter :: L_H_ion   = 1.096787737e7_dp  !level for H ion. (in m^-1)
+    real(dp), parameter :: L_H_alpha = 8.225916453e6_dp  !averaged over 2 levels
+    real(dp), parameter :: L_He1_ion = 1.98310772e7_dp   !from Drake (1993)
+    real(dp), parameter :: L_He2_ion = 4.389088863e7_dp  !from JPhysChemRefData (1987)
+    real(dp), parameter :: L_He_2s   = 1.66277434e7_dp   !from Drake (1993)
+    real(dp), parameter :: L_He_2p   = 1.71134891e7_dp   !from Drake (1993)
 end module constants
 
 program recfast
     use precision, only : dp
     use constants, only : pi, c, G, h_P, k_B, m_e, sigma_e, a
     use constants, only : m_1H, not4
+    use constants, only : L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
     implicit none
 
 !   --- Arguments
@@ -287,7 +300,6 @@ program recfast
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
     real(dp) :: DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lalpha_He, Bfact, CK_He, CL_He
-    real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
     real(dp) :: CB1, CDB, CR, CK, CL, CT, Yp, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
     real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
     real(dp) :: L_He_2Pt, L_He_2St, L_He2St_ion
@@ -314,7 +326,7 @@ program recfast
     common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
-        L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+        L_He_2Pt, L_He_2St, L_He2St_ion
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
 
@@ -322,14 +334,6 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    L_H_ion     /1.096787737e7_dp/ !level for H ion. (in m^-1)
-    data    L_H_alpha   /8.225916453e6_dp/ !averaged over 2 levels
-    data    L_He1_ion   /1.98310772e7_dp/  !from Drake (1993)
-    data    L_He2_ion   /4.389088863e7_dp/ !from JPhysChemRefData (1987)
-    data    L_He_2s     /1.66277434e7_dp/  !from Drake (1993)
-    data    L_He_2p     /1.71134891e7_dp/  !from Drake (1993)
-!   2 photon rates and atomic levels in SI units
-
     data    A2P_s       /1.798287e9_dp/    !Morton, Wu & Drake (2006)
     data    A2P_t       /177.58_dp/      !Lach & Pachuski (2001)
     data    L_He_2Pt    /1.690871466e7_dp/ !Drake & Morton (2007)
@@ -640,6 +644,7 @@ subroutine ion(Ndim, z, Y, f)
     use constants, only : pi, c, h_P, k_B
     use constants, only : m_1H, not4
     use constants, only : Lambda_H, Lambda_He
+    use constants, only : L_He_2p
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
@@ -656,7 +661,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: tauHe_s, pHe_s
     real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
     real(dp) :: Doppler, gamma_2Ps, pb, qb, AHcon
-    real(dp) :: L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+    real(dp) :: L_He_2Pt, L_He_2St, L_He2St_ion
     real(dp) :: a_trip, b_trip, Rdown_trip, Rup_trip
     real(dp) :: tauHe_t, pHe_t, CL_PSt, CfHe_t, gamma_2Pt
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
@@ -665,7 +670,7 @@ subroutine ion(Ndim, z, Y, f)
     common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
-        L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
+        L_He_2Pt, L_He_2St, L_He2St_ion
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
     common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
