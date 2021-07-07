@@ -1,4 +1,4 @@
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!##############################################################################
 ! Integrator for Cosmic Recombination of Hydrogen and Helium,
 ! developed by Douglas Scott (dscott@astro.ubc.ca)
 ! based on calculations in the papers Seager, Sasselov & Scott
@@ -22,7 +22,7 @@
 ! THE USE OF THE LICENSED SOFTWARE OR DOCUMENTATION WILL NOT INFRINGE
 ! ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
 !
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!##############################################################################
 !
 !N  Name: RECFAST
 !V  Version: 1.5.2
@@ -181,9 +181,10 @@
 !H      Jul 2012 (modified fudge factors for better match to codes with more detailed physics)
 !H      Sep 2012 (fixed "fu" at low z to match modifications)
 !
-!   ===============================================================
+!##############################################################################
 
 
+!##############################################################################
 module precision
     use, intrinsic :: iso_fortran_env
     implicit none
@@ -194,6 +195,7 @@ module precision
 end module precision
 
 
+!##############################################################################
 module constants
     use precision, only : dp
     implicit none
@@ -267,6 +269,7 @@ module constants
 end module constants
 
 
+!##############################################################################
 program recfast
     use precision, only : dp
     use constants, only : pi, c, G, a, parsec
@@ -307,7 +310,7 @@ program recfast
     common/Switch/Heswitch, Hswitch
 
     common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
-!   ===============================================================
+!   ###########################################################################
 
 !   --- Data
     data    AGauss1     /-0.14_dp/   !Amplitude of 1st Gaussian
@@ -522,7 +525,7 @@ program recfast
 end program recfast
 
 
-!   ===============================================================
+!##############################################################################
 subroutine get_init(z, x_H0, x_He0, x0)
 !   Set up the initial conditions so it will work for general,
 !   but not pathological choices of zstart
@@ -572,7 +575,7 @@ subroutine get_init(z, x_H0, x_He0, x0)
 end subroutine get_init
 
 
-!   ===============================================================
+!##############################################################################
 subroutine ion(Ndim, z, Y, f)
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
@@ -785,7 +788,7 @@ subroutine ion(Ndim, z, Y, f)
 end subroutine ion
 
 
-!===============================================================================
+!##############################################################################
       subroutine dverk (n, fcn, x, y, xend, tol, ind, c, nw, w)
         use precision, only : dp
         implicit none
