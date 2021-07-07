@@ -264,25 +264,19 @@ module constants
     real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
     real(dp), parameter :: m_1H = m_1H_u * amu           ! atomic mass of 1H [kg]
     real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
-    real(dp), parameter :: not4 = m_4He_u / m_1H_u            ! atomic mass ratio of 4He to 1H
+    real(dp), parameter :: not4 = m_4He_u / m_1H_u       ! atomic mass ratio of 4He to 1H
     ! ("not4" pointed out by Gary Steigman)
 
     ! 2-photon rates in SI units:
     real(dp), parameter :: Lambda_H = 8.2290619_dp         ! 2s-1s two-photon decay rate for Hydrogen [1/s], Sommerfeldt et al (2020)
     real(dp), parameter :: Lambda_He = 50.93_dp            ! 2s-1s two photon decay rate for Helium [1/s], Bondy, Morton and Drake (2020)
-    ! Atomic levels in SI units:
-    !real(dp), parameter :: L_H_ion = 1.0967877174307e7_dp  ! Hydrogen ionization level [1/m], Kramida, Ralchenko, Reader, and NIST ASD (2020), NIST
-    !real(dp), parameter :: L_H_alpha = 8.2259163e6_dp      ! Hydrogen Lyman alpha wavenumber [1/m], Kramida (2010), NIST
-    !real(dp), parameter :: L_He1_ion =  1.9831066637e7_dp  ! Helium I ionization level [1/m], Kandula, Gohle, Pinkert, Ubachs, Eikema (2010), NIST
-    !real(dp), parameter :: L_He2_ion = 4.389088785e7_dp    ! Helium II ionization level [1/m], Johnson and Soff (1985), rescaled by NIST
-    !real(dp), parameter :: L_He_2s = 1.66277440141e7_dp    ! Helium I 2s level [1/m], Morton, Wu and Drake, CJP (2006), NIST
-    !real(dp), parameter :: L_He_2p = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m], Morton, Wu and Drake, CJP (2006), NIST
-    real(dp), parameter :: L_H_ion   = 1.096787737e7_dp  !level for H ion. (in m^-1)
-    real(dp), parameter :: L_H_alpha = 8.225916453e6_dp  !averaged over 2 levels
-    real(dp), parameter :: L_He1_ion = 1.98310772e7_dp   !from Drake (1993)
-    real(dp), parameter :: L_He2_ion = 4.389088863e7_dp  !from JPhysChemRefData (1987)
-    real(dp), parameter :: L_He_2s   = 1.66277434e7_dp   !from Drake (1993)
-    real(dp), parameter :: L_He_2p   = 1.71134891e7_dp   !from Drake (1993)
+    ! Atomic levels in SI units (from NIST 2020):
+    real(dp), parameter :: L_H_ion = 1.0967877174307e7_dp  ! Hydrogen ionization level [1/m], Kramida, Ralchenko, Reader, and NIST ASD (2020)
+    real(dp), parameter :: L_H_alpha = 8.2259163e6_dp      ! Hydrogen Lyman alpha wavenumber [1/m], Kramida (2010)
+    real(dp), parameter :: L_He1_ion =  1.9831066637e7_dp  ! Helium I ionization level [1/m], Kandula, Gohle, Pinkert, Ubachs, Eikema (2010)
+    real(dp), parameter :: L_He2_ion = 4.389088785e7_dp    ! Helium II ionization level [1/m], Johnson and Soff (1985), rescaled by NIST
+    real(dp), parameter :: L_He_2s = 1.66277440141e7_dp    ! Helium I 2s level [1/m], Morton, Wu and Drake, CJP (2006)
+    real(dp), parameter :: L_He_2p = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m], Morton, Wu and Drake, CJP (2006)
 end module constants
 
 program recfast
