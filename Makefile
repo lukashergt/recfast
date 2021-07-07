@@ -130,6 +130,7 @@ test: $(BINS)
 	tail -n 5 $(TEST_DIR)/example.out
 	tail -n 5 $(TEST_DIR)/example_new_CODATA.out
 	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME.out
+	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME_2photon.out
 	tail -n 5 $(MAKE_DIR)/test.out
 	@echo
 
