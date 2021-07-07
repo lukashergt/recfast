@@ -107,8 +107,8 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-SRCS := $(wildcard *.f03)
-BINS := $(SRCS:%.f03=%)
+SRCS := $(wildcard *.f08)
+BINS := $(SRCS:%.f08=%)
 
 all: $(BINS) test
 
@@ -117,7 +117,7 @@ all: $(BINS) test
 	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
 
 # Build step for fortran source
-$(BUILD_DIR)/%.o: %.f03 .base
+$(BUILD_DIR)/%.o: %.f08 .base
 	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
 
 # Run a basic test with input from example.ini
