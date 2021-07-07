@@ -149,7 +149,7 @@
 !A  A2P_t: Einstein A coefficient for He 23P1-11S0
 !A  sigma_He_2Ps: H ionization x-section at HeI 21P1-11S0 freq. in m^2
 !A  sigma_He_2Pt: H ionization x-section at HeI 23P1-11S0 freq. in m^2
-!A  CL_PSt = h_P * c * (L_He_2Pt - L_He_2st) / k_B
+!A  CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
 !A  CfHe_t: triplet statistical correction
 !A  Hswitch is an integer for modifying the H recombination
 !A  AGauss1 is the amplitude of the 1st Gaussian for the H fudging
@@ -277,6 +277,14 @@ module constants
     real(dp), parameter :: L_He2_ion = 4.389088785e7_dp    ! Helium II ionization level [1/m], Johnson and Soff (1985), rescaled by NIST
     real(dp), parameter :: L_He_2s = 1.66277440141e7_dp    ! Helium I 2s level [1/m], Morton, Wu and Drake, CJP (2006)
     real(dp), parameter :: L_He_2p = 1.71134896946e7_dp    ! Helium I 2p (21P1-11S0) level [1/m], Morton, Wu and Drake, CJP (2006)
+    ! Atomic data for HeI:
+    real(dp), parameter :: A2P_s        = 1.798287e9_dp      ! Morton, Wu & Drake (2006)
+    real(dp), parameter :: A2P_t        = 177.58_dp          ! Lach & Pachuski (2001)
+    real(dp), parameter :: L_He_2Pt     = 1.690871466e7_dp   ! Drake & Morton (2007)
+    real(dp), parameter :: L_He_2St     = 1.5985597526e7_dp  ! Drake & Morton (2007)
+    real(dp), parameter :: L_He2St_ion  = 3.8454693845e6_dp  ! Drake & Morton (2007)
+    real(dp), parameter :: sigma_He_2Ps = 1.436289e-22_dp    ! Hummer & Storey (1998)
+    real(dp), parameter :: sigma_He_2Pt = 1.484872e-22_dp    ! Hummer & Storey (1998)
 end module constants
 
 program recfast
@@ -295,8 +303,6 @@ program recfast
     real(dp) :: DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
     real(dp) :: Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: CB1, CDB, CR, CK, CL, CT, Yp, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
-    real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
-    real(dp) :: L_He_2Pt, L_He_2St, L_He2St_ion
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
 
     real(dp) :: tol
@@ -319,8 +325,7 @@ program recfast
     common/zLIST/zinitial, zfinal, Nz
     common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
-    common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
-        L_He_2Pt, L_He_2St, L_He2St_ion
+    common/Hemod/b_He
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
 
@@ -328,15 +333,6 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    A2P_s       /1.798287e9_dp/    !Morton, Wu & Drake (2006)
-    data    A2P_t       /177.58_dp/      !Lach & Pachuski (2001)
-    data    L_He_2Pt    /1.690871466e7_dp/ !Drake & Morton (2007)
-    data    L_He_2St    /1.5985597526e7_dp/ !Drake & Morton (2007)
-    data    L_He2St_ion /3.8454693845e6_dp/ !Drake & Morton (2007)
-    data    sigma_He_2Ps    /1.436289e-22_dp/  !Hummer & Storey (1998)
-    data    sigma_He_2Pt    /1.484872e-22_dp/  !Hummer & Storey (1998)
-!   Atomic data for HeI
-
     data    AGauss1     /-0.14_dp/   !Amplitude of 1st Gaussian
     data    AGauss2     /0.079_dp/   !Amplitude of 2nd Gaussian
     data    zGauss1     /7.28_dp/    !ln(1 + z) of 1st Gaussian
@@ -639,6 +635,7 @@ subroutine ion(Ndim, z, Y, f)
     use constants, only : m_1H, not4
     use constants, only : Lambda_H, Lambda_He
     use constants, only : L_He_2p
+    use constants, only : A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, L_He_2Pt, L_He_2St, L_He2St_ion
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
@@ -653,9 +650,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: Bfact, CK_He, CL_He
     real(dp) :: a_VF, b_VF, T_0, T_1, sq_0, sq_1, a_PPB, b_PPB, c_PPB, d_PPB
     real(dp) :: tauHe_s, pHe_s
-    real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
     real(dp) :: Doppler, gamma_2Ps, pb, qb, AHcon
-    real(dp) :: L_He_2Pt, L_He_2St, L_He2St_ion
     real(dp) :: a_trip, b_trip, Rdown_trip, Rup_trip
     real(dp) :: tauHe_t, pHe_t, CL_PSt, CfHe_t, gamma_2Pt
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
@@ -663,8 +658,7 @@ subroutine ion(Ndim, z, Y, f)
 
     common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
         fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
-    common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
-        L_He_2Pt, L_He_2St, L_He2St_ion
+    common/Hemod/b_He
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
     common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
@@ -769,7 +763,7 @@ subroutine ion(Ndim, z, Y, f)
             tauHe_t = A2P_t * n_He * (1._dp - x_He) * 3._dp
             tauHe_t = tauHe_t /(8._dp * pi * Hz * L_He_2Pt**(3._dp))
             pHe_t = (1._dp - exp(-tauHe_t)) / tauHe_t
-            CL_PSt = h_P * c * (L_He_2Pt - L_He_2st) / k_B
+            CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
             if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999_dp)) then
 !                   no H cont. effect
                 CfHe_t = A2P_t * pHe_t * exp(-CL_PSt / Tmat)
@@ -826,7 +820,7 @@ subroutine ion(Ndim, z, Y, f)
 !           Modification to HeI recombination including channel via triplets
         if (Heflag >= 3) then
             f(2) = f(2)+ (x * x_He * n * Rdown_trip &
-                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * c * L_He_2st / (k_B * Tmat))) &
+                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * c * L_He_2St / (k_B * Tmat))) &
                 *CfHe_t / (Hz * (1._dp + z))
         end if
     end if
