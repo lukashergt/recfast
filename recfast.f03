@@ -823,7 +823,7 @@ end subroutine ion
                 c(k) = abs(c(k))
             end do
 !           make floor values non-negative if they are to be used
-            if (c(1) == 4._dp .or. c(1) == 5._dp) then
+            if (abs(c(1) - 4._dp) < tiny(1._dp) .or. abs(c(1) - 5._dp) < tiny(1._dp)) then  ! if c(1) == 4 .or. c(1) == 5
                 do k = 1, n
                     c(k + 30) = abs(c(k + 30))
                 end do
@@ -840,8 +840,8 @@ end subroutine ion
         go to 50
 !       case 2 - normal re-entry (ind == 3)
 !  .........abort if xend reached, and either x changed or xend not
-   45   if (c(21) /= 0._dp .and. &
-                              (x /= c(20) .or. xend == c(20))) go to 500
+        ! if c(21) /= 0  .and.  ( x /= c(20) .or. xend == c(20) )
+   45   if (abs(c(21)) >= tiny(1._dp) .and. (abs(x - c(20)) >= tiny(1._dp) .or. abs(xend - c(20)) < tiny(1._dp))) go to 500
 !           re-initialize flag
             c(21) = 0._dp
 !       case 3 - re-entry following an interrupt (ind == 4 to 6)
@@ -872,7 +872,7 @@ end subroutine ion
 !       ***************************************************************
 !
 !***********error return (with ind=-1) if no of fcn evals too great
-        if (c(7) /= 0._dp .and. c(24) >= c(7)) then
+        if (abs(c(7)) >= tiny(1._dp) .and. c(24) >= c(7)) then  ! if c(7) /= 0 .and. c(24) >= c(7)
             ind = -1
             return
         end if
@@ -885,34 +885,34 @@ end subroutine ion
 !
 !       calculate hmin - use default unless value prescribed
         c(13) = c(3)
-        if (c(3) == 0._dp) then
+        if (abs(c(3)) < tiny(1._dp)) then  ! if c(3) == 0
             ! calculate default value of hmin
             ! first calculate weighted norm y - c(12) - as specified
             ! by the error control indicator c(1)
             temp = 0._dp
-            if (c(1) == 1._dp) then
+            if (abs(c(1) - 1._dp) < tiny(1._dp)) then  ! if c(1) == 1
                 ! absolute error control - weights are 1
                 do k = 1, n
                     temp = max(temp, abs(y(k)))
                 end do
                 c(12) = temp
-            else if (c(1) == 2._dp) then
+            else if (abs(c(1) - 2._dp) < tiny(1._dp)) then  ! if c(1) == 2
                 ! relative error control - weights are 1/abs(y(k)) so
                 ! weighted norm y is 1
                 c(12) = 1._dp
-            else if (c(1) == 3._dp) then
+            else if (abs(c(1) - 3._dp) < tiny(1._dp)) then  ! if c(1) == 3
                 ! weights are 1/max(c(2), abs(y(k)))
                 do k = 1, n
                     temp = max(temp, abs(y(k)) / c(2))
                 end do
                 c(12) = min(temp, 1._dp)
-            else if (c(1) == 4._dp) then
+            else if (abs(c(1) - 4._dp) < tiny(1._dp)) then  ! if c(1) == 4
                 ! weights are 1/max(c(k + 30), abs(y(k)))
                 do k = 1, n
                     temp = max(temp, abs(y(k)) / c(k + 30))
                 end do
                 c(12) = min(temp, 1._dp)
-            else if (c(1) == 5._dp) then
+            else if (abs(c(1) - 5._dp) < tiny(1._dp)) then  ! if c(1) == 5
                 ! weights are 1 / c(k + 30)
                 do k = 1, n
                     temp = max(temp, abs(y(k)) / c(k + 30))
@@ -927,22 +927,28 @@ end subroutine ion
             end if
             c(13) = 10._dp * max(c(11), c(10) * max(c(12) / tol, abs(x)))
         end if
-!
-!       calculate scale - use default unless value prescribed
+
+        ! calculate scale - use default unless value prescribed
         c(15) = c(5)
-        if (c(5) == 0._dp) c(15) = 1._dp
-!
-!       calculate hmax - consider 4 cases
-!       case 1 both hmax and scale prescribed
-            if (c(6) /= 0._dp .and. c(5) /= 0._dp) &
+        if (abs(c(5)) < tiny(1._dp)) then  ! if c(5) == 0
+            c(15) = 1._dp
+        end if
+
+        ! calculate hmax - consider 4 cases
+        ! case 1 both hmax and scale prescribed
+        if (abs(c(6)) >= tiny(1._dp) .and. abs(c(5)) >= tiny(1._dp)) then  ! if c(6) /= 0 .and. c(5) /= 0
             c(16) = min(c(6), 2._dp / c(5))
-!       case 2 - hmax prescribed, but scale not
-        if (c(6) /= 0._dp .and. c(5) == 0._dp) c(16) = c(6)
-!       case 3 - hmax not prescribed, but scale is
-        if (c(6) == 0._dp .and. c(5) /= 0._dp) c(16) = 2._dp / c(5)
-!       case 4 - neither hmax nor scale is provided
-        if (c(6) == 0._dp .and. c(5) == 0._dp) c(16) = 2._dp
-!
+        ! case 2 - hmax prescribed, but scale not
+        else if (abs(c(6)) >= tiny(1._dp) .and. abs(c(5)) < tiny(1._dp)) then  ! if c(6) /= 0 .and. c(5) == 0
+            c(16) = c(6)
+        ! case 3 - hmax not prescribed, but scale is
+        else if (abs(c(6)) < tiny(1._dp) .and. abs(c(5)) >= tiny(1._dp)) then  ! if c(6) == 0 .and. c(5) /= 0
+            c(16) = 2._dp / c(5)
+        ! case 4 - neither hmax nor scale is provided
+        else if (abs(c(6)) < tiny(1._dp) .and. abs(c(5)) < tiny(1._dp)) then  ! if c(6) == 0 .and. c(5) == 0
+            c(16) = 2._dp
+        end if
+
 !***********error return (with ind=-2) if hmin > hmax
         if (c(13) > c(16)) then
             ind = -2
@@ -954,7 +960,7 @@ end subroutine ion
             ! case 1 - initial entry - use prescribed value of hstart, if
             ! any, else default
             c(14) = c(4)
-            if (c(4) == 0._dp) c(14) = c(16) * tol**(1. / 6.)
+            if (abs(c(4)) < tiny(1._dp)) c(14) = c(16) * tol**(1. / 6.)  ! if c(4) == 0
         else if (c(23) <= 1._dp) then
             ! case 2 - after a successful step, or at most  one  failure,
             ! use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
@@ -975,7 +981,7 @@ end subroutine ion
         c(14) = max(c(14), c(13))
 !
 !***********interrupt no 1 (with ind=4) if requested
-        if (c(8) /= 0._dp) then
+        if (abs(c(8)) >= tiny(1._dp)) then  ! if c(8) /= 0
             ind = 4
             return
         end if
@@ -1101,29 +1107,29 @@ end subroutine ion
 !       calculate the weighted max norm of w(*,2) as specified by
 !           the error control indicator c(1)
         temp = 0._dp
-        if (c(1) == 1._dp) then
+        if (abs(c(1) - 1._dp) < tiny(1._dp)) then  ! if c(1) == 1
             ! absolute error control
             do k = 1, n
                 temp = max(temp, abs(w(k,2)))
             end do
-        else if (c(1) == 2._dp) then
+        else if (abs(c(1) - 2._dp) < tiny(1._dp)) then  ! if c(1) == 2
             ! relative error control
             do k = 1, n
                 temp = max(temp, abs(w(k,2) / y(k)))
             end do
-        else if (c(1) == 3._dp) then
+        else if (abs(c(1) - 3._dp) < tiny(1._dp)) then  ! if c(1) == 3
             ! weights are 1/max(c(2), abs(y(k)))
             do k = 1, n
                 temp = max(temp, abs(w(k,2)) &
                     / max(c(2), abs(y(k))) )
             end do
-        else if (c(1) == 4._dp) then
+        else if (abs(c(1) - 4._dp) < tiny(1._dp)) then  ! if c(1) == 4
             ! weights are 1/max(c(k + 30), abs(y(k)))
             do k = 1, n
                 temp = max(temp, abs(w(k,2)) &
                     / max(c(k + 30), abs(y(k))) )
             end do
-        else if (c(1) == 5._dp) then
+        else if (abs(c(1) - 5._dp) < tiny(1._dp)) then  ! if c(1) == 5
             ! weights are 1/c(k + 30)
             do k = 1, n
                 temp = max(temp, abs(w(k,2) / c(k + 30)))
@@ -1152,7 +1158,7 @@ end subroutine ion
         if (c(19) > tol) ind = 6
 !
 !***********interrupt no 2 if requested
-        if (c(9) /= 0._dp) then
+        if (abs(c(9)) >= tiny(1._dp)) then  ! if c(9) /= 0
             return
         end if
 !       resume here on re-entry with ind == 5 or 6   ...re-entry..
@@ -1169,7 +1175,7 @@ end subroutine ion
             c(22) = c(22) + 1._dp
             c(23) = 0._dp
 !**************return(with ind=3, xend saved, flag set) if x == xend
-            if (x == xend) then
+            if (abs(x - xend) < tiny(1._dp)) then  ! if x == xend
                 ind = 3
                 c(20) = xend
                 c(21) = 1._dp
