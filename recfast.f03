@@ -107,7 +107,7 @@
 !A  sigma_e: Thomson cross-section
 !A  a: radiation constant for u=aT^4
 !A  pi: pi
-!A  Lambda: 2s-1s two photon rate for Hydrogen
+!A  Lambda_H: 2s-1s two photon rate for Hydrogen
 !A  Lambda_He: 2s-1s two photon rate for Helium
 !A  DeltaB: energy of first excited state from continuum = 3.4eV
 !A  DeltaB_He: energy of first excited state from cont. for He = 3.4eV
@@ -168,7 +168,7 @@
 !G  Global data (common blocks) referenced:
 !G  /zLIST/zinitial, zfinal, Nz
 !G  /Cfund/c, k_B, h_P, m_e, m_1H, not4, sigma_e, a, pi
-!G  /data/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT,
+!G  /data/Lambda_H, H_frac, CB1, CDB, CR, CK, CL, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
 !G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !G  /Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt,
@@ -266,6 +266,11 @@ module constants
     real(dp), parameter :: m_4He = m_4He_u * amu         ! atomic mass of 4He [kg]
     real(dp), parameter :: not4 = m_4He_u / m_1H_u            ! atomic mass ratio of 4He to 1H
     ! ("not4" pointed out by Gary Steigman)
+
+    ! 2-photon rates in SI units:
+    real(dp), parameter :: Lambda_H = 8.2290619_dp         ! 2s-1s two-photon decay rate for Hydrogen [1/s], Sommerfeldt et al (2020)
+    real(dp), parameter :: Lambda_He = 50.93_dp            ! 2s-1s two photon decay rate for Helium [1/s], Bondy, Morton and Drake (2020)
+    ! Atomic levels in SI units:
 end module constants
 
 program recfast
@@ -280,8 +285,8 @@ program recfast
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: Lambda, DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
-    real(dp) :: Lambda_He, Lalpha_He, Bfact, CK_He, CL_He
+    real(dp) :: DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
+    real(dp) :: Lalpha_He, Bfact, CK_He, CL_He
     real(dp) :: L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
     real(dp) :: CB1, CDB, CR, CK, CL, CT, Yp, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
     real(dp) :: A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt
@@ -306,8 +311,8 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
+        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
         L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
@@ -317,8 +322,6 @@ program recfast
 !   ===============================================================
 
 !   --- Data
-    data    Lambda      /8.2245809_dp/
-    data    Lambda_He   /51.3_dp/    !new value from Dalgarno
     data    L_H_ion     /1.096787737e7_dp/ !level for H ion. (in m^-1)
     data    L_H_alpha   /8.225916453e6_dp/ !averaged over 2 levels
     data    L_He1_ion   /1.98310772e7_dp/  !from Drake (1993)
@@ -580,12 +583,12 @@ subroutine get_init(z, x_H0, x_He0, x0)
     real(dp) :: OmegaT, HO, OmegaL, OmegaK
     real(dp) :: z, x0, rhs, x_H0, x_He0
     real(dp) :: Tnow, Nnow, z_eq
-    real(dp) :: Lambda, H_frac
-    real(dp) :: Lambda_He, Bfact, CK_He, CL_He
+    real(dp) :: H_frac
+    real(dp) :: Bfact, CK_He, CL_He
     real(dp) :: CB1, CDB, CR, CK, CL, CT, fHe, CB1_He1, CB1_He2, CDB_He, fu
 
-    common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
+        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
     common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
@@ -636,13 +639,14 @@ subroutine ion(Ndim, z, Y, f)
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
     use constants, only : m_1H, not4
+    use constants, only : Lambda_H, Lambda_He
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
 
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
-    real(dp) :: Lambda, H_frac, Lambda_He
+    real(dp) :: H_frac
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
     real(dp) :: timeTh, timeH, factor
@@ -658,8 +662,8 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cdata/Lambda, H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
+        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
     common/Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, &
         L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
@@ -802,13 +806,13 @@ subroutine ion(Ndim, z, Y, f)
             /(Hz * (1._dp + z))
 !           for interest, calculate the correction factor compared to Saha
 !           (without the fudge)
-        factor = (1._dp + K * Lambda * n * (1._dp - x_H)) &
-            /(Hz * (1._dp + z) * (1._dp + K * Lambda * n * (1._dp - x) &
+        factor = (1._dp + K * Lambda_H * n * (1._dp - x_H)) &
+            /(Hz * (1._dp + z) * (1._dp + K * Lambda_H * n * (1._dp - x) &
             +K * Rup * n * (1._dp - x)))
     else                  !use full rate for H
         f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL / Tmat)) &
-            *(1._dp + K * Lambda * n * (1._dp - x_H))) &
-            /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda * n * (1._dp - x_H) / fu &
+            *(1._dp + K * Lambda_H * n * (1._dp - x_H))) &
+            /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda_H * n * (1._dp - x_H) / fu &
             +K * Rup * n * (1._dp - x_H)))
     end if
 !       turn off the He once it is small
