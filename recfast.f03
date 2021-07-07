@@ -109,7 +109,7 @@
 !A  pi: pi
 !A  Lambda_H: 2s-1s two photon rate for Hydrogen
 !A  Lambda_He: 2s-1s two photon rate for Helium
-!A  DeltaB: energy of first excited state from continuum = 3.4eV
+!A  DeltaB_H: energy of first excited state from continuum = 3.4eV
 !A  DeltaB_He: energy of first excited state from cont. for He = 3.4eV
 !A  L_H_ion: level for H ionization in m^-1
 !A  L_H_alpha: level for H Ly alpha in m^-1
@@ -122,15 +122,15 @@
 !A  mu_H, mu_T: mass per H atom and mass per particle
 !A  H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
 !A  dHdz is the derivative of H at the specific z (in ion)
-!A  CDB = DeltaB / k_B          Constants derived from B1, B2, R
+!A  CDB = DeltaB_H / k_B          Constants derived from B1, B2, R
 !A  CDB_He = DeltaB_He / k_B        n=2-infinity for He in Kelvin
-!A  CB1 = CDB * 4.          Lalpha and sigma_Th, calculated
+!A  CB1_H = CDB * 4.          Lalpha and sigma_Th, calculated
 !A  CB1_He1: CB1 for HeI ionization potential
 !A  CB1_He2: CB1 for HeII ionization potential
 !A  CR = 2 * pi * (m_e / h_P) * (k_B / h_P) once and passed in a common block
-!A  CK = Lalpha**3 / (8. * pi)
+!A  CK_H = Lalpha**3 / (8. * pi)
 !A  CK_He = Lalpha_He**3 / (8. * pi)
-!A  CL = c * h_P / (k_B * Lalpha)
+!A  CL_H = c * h_P / (k_B * Lalpha)
 !A  CL_He = c * h_P / (k_B * Lalpha_He)
 !A  CT = (8. / 3.) * (sigma_e / (m_e * c)) * a
 !A  Bfact = exp((E_2p - E_2s) / kT)   Extra Boltzmann factor
@@ -168,7 +168,7 @@
 !G  Global data (common blocks) referenced:
 !G  /zLIST/zinitial, zfinal, Nz
 !G  /Cfund/c, k_B, h_P, m_e, m_1H, not4, sigma_e, a, pi
-!G  /data/Lambda_H, H_frac, CB1, CDB, CR, CK, CL, CT,
+!G  /data/Lambda_H, H_frac, CB1_H, CDB, CR, CK_H, CL_H, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
 !G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !G  /Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt,
@@ -285,13 +285,31 @@ module constants
     real(dp), parameter :: L_He2St_ion  = 3.8454693845e6_dp  ! Drake & Morton (2007)
     real(dp), parameter :: sigma_He_2Ps = 1.436289e-22_dp    ! Hummer & Storey (1998)
     real(dp), parameter :: sigma_He_2Pt = 1.484872e-22_dp    ! Hummer & Storey (1998)
+
+    ! some derived constants:
+    real(dp), parameter :: Lalpha = 1._dp / L_H_alpha                   ! Hydrogen Lyman alpha wavelength [m]
+    real(dp), parameter :: Lalpha_He = 1._dp / L_He_2p                  ! Helium I 2p-1s wavelength [m]
+    real(dp), parameter :: DeltaB_H = h_P * c * (L_H_ion - L_H_alpha)   ! energy of first excited state from continuum = 3.4eV
+    real(dp), parameter :: CDB = DeltaB_H / k_B                         ! Constants derived from B1, B2, R
+    real(dp), parameter :: DeltaB_He = h_P * c * (L_He1_ion - L_He_2s)  ! 2s, not 2p; energy of first excited state from cont. for He = 3.4eV
+    real(dp), parameter :: CDB_He = DeltaB_He / k_B                     ! n=2-infinity for He in Kelvin
+    real(dp), parameter :: CB1_H = h_P * c * L_H_ion / k_B              ! CB1 = CDB * 4.; Lalpha and sigma_Th, calculated
+    real(dp), parameter :: CB1_He1 = h_P * c * L_He1_ion / k_B          ! CB1 for HeI ionization potential
+    real(dp), parameter :: CB1_He2 = h_P * c * L_He2_ion / k_B          ! CB1 for HeII ionization potential
+    real(dp), parameter :: CR = 2._dp * pi * (m_e / h_P) * (k_B / h_P)  !
+    real(dp), parameter :: CK_H = Lalpha**3 / (8._dp * pi)              !
+    real(dp), parameter :: CK_He = Lalpha_He**3 / (8._dp * pi)          !
+    real(dp), parameter :: CL_H = c * h_P / (k_B * Lalpha)              !
+    real(dp), parameter :: CL_He = c * h_P / (k_B / L_He_2s)            ! comes from det.bal. of 2s-1s
+    real(dp), parameter :: CT = (8._dp / 3._dp) * a * sigma_e / m_e / c !
+    real(dp), parameter :: Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B  ! Bfact = exp((E_2p - E_2s) / kT); Extra Boltzmann factor
 end module constants
 
 program recfast
     use precision, only : dp
-    use constants, only : pi, c, G, h_P, k_B, m_e, sigma_e, a
+    use constants, only : pi, c, G, a
     use constants, only : m_1H, not4
-    use constants, only : L_H_ion, L_H_alpha, L_He1_ion, L_He2_ion, L_He_2s, L_He_2p
+    use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     implicit none
 
 !   --- Arguments
@@ -300,9 +318,8 @@ program recfast
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
-    real(dp) :: DeltaB, DeltaB_He, Lalpha, mu_H, mu_T, H_frac
-    real(dp) :: Lalpha_He, Bfact, CK_He, CL_He
-    real(dp) :: CB1, CDB, CR, CK, CL, CT, Yp, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
+    real(dp) :: mu_H, mu_T, H_frac
+    real(dp) :: Yp, fHe, fu, b_He
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
 
     real(dp) :: tol
@@ -323,8 +340,7 @@ program recfast
 
 !   --- Commons
     common/zLIST/zinitial, zfinal, Nz
-    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, fHe, fu
     common/Hemod/b_He
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
@@ -385,24 +401,6 @@ program recfast
 !   (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
     z_eq = (3._dp * (HO * c)**2 / (8._dp * pi * G * a * (1._dp + fnu) * Tnow**4)) * OmegaT
     z_eq = z_eq - 1._dp
-
-!   Set up some constants so they don't have to be calculated later
-    Lalpha = 1._dp / L_H_alpha
-    Lalpha_He = 1._dp / L_He_2p
-    DeltaB = h_P * c * (L_H_ion - L_H_alpha)
-    CDB = DeltaB / k_B
-    DeltaB_He = h_P * c * (L_He1_ion - L_He_2s)   !2s, not 2p
-    CDB_He = DeltaB_He / k_B
-    CB1 = h_P * c * L_H_ion / k_B
-    CB1_He1 = h_P * c * L_He1_ion / k_B   !ionization for HeI
-    CB1_He2 = h_P * c * L_He2_ion / k_B   !ionization for HeII
-    CR = 2._dp * pi * (m_e / h_P) * (k_B / h_P)
-    CK = Lalpha**3 / (8._dp * pi)
-    CK_He = Lalpha_He**3 / (8._dp * pi)
-    CL = c * h_P / (k_B * Lalpha)
-    CL_He = c * h_P / (k_B / L_He_2s) !comes from det.bal. of 2s-1s
-    CT = (8._dp / 3._dp) * (sigma_e / (m_e * c)) * a
-    Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B
 
 !   Matter departs from radiation when t(Th) > H_frac * t(H)
 !   choose some safely small number
@@ -535,7 +533,7 @@ program recfast
         else if (y(1) > 0.99_dp) then
 
             rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
-                - CB1 / (Tnow * (1._dp + z)) ) / Nnow
+                - CB1_H / (Tnow * (1._dp + z)) ) / Nnow
             x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
 
             call dverk(nw, ion, zstart, y, zend, tol, ind, cw, nw, w)
@@ -572,17 +570,16 @@ subroutine get_init(z, x_H0, x_He0, x0)
 !   Initial ionization fraction using Saha for relevant species
 
     use precision, only : dp
+    use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     implicit none
 
     real(dp) :: OmegaT, HO, OmegaL, OmegaK
     real(dp) :: z, x0, rhs, x_H0, x_He0
     real(dp) :: Tnow, Nnow, z_eq
     real(dp) :: H_frac
-    real(dp) :: Bfact, CK_He, CL_He
-    real(dp) :: CB1, CDB, CR, CK, CL, CT, fHe, CB1_He1, CB1_He2, CDB_He, fu
+    real(dp) :: fHe, fu
 
-    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, fHe, fu
     common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
@@ -616,7 +613,7 @@ subroutine get_init(z, x_H0, x_He0, x0)
     else
 
         rhs = exp( 1.5_dp * log(CR * Tnow / (1._dp + z)) &
-            - CB1 / (Tnow * (1._dp + z)) ) / Nnow
+            - CB1_H / (Tnow * (1._dp + z)) ) / Nnow
         x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
         x_He0 = 0._dp
         x0 = x_H0
@@ -636,6 +633,7 @@ subroutine ion(Ndim, z, Y, f)
     use constants, only : Lambda_H, Lambda_He
     use constants, only : L_He_2p
     use constants, only : A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, L_He_2Pt, L_He_2St, L_He2St_ion
+    use constants, only : CDB, CDB_He, CR, CK_H, CK_He, CL_H, CL_He, CT, Bfact
     implicit none
 
     integer Ndim, Heflag, Heswitch, Hswitch
@@ -646,8 +644,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
     real(dp) :: timeTh, timeH, factor
-    real(dp) :: CB1, CDB, CR, CK, CL, CT, fHe, CB1_He1, CB1_He2, CDB_He, fu, b_He
-    real(dp) :: Bfact, CK_He, CL_He
+    real(dp) :: fHe, fu, b_He
     real(dp) :: a_VF, b_VF, T_0, T_1, sq_0, sq_1, a_PPB, b_PPB, c_PPB, d_PPB
     real(dp) :: tauHe_s, pHe_s
     real(dp) :: Doppler, gamma_2Ps, pb, qb, AHcon
@@ -656,8 +653,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     real(dp) :: dHdz, epsilon
 
-    common/Cdata/H_frac, CB1, CDB, CR, CK, CL, CT, &
-        fHe, CB1_He1, CB1_He2, CDB_He, Bfact, CK_He, CL_He, fu
+    common/Cdata/H_frac, fHe, fu
     common/Hemod/b_He
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
@@ -717,10 +713,10 @@ subroutine ion(Ndim, z, Y, f)
 
 !       now deal with H and its fudges
     if (Hswitch == 0) then
-        K = CK / Hz     !Peebles coefficient K=lambda_a^3/8piH
+        K = CK_H / Hz     !Peebles coefficient K=lambda_a^3/8piH
     else
 !       fit a double Gaussian correction function
-    K = CK / Hz * (1.0_dp &
+    K = CK_H / Hz * (1.0_dp &
         +AGauss1 * exp(-((log(1.0_dp + z) - zGauss1) / wGauss1)**2._dp) &
         +AGauss2 * exp(-((log(1.0_dp + z) - zGauss2) / wGauss2)**2._dp))
     end if
@@ -795,7 +791,7 @@ subroutine ion(Ndim, z, Y, f)
         f(1) = 0._dp
 !c      else if ((x_H > 0.98_dp) .and. (Heflag == 0)) then    !don't modify
     else if (x_H > 0.985_dp) then     !use Saha rate for Hydrogen
-        f(1) = (x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL / Tmat)) &
+        f(1) = (x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
             /(Hz * (1._dp + z))
 !           for interest, calculate the correction factor compared to Saha
 !           (without the fudge)
@@ -803,7 +799,7 @@ subroutine ion(Ndim, z, Y, f)
             /(Hz * (1._dp + z) * (1._dp + K * Lambda_H * n * (1._dp - x) &
             +K * Rup * n * (1._dp - x)))
     else                  !use full rate for H
-        f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL / Tmat)) &
+        f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
             *(1._dp + K * Lambda_H * n * (1._dp - x_H))) &
             /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda_H * n * (1._dp - x_H) / fu &
             +K * Rup * n * (1._dp - x_H)))
