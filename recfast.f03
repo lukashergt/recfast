@@ -82,9 +82,8 @@
 !A  Trad and Tmat are radiation and matter temperatures
 !A  epsilon is the approximate difference (=Trad-Tmat) at high z
 !A  OmegaB is Omega in baryons today
-!A  H is Hubble constant in units of 100 km/s/Mpc
-!A  HOinp is input value of Hubble constant in units of 100 km/s/Mpc
-!A  HO is Hubble constant in SI units
+!A  H0inp is input value of Hubble constant in units of 100 km/s/Mpc
+!A  H0 is Hubble constant in SI units
 !A  bigH is 100 km/s/Mpc in SI units
 !A  Hz is the value of H at the specific z (in ion)
 !A  G is grvitational constant
@@ -170,7 +169,7 @@
 !G  /Cfund/c, k_B, h_P, m_e, m_1H, not4, sigma_e, a, pi
 !G  /data/Lambda_H, H_frac, CB1_H, CDB, CR, CK_H, CL_H, CT,
 !G      fHe, CB1_He1, CB1_He2, CDB_He, Lambda_He, Bfact, CK_He, CL_He
-!G      /Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
+!G      /Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !G  /Hemod/b_He, A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt,
 !G      L_He_2p, L_He_2Pt, L_He_2St, L_He2St_ion
 !G  /Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
@@ -256,6 +255,10 @@ module constants
     ! black body radiation constant for u=aT^4:
     real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
 
+    ! some astronomical units:
+    real(dp), parameter :: AU = 149597870700._dp          ! astronomical unit [m], exact definition of the IAU
+    real(dp), parameter :: parsec = 648000._dp / pi * AU  ! parsec [m], exact definition of the IAU
+
     ! Atomic mass evaluation (AME) 2020:
     real(dp), parameter :: m_1H_u = 1.007825031898_dp    ! atomic mass of 1H in atomic mass units [u]
     real(dp), parameter :: m_2H_u = 2.014101777844_dp    ! atomic mass of 2H in atomic mass units [u]
@@ -307,14 +310,14 @@ end module constants
 
 program recfast
     use precision, only : dp
-    use constants, only : pi, c, G, a
+    use constants, only : pi, c, G, a, parsec
     use constants, only : m_1H, not4
     use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     implicit none
 
 !   --- Arguments
     real(dp) :: Trad, Tmat
-    real(dp) :: OmegaT, OmegaB, H, HO, HOinp, bigH, OmegaL, OmegaK, OmegaC
+    real(dp) :: OmegaT, OmegaB, H0, H0inp, OmegaL, OmegaK, OmegaC
     real(dp) :: z, n, x, x0, rhs, x_H, x_He, x_H0, x_He0
     real(dp) :: Tnow, zinitial, zfinal, Nnow, z_eq, fnu
     real(dp) :: zstart, zend, w0, w1, Lw0, Lw1, hw
@@ -333,7 +336,6 @@ program recfast
     character(len=80) :: fileout
 
 !   --- Parameter statements
-    parameter(bigH = 100.e3_dp / (1.e6_dp * 3.0856775807e16_dp)) !Ho in s-1
     parameter(tol = 1.e-5_dp)                !Tolerance for R-K
 
     external ion
@@ -345,7 +347,7 @@ program recfast
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
 
-    common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
+    common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
 !   --- Data
@@ -384,22 +386,21 @@ program recfast
     write(*,'(1x,''Omega_K = '',f4.2)')OmegaK
     write(*,*)
     write(*,*)'Enter H_0 (in km/s/Mpc), T_0, Y_p (e.g. 70 2.725 0.25)'
-    read(*,*)HOinp, Tnow, Yp
+    read(*,*)H0inp, Tnow, Yp
 
 !   convert the Hubble constant units
-    H = HOinp / 100._dp
-    HO = H * bigH
+    H0 = H0inp * 1.e3_dp / (1.e6_dp * parsec)  ! from km/s/Mpc to 1/s
 
 !   sort out the helium abundance parameters
     mu_H = 1._dp / (1._dp - Yp)           !Mass per H atom
     mu_T = not4 / (not4 - (not4 - 1._dp) * Yp)   !Mass per atom
     fHe = Yp / (not4 * (1._dp - Yp))       !n_He_tot / n_H_tot
 
-    Nnow = 3._dp * HO * HO * OmegaB / (8._dp * pi * G * mu_H * m_1H)
+    Nnow = 3._dp * H0 * H0 * OmegaB / (8._dp * pi * G * mu_H * m_1H)
     n = Nnow * (1._dp + z)**3
     fnu = (21._dp / 8._dp) * (4._dp / 11._dp)**(4._dp / 3._dp)
 !   (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
-    z_eq = (3._dp * (HO * c)**2 / (8._dp * pi * G * a * (1._dp + fnu) * Tnow**4)) * OmegaT
+    z_eq = (3._dp * (H0 * c)**2 / (8._dp * pi * G * a * (1._dp + fnu) * Tnow**4)) * OmegaT
     z_eq = z_eq - 1._dp
 
 !   Matter departs from radiation when t(Th) > H_frac * t(H)
@@ -573,14 +574,14 @@ subroutine get_init(z, x_H0, x_He0, x0)
     use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     implicit none
 
-    real(dp) :: OmegaT, HO, OmegaL, OmegaK
+    real(dp) :: OmegaT, H0, OmegaL, OmegaK
     real(dp) :: z, x0, rhs, x_H0, x_He0
     real(dp) :: Tnow, Nnow, z_eq
     real(dp) :: H_frac
     real(dp) :: fHe, fu
 
     common/Cdata/H_frac, fHe, fu
-    common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
+    common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !   ===============================================================
 
     if(z > 8000._dp)then
@@ -641,7 +642,7 @@ subroutine ion(Ndim, z, Y, f)
     real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: y(Ndim), f(Ndim)
     real(dp) :: H_frac
-    real(dp) :: Tnow, HO, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
+    real(dp) :: Tnow, H0, Nnow, z_eq, Hz, OmegaT, OmegaL, OmegaK
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
     real(dp) :: timeTh, timeH, factor
     real(dp) :: fHe, fu, b_He
@@ -657,7 +658,7 @@ subroutine ion(Ndim, z, Y, f)
     common/Hemod/b_He
     common/Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
     common/Switch/Heswitch, Hswitch
-    common/Cosmo/Tnow, HO, Nnow, z_eq, OmegaT, OmegaL, OmegaK
+    common/Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
 !       ===============================================================
 
 !       the Pequignot, Petitjean & Boisson fitting parameters for Hydrogen
@@ -684,11 +685,11 @@ subroutine ion(Ndim, z, Y, f)
     n = Nnow * (1._dp + z)**3
     n_He = fHe * Nnow * (1._dp + z)**3
     Trad = Tnow * (1._dp + z)
-    Hz = HO * sqrt((1._dp + z)**4 / (1._dp + z_eq) * OmegaT + OmegaT * (1._dp + z)**3 &
+    Hz = H0 * sqrt((1._dp + z)**4 / (1._dp + z_eq) * OmegaT + OmegaT * (1._dp + z)**3 &
         + OmegaK * (1._dp + z)**2 + OmegaL)
 
 !       Also calculate derivative for use later
-    dHdz = (HO**2 / 2._dp / Hz) * (4._dp * (1._dp + z)**3 / (1._dp + z_eq) * OmegaT &
+    dHdz = (H0**2 / 2._dp / Hz) * (4._dp * (1._dp + z)**3 / (1._dp + z_eq) * OmegaT &
         + 3._dp * OmegaT * (1._dp + z)**2 + 2._dp * OmegaK * (1._dp + z) )
 
 !       Get the radiative rates using PPQ fit (identical to Hummer's table)
@@ -782,7 +783,7 @@ subroutine ion(Ndim, z, Y, f)
 
 !       Estimates of Thomson scattering time and Hubble time
     timeTh = (1._dp / (CT * Trad**4)) * (1._dp + x + fHe) / x   !Thomson time
-    timeH = 2._dp / (3._dp * HO * (1._dp + z)**1.5)      !Hubble time
+    timeH = 2._dp / (3._dp * H0 * (1._dp + z)**1.5)      !Hubble time
 
 !       calculate the derivatives
 !       turn on H only for x_H<0.99, and use Saha derivative for 0.98<x_H<0.99
