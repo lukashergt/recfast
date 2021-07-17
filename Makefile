@@ -29,6 +29,7 @@ vpath .base build
 ###############################################################################
 ifeq "$(shell which ifort >/dev/null 2>&1; echo $$?)" "0" 
 FC = ifort
+CC = icc
 
 # default flags
 # -------------
@@ -36,6 +37,7 @@ FC = ifort
 # fpic                   : shared object libraries
 FFLAGS += -fpp -fpic -heap-arrays
 MODFLAG = -module $(BUILD_DIR)
+CFLAGS = -Wall -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 
 ifeq ($(DEBUG),1)
 # debugging mode
@@ -71,6 +73,7 @@ endif
 ###############################################################################
 else ifeq "$(shell which gfortran >/dev/null 2>&1; echo $$?)" "0"
 FC = gfortran
+CC = gcc
 
 # default flags
 # --------------
@@ -79,6 +82,7 @@ FC = gfortran
 # fPIC                  : for compiling a shared object library
 FFLAGS += -ffree-line-length-none -cpp -fPIC -fno-stack-arrays 
 MODFLAG = -J $(BUILD_DIR)
+CFLAGS = -Wall -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 
 ifeq ($(DEBUG),1)
 # debugging mode
@@ -107,21 +111,59 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-SRCS := $(wildcard *.f08)
-BINS := $(SRCS:%.f08=%)
+#SRCS := $(wildcard *.f08)
+#SRCS := $(filter-out recfast_wrapper.f08, $(SRCS))
+#BINS := $(SRCS:%.f08=%)
 
-all: $(BINS) test
+all: pyrecfast.so recfast test
 
-# Build step for executable
-%: $(BUILD_DIR)/%.o
-	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
+pyrecfast.so: recfast_wrapper.o pyrecfast.o recfast.o
+	$(FC) -shared -o pyrecfast.so $^ -lpython3.9
 
-# Build step for fortran source
-$(BUILD_DIR)/%.o: %.f08 .base
-	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
+#pyrecfast.c: pyrecfast.pyx
+	#cython pyrecfast.pyx
 
+%.o: %.f08
+	$(FC) $(FFLAGS) -c $<
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+pyrecfast.c: pyrecfast.pyx
+	python setup.py install
+
+recfast_wrapper.o: recfast.o
+
+recfast: recfast.o
+	$(FC) $(FFLAGS) recfast.o -o recfast
+
+
+#all: $(BINS) recfast_wrapper.o test
+#
+## Build step for executable
+#%: $(BUILD_DIR)/%.o
+#	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
+#
+## Build step for fortran source
+#$(BUILD_DIR)/%.o: %.f08 .base
+#	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
+#
+##pyrecfast.so: recfast_wrapper.o pyrecfast.o $(BUILD_DIR)/recfast.o
+##	$(FC) -shared -o pyrecfast.so $^
+#
+##pyrecfast.c: pyrecfast.pyx
+##	cython pyrecfast.pyx
+#
+#recfast_wrapper.o: recfast_wrapper.f08 .base
+#	$(FC) $(FFLAGS) $(MODFLAG) -c $(MAKE_DIR)/recfast_wrapper.f08 -o $(MAKE_DIR)/recfast_wrapper.o
+#
+##%.o: %.c
+##	$(CC) $(CFLAGS) -c $<
+#
 # Run a basic test with input from example.ini
-test: $(BINS)
+test: recfast
+	@echo
+	@echo
 	@echo
 	@echo "Test with test/example_data/example.ini"
 	@echo "======================================="
@@ -138,6 +180,10 @@ clean:
 	@echo "Cleaning recfast"
 	@echo "================"
 	rm -rvf $(BUILD_DIR)
-	rm -vf $(MAKE_DIR)/$(BINS)
+	rm -vf $(MAKE_DIR)/recfast 
+	rm -vf $(MAKE_DIR)/*.mod
+	rm -vf $(MAKE_DIR)/*.o
+	rm -vf $(MAKE_DIR)/*.c
+	rm -vf $(MAKE_DIR)/*.so
 	rm -vf $(MAKE_DIR)/test.out
 
