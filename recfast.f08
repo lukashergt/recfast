@@ -52,96 +52,14 @@
 !D      This is provided as a PROGRAM, which can be easily converted
 !D      to a SUBROUTINE for use in CMB Boltzmann codes.
 !
-!A  Arguments:
-!A      Name, Description
-!A      Double precision throughout
-!A
-!A      z is redshift - W is sqrt(1 + z), like conformal time
-!A      x is total ionised fraction, relative to H
-!A      x_H is ionized fraction of H - y(1) in R-K routine
-!A      x_He is ionized fraction of He - y(2) in R-K routine
-!A      (note that x_He=n_He+/n_He here and not n_He+/n_H)
-!A      Tmat is matter temperature - y(3) in R-K routine
-!A      f's are the derivatives of the Y's
-!A      alphaB is case B recombination rate
-!A      alpHe is the singlet only HeII recombination rate
-!A      a_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A      b_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A      c_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A      d_PPB is Pequignot, Petitjean & Boisson fitting parameter for Hydrogen
-!A      a_VF is Verner and Ferland type fitting parameter for Helium
-!A      b_VF is Verner and Ferland type fitting parameter for Helium
-!A      T_0 is Verner and Ferland type fitting parameter for Helium
-!A      T_1 is Verner and Ferland type fitting parameter for Helium
-!A      Tnow is the observed CMB temperature today
-!A      OmegaT is the total Omega_0
-!A      OmegaL is the Omega_0 contribution from a Cosmological constant
-!A      OmegaK is the Omega_0 contribution in curvature (1 - O_T - O_L)
-!A      OmegaB is Omega in baryons today
-!A      OmegaC is the Omega_0 in (cold) dark matter: OmegaT = OmegaC + OmegaB
-!A      Yp is the primordial helium abundace
-!A      fHe is He/H number ratio = Yp / 4(1 - Yp)
-!A      Trad and Tmat are radiation and matter temperatures
-!A      epsilon is the approximate difference (=Trad-Tmat) at high z
-!A      OmegaB is Omega in baryons today
-!A      H0inp is input value of Hubble constant in units of 100 km/s/Mpc
-!A      H0 is Hubble constant in SI units
-!A      Hz is the value of H at the specific z (in ion)
-!A      G is grvitational constant
-!A      n is number density of hydrogen
-!A      Nnow is number density today
-!A      x0 is initial ionized fraction
-!A      x_H0 is initial ionized fraction of Hydrogen
-!A      x_He0 is initial ionized fraction of Helium
-!A      rhs is dummy for calculating x0
-!A      zinitial and zfinal are starting and ending redshifts
-!A      fnu is the contribution of neutrinos to the radn. energy density
-!A      zeq is the redshift of matter-radiation equality
-!A      zstart and zend are for each pass to the integrator
-!A      w0 and w1 are conformal-time-like initial and final zi and zf's
-!A      logw0 and logw1 are logs of w0 and w1
-!A      hw is the interval in W
-!A      mu_H, mu_T: mass per H atom and mass per particle
-!A      H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
-!A      dHdz is the derivative of H at the specific z (in ion)
-!A      fu is a "fudge factor" for H, to approximate low z behaviour
-!A      b_He is a "fudge factor" for HeI, to approximate higher z behaviour
-!A      Heswitch is an integer for modifying HeI recombination
-!A      Parameters and quantities to describe the extra triplet states
-!A       and also the continuum opacity of H, with a fitting function
-!A       suggested by KIV, astro-ph/0703438
-!A      a_trip: used to fit HeI triplet recombination rate
-!A      b_trip: used to fit HeI triplet recombination rate
-!A      CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
-!A      CfHe_t: triplet statistical correction
-!A      Hswitch is an integer for modifying the H recombination
-!A      AGauss1 is the amplitude of the 1st Gaussian for the H fudging
-!A      AGauss2 is the amplitude of the 2nd Gaussian for the H fudging
-!A      zGauss1 is the ln(1 + z) central value of the 1st Gaussian
-!A      zGauss2 is the ln(1 + z) central value of the 2nd Gaussian
-!A      wGauss1 is the width of the 1st Gaussian
-!A      wGauss2 is the width of the 2nd Gaussian
-!A      tol: tolerance for the integrator
-!A      cw(24), w(3,9): work space for dverk
-!A      Ndim: number of d.e.'s to solve (integer)
-!A      Nz: number of output redshitf (integer)
-!A      i: loop index (integer)
-!A      ind, nw: work-space for dverk (integer)
-!
-!G  Global data (common blocks) referenced:
-!G      /zLIST/zinitial, zfinal, Nz
-!G      /data/H_frac, fHe
-!G      /Cosmo/Tnow, H0, Nnow, z_eq, OmegaT, OmegaL, OmegaK
-!G      /Hemod/b_He
-!G      /Hmod/AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
-!G      /Switch/Heswitch, Hswitch
-!
 !F  File & device access:
 !F      Unit    /I, IO, O /Name (if known)
 !
 !M  Modules used:
-!M      precision (declares `dp` for double precision)
+!M      precision (module to declare `dp` for double precision)
 !M      constants (module for mathematical and physical constants and chemical data)
+!M      fudgefit (module for fudge factors and fitting parameters)
+!M      input  (module to set up cosmological input parameters and make them available throughout)
 !M
 !M  Subroutines called:
 !M      dverk (numerical integrator)
@@ -161,12 +79,12 @@
 !H      Jan 1995 (expand comments)
 !H      Mar 1995 (add Saha for Helium)
 !H      Aug 1997 (add HeII alpha table)
-!H      Jul 1998 (include OmegaT correction and H fudge factor)
+!H      Jul 1998 (include OmegaM correction and H fudge factor)
 !H      Nov 1998 (change Trad to Tmat in Rup)
 !H      Jan 1999 (tidied up for public consumption)
 !H      Sep 1999 (switch to formula for alpha's, fix glitch)
 !H      Feb 2000 (fixed overflow problem in He_Boltz)
-!H      Oct 2001 (fixed OmegaT in z_eq)
+!H      Oct 2001 (fixed OmegaM in z_eq)
 !H      Jun 2003 (fixed error in Rdown_He formula)
 !H      Jun 2003 (fixed He recombination coefficients)
 !H      Jun 2003 (comments to point out fixed N_nu etc.)
@@ -180,6 +98,7 @@
 !H      Jan 2010 (added fitting function to modify K to match x_e(z) for new H physics)
 !H      Jul 2012 (modified fudge factors for better match to codes with more detailed physics)
 !H      Sep 2012 (fixed "fu" at low z to match modifications)
+!H      Jul 2021 (update constants, convert to Modern Fortran (2003/2008) and make Python wrapper)
 !
 !##############################################################################
 
@@ -275,26 +194,30 @@ module fudgefit
     implicit none
 
     ! Gaussian fits for extra H physics (fit by Adam Moss, modified by Antony Lewis):
-    real(dp), parameter :: AGauss1 = -0.14_dp  ! Amplitude of 1st Gaussian
-    real(dp), parameter :: AGauss2 = 0.079_dp  ! Amplitude of 2nd Gaussian
-    real(dp), parameter :: zGauss1 = 7.28_dp   ! ln(1 + z) of 1st Gaussian
-    real(dp), parameter :: zGauss2 = 6.73_dp   ! ln(1 + z) of 2nd Gaussian
+    real(dp), parameter :: AGauss1 = -0.14_dp  ! Amplitude of 1st Gaussian for the H fudging
+    real(dp), parameter :: AGauss2 = 0.079_dp  ! Amplitude of 2nd Gaussian for the H fudging
+    real(dp), parameter :: zGauss1 = 7.28_dp   ! ln(1 + z) central value of 1st Gaussian
+    real(dp), parameter :: zGauss2 = 6.73_dp   ! ln(1 + z) central value of 2nd Gaussian
     real(dp), parameter :: wGauss1 = 0.18_dp   ! Width of 1st Gaussian
     real(dp), parameter :: wGauss2 = 0.33_dp   ! Width of 2nd Gaussian
 
     ! Matter departs from radiation when t(Th) > H_frac * t(H)
     ! choose some safely small number:
-    real(dp), parameter :: H_frac = 1.e-3_dp
+    real(dp), parameter :: H_frac = 1.e-3_dp   ! H_frac: follow Tmat when t_Compton / t_Hubble > H_frac
+
+    integer  :: Hswitch   ! Hswitch is an integer for modifying the H recombination
+    integer  :: Heswitch  ! Heswitch is an integer for modifying HeI recombination
+    real(dp) :: fu        ! fu is a "fudge factor" for H, to approximate low z behaviour
+    real(dp) :: b_He      ! b_He is a "fudge factor" for HeI, to approximate higher z behaviour
 
     contains
 
-    subroutine fudge_switch(fu, b_He)
-        real(dp), intent(out) :: fu
-        real(dp), intent(out) :: b_He
+    subroutine set_switch(Hswitch_in, Heswitch_in)
+        integer, intent(in) :: Hswitch_in
+        integer, intent(in) :: Heswitch_in
 
-        integer :: Hswitch, Heswitch
-
-        common /Switch/ Heswitch, Hswitch
+        Hswitch = Hswitch_in
+        Heswitch = Heswitch_in
 
         ! Fudge factor to approximate the low z out of equilibrium effect
         if (Hswitch == 0) then
@@ -303,105 +226,138 @@ module fudgefit
             fu = 1.125_dp
         end if
 
-        !   Set the He fudge factor
-        !c  if ((Heswitch == 2) .or. (Heswitch == 5) .or. (Heswitch == 6)) then
-        !c      write(*,*)'Enter the fudge factor b_He'
-        !c      read(*,*)b_He
-        !c  endif
+        !! Set the He fudge factor
+        !if ((Heswitch == 2) .or. (Heswitch == 5) .or. (Heswitch == 6)) then
+        !    write(*,*)'Enter the fudge factor b_He'
+        !    read(*,*)b_He
+        !endif
         b_He = 0.86
-    end subroutine fudge_switch
+    end subroutine set_switch
 end module fudgefit
+
+
+!##############################################################################
+module input
+    use precision, only : dp
+    use constants, only : pi, c, G, a, parsec
+    use constants, only : m_1H, not4
+    implicit none
+
+    ! fnu is the contribution of neutrinos to the radn. energy density
+    real(dp), parameter :: fnu = (21._dp / 8._dp) * (4._dp / 11._dp)**(4._dp / 3._dp)
+
+    real(dp) :: H0      ! H0 is the Hubble constant in SI units [1/s]
+    real(dp) :: OmegaM  ! Omega_0 contribution from total matter: OmegaM = OmegaC + OmegaB
+    real(dp) :: OmegaL  ! Omega_0 contribution from a Cosmological constant
+    real(dp) :: OmegaK  ! Omega_0 contribution in curvature (1 - O_T - O_L)
+    real(dp) :: Tnow    ! Tnow is the observed CMB temperature today [K]
+    real(dp) :: Nnow    ! Nnow is number density today
+    real(dp) :: fHe     ! fHe is He/H number ratio = Yp / 4(1 - Yp)
+    real(dp) :: z_eq    ! redshift of matter-radiation equality
+
+    contains
+
+    subroutine set_input(OmegaB, OmegaC, OmegaL_in, H0_in, Tnow_in, Yp, Nnow_out, fHe_out)
+        real(dp), intent(in)  :: OmegaB     ! Omega_0 in baryons today
+        real(dp), intent(in)  :: OmegaC     ! Omega_0 in (cold) dark matter: OmegaM = OmegaC + OmegaB
+        real(dp), intent(in)  :: OmegaL_in  ! input value for OmegaL
+        real(dp), intent(in)  :: H0_in      ! input value of Hubble constant in units of 100 km/s/Mpc
+        real(dp), intent(in)  :: Tnow_in    ! input value for Tnow
+        real(dp), intent(in)  :: Yp         ! primordial helium abundace
+        real(dp), intent(out)  :: Nnow_out
+        real(dp), intent(out)  :: fHe_out
+
+        real(dp) :: mu_H
+        real(dp) :: mu_T
+
+        ! convert the Hubble constant units
+        H0 = H0_in * 1.e3_dp / (1.e6_dp * parsec)  ! from km/s/Mpc to 1/s
+        Tnow = Tnow_in
+
+        OmegaL = OmegaL_in
+        OmegaM = OmegaB + OmegaC
+        OmegaK = 1._dp - OmegaM - OmegaL  ! curvature
+
+        ! sort out the helium abundance parameters
+        ! mu_H, mu_T: mass per H atom and mass per particle
+        mu_H = 1._dp / (1._dp - Yp)                 ! Mass per H atom
+        mu_T = not4 / (not4 - (not4 - 1._dp) * Yp)  ! Mass per atom
+        fHe = Yp / (not4 * (1._dp - Yp))            ! n_He_tot / n_H_tot
+        fHe_out = fHe
+
+        Nnow = 3._dp * H0**2 / (8._dp * pi * G) * OmegaB / (mu_H * m_1H)
+        Nnow_out = Nnow
+
+        ! (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
+        z_eq = (3._dp * H0**2 / (8._dp * pi * G) * c**2 / (a * (1._dp + fnu) * Tnow**4)) * (OmegaB + OmegaC)
+        z_eq = z_eq - 1._dp
+    end subroutine set_input
+end module input
 
 
 !##############################################################################
 module recfast_module
     use precision, only : dp
-    use constants, only : pi, c, G, a, parsec
-    use constants, only : m_1H, not4
-    use constants, only : CB1_H, CB1_He1, CB1_He2, CR
-    use fudgefit, only : fudge_switch
+    use constants, only : pi, c, G, a, parsec, m_1H, not4, CB1_H, CB1_He1, CB1_He2, CR
+    use fudgefit, only : set_switch
+    use input, only : set_input
     implicit none
     contains
 
-    subroutine recfast_func(OmegaB, OmegaC, H0inp, Yp, zinitial, zfinal, Nz, z_array, x_array, tol)
-        integer,  intent(in) :: Nz
+    subroutine recfast_func(OmegaB, OmegaC, OmegaL_in, H0_in, Tnow, Yp, Hswitch_in, Heswitch_in, &
+                            zinitial, zfinal, tol, Nz, z_array, x_array)
+        integer,  intent(in) :: Nz           ! number of output redshitf (integer)
+        integer,  intent(in) :: Hswitch_in
+        integer,  intent(in) :: Heswitch_in
         real(dp), intent(in) :: OmegaB
         real(dp), intent(in) :: OmegaC
-        real(dp), intent(in) :: H0inp
+        real(dp), intent(in) :: OmegaL_in
+        real(dp), intent(in) :: H0_in
+        real(dp), intent(in) :: Tnow
         real(dp), intent(in) :: Yp
-
-        real(dp), intent(in) :: zinitial
-        real(dp), intent(in) :: zfinal
+        real(dp), intent(in) :: zinitial  ! starting redshift
+        real(dp), intent(in) :: zfinal    ! ending redshift
+        real(dp), intent(in) :: tol       ! tolerance for the integrator
         real(dp), intent(out) :: z_array(Nz)
         real(dp), intent(out) :: x_array(Nz)
-        real(dp), intent(in) :: tol
 
-        integer, parameter :: Ndim = 3
+        integer, parameter :: Ndim = 3  ! number of d.e.'s to solve (integer)
 
-        integer :: i
-        integer :: ind
-        integer :: nw
-        real(dp) :: z
-        real(dp) :: mu_H
-        real(dp) :: mu_T
-        real(dp) :: n
-        real(dp) :: fnu
+        integer :: i              ! loop index (integer)
+        integer :: ind            ! ind, nw: work-space for dverk (integer)
+        integer :: nw             ! ind, nw: work-space for dverk (integer)
         real(dp) :: Trad, Tmat
         real(dp) :: x_H0, x_He0
         real(dp) :: x0
         real(dp) :: w0, w1, logw0, logw1, hw
-        real(dp) :: z_old, z_new
-        real(dp) :: rhs
+        real(dp) :: z_old, z_new  ! z_old and z_new are for each pass to the integrator
+        real(dp) :: rhs           ! rhs is dummy for calculating x0
         real(dp) :: x_H, x_He
 
-        real(dp) :: cw(24)
-        real(dp) :: w(Ndim, 9)
+        real(dp) :: cw(24)      ! cw(24), w(3,9): work space for dverk
+        real(dp) :: w(Ndim, 9)  ! cw(24), w(3,9): work space for dverk
         real(dp) :: y(Ndim)
 
-        integer  :: Hswitch, Heswitch
-        real(dp) :: fHe, fu
-        real(dp) :: b_He
-        real(dp) :: OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
-
-        common /Switch/ Heswitch, Hswitch
-        common /Cdata/ fHe, fu
-        common /Hemod/ b_He
-        common /Cosmo/ OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
+        real(dp) :: Nnow
+        real(dp) :: fHe
 
         external ion
 
-        z = zinitial
+        call set_input(OmegaB, OmegaC, OmegaL_in, H0_in, Tnow, Yp, Nnow, fHe)
 
-        OmegaK = 1._dp - OmegaB - OmegaC - OmegaL  ! curvature
-
-        ! convert the Hubble constant units
-        H0 = H0inp * 1.e3_dp / (1.e6_dp * parsec)  ! from km/s/Mpc to 1/s
-
-        ! sort out the helium abundance parameters
-        mu_H = 1._dp / (1._dp - Yp)                 ! Mass per H atom
-        mu_T = not4 / (not4 - (not4 - 1._dp) * Yp)  ! Mass per atom
-        fHe = Yp / (not4 * (1._dp - Yp))            ! n_He_tot / n_H_tot
-
-        Nnow = 3._dp * H0**2 / (8._dp * pi * G) * OmegaB / (mu_H * m_1H)
-        n = Nnow * (1._dp + z)**3
-        fnu = (21._dp / 8._dp) * (4._dp / 11._dp)**(4._dp / 3._dp)
-        ! (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
-        z_eq = (3._dp * H0**2 / (8._dp * pi * G) * c**2 / (a * (1._dp + fnu) * Tnow**4)) * (OmegaB + OmegaC)
-        z_eq = z_eq - 1._dp
-
-        call fudge_switch(fu, b_He)
+        call set_switch(Hswitch_in, Heswitch_in)
 
         ! Set initial matter temperature
-        Tmat = Tnow * (1._dp + z)  ! Initial rad. & mat. temperature
+        Tmat = Tnow * (1._dp + zinitial)  ! Initial rad. & mat. temperature
 
-        call get_init(z, x_H0, x_He0, x0)
+        call get_init(zinitial, x_H0, x_He0, x0)
 
         ! OK that's the initial conditions, now start computing our arrays
-        w0 = 1._dp / sqrt(1._dp + zinitial)  ! like a conformal time
-        w1 = 1._dp / sqrt(1._dp + zfinal)
-        logw0 = log(w0)
-        logw1 = log(w1)
-        hw = (logw1 - logw0) / real(Nz, kind=dp)     !interval in log of conf time
+        w0 = 1._dp / sqrt(1._dp + zinitial)       ! conformal-time-like initial zi
+        w1 = 1._dp / sqrt(1._dp + zfinal)         ! conformal-time-like final zf
+        logw0 = log(w0)                           ! log of w0
+        logw1 = log(w1)                           ! log of w1
+        hw = (logw1 - logw0) / real(Nz, kind=dp)  ! interval in log of conf time
 
         ! Set up work-space stuff for dverk
         ind = 1
@@ -410,9 +366,9 @@ module recfast_module
             cw(i) = 0._dp
         end do
 
-        y(1) = x_H0
-        y(2) = x_He0
-        y(3) = Tmat
+        y(1) = x_H0   ! ionised fraction of H  - y(1) in R-K routine
+        y(2) = x_He0  ! ionised fraction of He - y(2) in R-K routine, (note that x_He=n_He+/n_He here and not n_He+/n_H)
+        y(3) = Tmat   ! matter temperature     - y(3) in R-K routine
 
         do i = 1, Nz
             ! calculate the start and end redshift for the interval at each z
@@ -420,12 +376,12 @@ module recfast_module
             z_old = zinitial + real(i-1, kind=dp) * (zfinal - zinitial) / real(Nz, kind=dp)
             z_new = zinitial + real(i  , kind=dp) * (zfinal - zinitial) / real(Nz, kind=dp)
 
-            ! Use Saha to get x_e, using the equation for x_e for ionized helium
+            ! Use Saha to get x_e, using the equation for x_e for ionised helium
             ! and for neutral helium.
-            ! Everyb_trip ionized above z=8000.  First ionization over by z=5000.
-            ! Assume He all singly ionized down to z=3500, then use He Saha until
-            ! He is 99% singly ionized, and *then* switch to joint H/He recombination.
-            if (z_new > 8000._dp) then  ! everything ionized: x_H0=1, x_He0=1
+            ! Everyb_trip ionised above z=8000.  First ionization over by z=5000.
+            ! Assume He all singly ionised down to z=3500, then use He Saha until
+            ! He is 99% singly ionised, and *then* switch to joint H/He recombination.
+            if (z_new > 8000._dp) then  ! everything ionised: x_H0=1, x_He0=1
                 x_H0 = 1._dp
                 x_He0 = 1._dp
                 x0 = 1._dp + 2._dp * fHe
@@ -469,10 +425,10 @@ module recfast_module
                 x0 = y(1) + fHe * y(2)
             end if
 
-            Trad = Tnow * (1._dp + z_new)
-            x_H = y(1)
-            x_He = y(2)
-            Tmat = y(3)
+            Trad = Tnow * (1._dp + z_new)  ! Trad and Tmat are radiation and matter temperatures
+            x_H = y(1)   ! ionised fraction of H  - y(1) in R-K routine
+            x_He = y(2)  ! ionised fraction of He - y(2) in R-K routine, (note that x_He=n_He+/n_He here and not n_He+/n_H)
+            Tmat = y(3)  ! matter temperature     - y(3) in R-K routine
 
             z_array(i) = z_new
             x_array(i) = x0
@@ -490,23 +446,18 @@ program recfast
 
 !   --- Arguments
     integer, parameter :: Nz = 1000
-    integer i
-    integer Heswitch, Hswitch
+    integer :: i  ! loop index (integer)
+    integer Heswitch_in, Hswitch_in
 
     real(dp) :: tol
     real(dp) :: zinitial, zfinal
     real(dp) :: OmegaB, OmegaC, OmegaL
-    real(dp) :: H0inp, Tnow, Yp
-    real(dp) :: OmegaT, OmegaK, H0, Nnow, z_eq
+    real(dp) :: H0_in, Tnow, Yp
 
-    real(dp) :: z_array(Nz)
-    real(dp) :: x_array(Nz)
+    real(dp) :: z_array(Nz)  ! array of redshifts written to file in the end
+    real(dp) :: x_array(Nz)  ! array of ionised fraction written to file in the end
 
     character(len=80) :: fileout
-
-!   --- Commons
-    common /Switch/ Heswitch, Hswitch
-    common /Cosmo/ OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
 
     !   ###########################################################################
     write(*,*)'recfast version 1.5'
@@ -527,19 +478,17 @@ program recfast
 
     write(*,*) 'Enter Omega_B, Omega_DM, Omega_vac (e.g. 0.04 0.20 0.76)'
     read(*,*) OmegaB, OmegaC, OmegaL
-    OmegaT = OmegaB + OmegaC
-    OmegaK = 1._dp - OmegaT - OmegaL  ! curvature
-    write(*,'(1x,''Omega_K = '',f4.2)') OmegaK
+    !write(*,'(1x,''Omega_K = '',f4.2)') OmegaK
     write(*,*)
     write(*,*) 'Enter H_0 (in km/s/Mpc), T_0, Y_p (e.g. 70 2.725 0.25)'
-    read(*,*) H0inp, Tnow, Yp
+    read(*,*) H0_in, Tnow, Yp
 
     ! Modification for H correction (Hswitch):
     write(*,*) 'Modification for H recombination:'
     write(*,*) '0) no change from old Recfast'
     write(*,*) '1) include correction'
     write(*,*) 'Enter the choice of modification for H (0-1):'
-    read(*,*) Hswitch
+    read(*,*) Hswitch_in
 
     ! Modification for HeI recombination (Heswitch):
     write(*,*) 'Modification for HeI recombination:'
@@ -555,15 +504,16 @@ program recfast
     write(*,*) '5) including only 1, 2 and 3'
     write(*,*) '6) including all of 1 to 4'
     write(*,*) 'Enter the choice of modification for HeI (0-6):'
-    read(*,*) Heswitch
+    read(*,*) Heswitch_in
 
     ! OK that's the initial conditions, now start writing output file
-    call recfast_func(OmegaB, OmegaC, H0inp, Yp, zinitial, zfinal, Nz, z_array, x_array, tol)
+    call recfast_func(OmegaB, OmegaC, OmegaL, H0_in, Tnow, Yp, Hswitch_in, Heswitch_in, &
+                      zinitial, zfinal, tol, Nz, z_array, x_array)
 
     open(unit=7, status='new', form='formatted', file=fileout)
     write(7, '(1x,''  z    '', 1x, ''     x_e   '')')
     do i = 1, Nz
-        write(7, '(1x,f8.2,2x,g15.8)') z_array(i), x_array(i)
+        write(7, '(1x,f9.2,2x,g25.18)') z_array(i), x_array(i)
     end do
 
 end program recfast
@@ -572,18 +522,18 @@ end program recfast
 !##############################################################################
 subroutine get_init(z, x_H0, x_He0, x0)
 !   Set up the initial conditions so it will work for general,
-!   but not pathological choices of zstart
+!   but not pathological choices of z_old
 !   Initial ionization fraction using Saha for relevant species
     use precision, only : dp
     use constants, only : CB1_H, CB1_He1, CB1_He2, CR
+    use input, only : Tnow, Nnow, fHe
     implicit none
 
-    real(dp) :: OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
-    real(dp) :: z, x0, rhs, x_H0, x_He0
-    real(dp) :: fHe, fu
-
-    common /Cdata/ fHe, fu
-    common /Cosmo/ OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
+    real(dp), intent(in) :: z       ! initial redshift
+    real(dp), intent(out) :: x_H0   ! initial ionised fraction of Hydrogen
+    real(dp), intent(out) :: x_He0  ! initial ionised fraction of Helium
+    real(dp), intent(out) :: x0     ! initial ionised fraction
+    real(dp) :: rhs
 
     if (z > 8000._dp) then
         x_H0 = 1._dp
@@ -616,19 +566,22 @@ end subroutine get_init
 subroutine ion(Ndim, z, y, f)
     use precision, only : dp
     use constants, only : pi, c, h_P, k_B
-    use constants, only : m_1H, not4
-    use constants, only : Lambda_H, Lambda_He
-    use constants, only : L_He_2p
+    use constants, only : m_1H, not4, Lambda_H, Lambda_He, L_He_2p
     use constants, only : A2P_s, A2P_t, sigma_He_2Ps, sigma_He_2Pt, L_He_2Pt, L_He_2St, L_He2St_ion
     use constants, only : CDB_H, CDB_He, CR, CK_H, CK_He, CL_H, CL_He, CT, Bfact
     use fudgefit, only : AGauss1, AGauss2, zGauss1, zGauss2, wGauss1, wGauss2
-    use fudgefit, only : H_frac
+    use fudgefit, only : H_frac, Hswitch, Heswitch, fu, b_He
+    use input, only : OmegaL, OmegaM, OmegaK, H0, Tnow, Nnow, fHe, z_eq
     implicit none
 
-    integer Ndim, Heflag
+    integer,  intent(in)  :: Ndim      ! number of d.e.'s to solve (integer)
+    real(dp), intent(in)  :: z         ! redshift - w is sqrt(1 + z), like conformal time
+    real(dp), intent(in)  :: y(Ndim)   ! y = [x_H, x_He, Tmat]
+    real(dp), intent(out) :: f(Ndim)   ! f's are the derivatives of the y's
 
-    real(dp) :: z, x, n, n_He, Trad, Tmat, x_H, x_He
-    real(dp) :: y(Ndim), f(Ndim)
+    integer Heflag
+
+    real(dp) :: x, nd_H, n_He, Trad, Tmat, x_H, x_He
     real(dp) :: Hz
     real(dp) :: Rup, Rdown, K, K_He, Rup_He, Rdown_He, He_Boltz
     real(dp) :: timeTh, timeH, factor
@@ -638,16 +591,6 @@ subroutine ion(Ndim, z, y, f)
     real(dp) :: a_trip, b_trip, Rdown_trip, Rup_trip
     real(dp) :: tauHe_t, pHe_t, CL_PSt, CfHe_t, gamma_2Pt
     real(dp) :: dHdz, epsilon
-
-    integer Heswitch, Hswitch
-    real(dp) :: fHe, fu
-    real(dp) :: b_He
-    real(dp) :: OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
-
-    common /Switch/ Heswitch, Hswitch
-    common /Cdata/ fHe, fu
-    common /Hemod/ b_He
-    common /Cosmo/ OmegaL, OmegaT, OmegaK, H0, Tnow, Nnow, z_eq
 
     ! the Pequignot, Petitjean & Boisson fitting parameters for Hydrogen
     a_PPB = 4.309_dp
@@ -662,25 +605,29 @@ subroutine ion(Ndim, z, y, f)
     T_1 = 10._dp**(5.114_dp)
     ! fitting parameters for HeI triplets
     ! (matches Hummer's table with <1% error for 10^2.8 < T/K < 10^4)
-    a_trip = 10._dp**(-16.306_dp)
-    b_trip = 0.761_dp
+    !A      Parameters and quantities to describe the extra triplet states
+    !A       and also the continuum opacity of H, with a fitting function
+    !A       suggested by KIV, astro-ph/0703438
+    a_trip = 10._dp**(-16.306_dp)  ! used to fit HeI triplet recombination rate
+    b_trip = 0.761_dp              ! used to fit HeI triplet recombination rate
 
-    x_H = y(1)
-    x_He = y(2)
-    x = x_H + fHe * x_He
-    Tmat = y(3)
+    x_H = y(1)            ! ionised fraction of H  - y(1) in R-K routine
+    x_He = y(2)           ! ionised fraction of He - y(2) in R-K routine, (note that x_He=n_He+/n_He here and not n_He+/n_H)
+    Tmat = y(3)           ! matter temperature     - y(3) in R-K routine
+    x = x_H + fHe * x_He  ! total ionised fraction, relative to H
 
-    n = Nnow * (1._dp + z)**3
+    nd_H = Nnow * (1._dp + z)**3
     n_He = fHe * Nnow * (1._dp + z)**3
     Trad = Tnow * (1._dp + z)
-    Hz = H0 * sqrt(OmegaT * (1._dp + z)**4 / (1._dp + z_eq) &
-                   + OmegaT * (1._dp + z)**3 &
+    ! Hz is the value of the Hubble parameter H at the specific z
+    Hz = H0 * sqrt(OmegaM * (1._dp + z)**4 / (1._dp + z_eq) &
+                   + OmegaM * (1._dp + z)**3 &
                    + OmegaK * (1._dp + z)**2 &
                    + OmegaL)
 
-    ! Also calculate derivative for use later
-    dHdz = (H0**2 / 2._dp / Hz) * (4._dp * OmegaT * (1._dp + z)**3 / (1._dp + z_eq) &
-                                   + 3._dp * OmegaT * (1._dp + z)**2 &
+    ! dHdz is the derivative of the Hubble parameter H at the specific z
+    dHdz = (H0**2 / 2._dp / Hz) * (4._dp * OmegaM * (1._dp + z)**3 / (1._dp + z_eq) &
+                                   + 3._dp * OmegaM * (1._dp + z)**2 &
                                    + 2._dp * OmegaK * (1._dp + z))
 
     ! Get the radiative rates using PPQ fit (identical to Hummer's table)
@@ -751,6 +698,7 @@ subroutine ion(Ndim, z, y, f)
             CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
             if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999_dp)) then
                 ! no H cont. effect
+                ! CfHe_t: triplet statistical correction
                 CfHe_t = A2P_t * pHe_t * exp(-CL_PSt / Tmat)
                 CfHe_t = CfHe_t / (Rup_trip + CfHe_t)   !"C" factor for triplets
             else                  !include H cont. effect
@@ -780,31 +728,31 @@ subroutine ion(Ndim, z, y, f)
         f(1) = 0._dp
     !else if ((x_H > 0.98_dp) .and. (Heflag == 0)) then    !don't modify
     else if (x_H > 0.985_dp) then     !use Saha rate for Hydrogen
-        f(1) = (x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
+        f(1) = (x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
             /(Hz * (1._dp + z))
         ! for interest, calculate the correction factor compared to Saha
         ! (without the fudge)
-        factor = (1._dp + K * Lambda_H * n * (1._dp - x_H)) &
-            /(Hz * (1._dp + z) * (1._dp + K * Lambda_H * n * (1._dp - x) &
-            +K * Rup * n * (1._dp - x)))
+        factor = (1._dp + K * Lambda_H * nd_H * (1._dp - x_H)) &
+            /(Hz * (1._dp + z) * (1._dp + K * Lambda_H * nd_H * (1._dp - x) &
+            +K * Rup * nd_H * (1._dp - x)))
     else                  !use full rate for H
-        f(1) = ((x * x_H * n * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
-            *(1._dp + K * Lambda_H * n * (1._dp - x_H))) &
-            /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda_H * n * (1._dp - x_H) / fu &
-            +K * Rup * n * (1._dp - x_H)))
+        f(1) = ((x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
+            *(1._dp + K * Lambda_H * nd_H * (1._dp - x_H))) &
+            /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda_H * nd_H * (1._dp - x_H) / fu &
+            +K * Rup * nd_H * (1._dp - x_H)))
     end if
     ! turn off the He once it is small
     if (x_He < 1.e-15_dp) then
         f(2) = 0._dp
     else
-        f(2) = ((x * x_He * n * Rdown_He &
+        f(2) = ((x * x_He * nd_H * Rdown_He &
             - Rup_He * (1._dp - x_He) * exp(-CL_He / Tmat)) &
             *(1._dp+ K_He * Lambda_He * n_He * (1._dp - x_He) * He_Boltz)) &
             /(Hz * (1._dp + z) &
             * (1._dp + K_He * (Lambda_He + Rup_He) * n_He * (1._dp - x_He) * He_Boltz))
         ! Modification to HeI recombination including channel via triplets
         if (Heflag >= 3) then
-            f(2) = f(2)+ (x * x_He * n * Rdown_trip &
+            f(2) = f(2)+ (x * x_He * nd_H * Rdown_trip &
                 - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * c * L_He_2St / (k_B * Tmat))) &
                 *CfHe_t / (Hz * (1._dp + z))
         end if
@@ -816,7 +764,7 @@ subroutine ion(Ndim, z, y, f)
         !f(3) = Tmat / (1._dp + z)  !Tmat follows Trad
         ! additional term to smooth transition to Tmat evolution,
         ! (suggested by Adam Moss)
-        epsilon = Hz * (1._dp + x + fHe) / (CT * Trad**3 * x)
+        epsilon = Hz * (1._dp + x + fHe) / (CT * Trad**3 * x)  ! approximate difference (=Trad-Tmat) at high z
         f(3) = Tnow &
             + epsilon * ((1._dp + fHe) / (1._dp + fHe + x)) * ((f(1) + fHe * f(2)) / x) &
             - epsilon * dHdz / Hz + 3.0_dp * epsilon / (1._dp + z)
