@@ -289,7 +289,7 @@ module input
         Nnow_out = Nnow
 
         ! (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
-        z_eq = (3._dp * H0**2 / (8._dp * pi * G) * c**2 / (a * (1._dp + fnu) * Tnow**4)) * (OmegaB + OmegaC)
+        z_eq = 3._dp * H0**2 / (8._dp * pi * G) * c**2 / (a * (1._dp + fnu) * Tnow**4) * (OmegaB + OmegaC)
         z_eq = z_eq - 1._dp
     end subroutine set_input
 end module input
@@ -655,8 +655,8 @@ subroutine ion(Ndim, z, y, f)
         K = CK_H / Hz
     else
         ! fit a double Gaussian correction function
-        K = CK_H / Hz * (1.0_dp + AGauss1 * exp(-((log(1.0_dp + z) - zGauss1) / wGauss1)**2._dp) &
-                                + AGauss2 * exp(-((log(1.0_dp + z) - zGauss2) / wGauss2)**2._dp))
+        K = CK_H / Hz * (1.0_dp + AGauss1 * exp(-((log(1.0_dp + z) - zGauss1) / wGauss1)**2) &
+                                + AGauss2 * exp(-((log(1.0_dp + z) - zGauss2) / wGauss2)**2))
     end if
 
     ! add the HeI part, using same T_0 and T_1 values
@@ -679,12 +679,13 @@ subroutine ion(Ndim, z, y, f)
         pHe_s = (1._dp - exp(-tauHe_s)) / tauHe_s
         K_He = 1._dp / (A2P_s * pHe_s * 3._dp * n_He * (1._dp - x_He))
         ! smoother criterion here from Antony Lewis & Chad Fendt
-        if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp))then
+        if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp)) then
             ! use fitting formula for continuum opacity of H
             ! first get the Doppler width parameter
             Doppler = 2._dp * k_B * Tmat / (m_1H * not4 * c * c)
             Doppler = c * L_He_2p * sqrt(Doppler)
-            gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * c * c / (sqrt(pi) * sigma_He_2Ps * 8._dp * pi * Doppler * (1._dp - x_H)) / ((c * L_He_2p)**2._dp)
+            gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * c * c &
+                        / (sqrt(pi) * sigma_He_2Ps * 8._dp * pi * Doppler * (1._dp - x_H)) / ((c * L_He_2p)**2)
             pb = 0.36_dp  !value from KIV (2007)
             qb = b_He
             ! calculate AHcon, the value of A * p_(con, H) for H continuum opacity
@@ -693,7 +694,7 @@ subroutine ion(Ndim, z, y, f)
         end if
         if (Heflag >= 3) then     !include triplet effects
             tauHe_t = A2P_t * n_He * (1._dp - x_He) * 3._dp
-            tauHe_t = tauHe_t /(8._dp * pi * Hz * L_He_2Pt**(3._dp))
+            tauHe_t = tauHe_t /(8._dp * pi * Hz * L_He_2Pt**3)
             pHe_t = (1._dp - exp(-tauHe_t)) / tauHe_t
             CL_PSt = h_P * c * (L_He_2Pt - L_He_2St) / k_B
             if ((Heflag == 3) .or. (Heflag == 5) .or. (x_H > 0.99999_dp)) then
@@ -705,8 +706,7 @@ subroutine ion(Ndim, z, y, f)
                 Doppler = 2._dp * k_B * Tmat / (m_1H * not4 * c * c)
                 Doppler = c * L_He_2Pt * sqrt(Doppler)
                 gamma_2Pt = 3._dp * A2P_t * fHe * (1._dp - x_He) * c * c &
-                    /(sqrt(pi) * sigma_He_2Pt * 8._dp * pi * Doppler * (1._dp - x_H)) &
-                    /((c * L_He_2Pt)**2._dp)
+                            / (sqrt(pi) * sigma_He_2Pt * 8._dp * pi * Doppler * (1._dp - x_H) * (c * L_He_2Pt)**2)
                 ! use the fitting parameters from KIV (2007) in this case
                 pb = 0.66_dp
                 qb = 0.9_dp
@@ -719,7 +719,7 @@ subroutine ion(Ndim, z, y, f)
 
     ! Estimates of Thomson scattering time and Hubble time
     timeTh = (1._dp / (CT * Trad**4)) * (1._dp + x + fHe) / x   !Thomson time
-    timeH = 2._dp / (3._dp * H0 * (1._dp + z)**1.5)      !Hubble time
+    timeH = 2._dp / (3._dp * H0 * (1._dp + z)**(1.5_dp))        !Hubble time
 
     ! calculate the derivatives
     ! turn on H only for x_H<0.99, and use Saha derivative for 0.98<x_H<0.99
@@ -728,33 +728,28 @@ subroutine ion(Ndim, z, y, f)
         f(1) = 0._dp
     !else if ((x_H > 0.98_dp) .and. (Heflag == 0)) then    !don't modify
     else if (x_H > 0.985_dp) then     !use Saha rate for Hydrogen
-        f(1) = (x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
-            /(Hz * (1._dp + z))
+        f(1) = (x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) / (Hz * (1._dp + z))
         ! for interest, calculate the correction factor compared to Saha
         ! (without the fudge)
         factor = (1._dp + K * Lambda_H * nd_H * (1._dp - x_H)) &
-            /(Hz * (1._dp + z) * (1._dp + K * Lambda_H * nd_H * (1._dp - x) &
-            +K * Rup * nd_H * (1._dp - x)))
+                 / (Hz * (1._dp + z) * (1._dp + K * Lambda_H * nd_H * (1._dp - x) + K * Rup * nd_H * (1._dp - x)))
     else                  !use full rate for H
         f(1) = ((x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
-            *(1._dp + K * Lambda_H * nd_H * (1._dp - x_H))) &
-            /(Hz * (1._dp + z) * (1._dp / fu + K * Lambda_H * nd_H * (1._dp - x_H) / fu &
-            +K * Rup * nd_H * (1._dp - x_H)))
+                * (1._dp + K * Lambda_H * nd_H * (1._dp - x_H))) &
+               / (Hz * (1._dp+z) * (1._dp/fu + K * Lambda_H * nd_H * (1._dp-x_H) / fu + K * Rup * nd_H * (1._dp-x_H)))
     end if
     ! turn off the He once it is small
     if (x_He < 1.e-15_dp) then
         f(2) = 0._dp
     else
-        f(2) = ((x * x_He * nd_H * Rdown_He &
-            - Rup_He * (1._dp - x_He) * exp(-CL_He / Tmat)) &
-            *(1._dp+ K_He * Lambda_He * n_He * (1._dp - x_He) * He_Boltz)) &
-            /(Hz * (1._dp + z) &
-            * (1._dp + K_He * (Lambda_He + Rup_He) * n_He * (1._dp - x_He) * He_Boltz))
+        f(2) = ((x * x_He * nd_H * Rdown_He - Rup_He * (1._dp - x_He) * exp(-CL_He / Tmat)) &
+                * (1._dp + K_He * Lambda_He * n_He * (1._dp - x_He) * He_Boltz)) &
+               / (Hz * (1._dp + z) * (1._dp + K_He * (Lambda_He + Rup_He) * n_He * (1._dp - x_He) * He_Boltz))
         ! Modification to HeI recombination including channel via triplets
         if (Heflag >= 3) then
-            f(2) = f(2)+ (x * x_He * nd_H * Rdown_trip &
-                - (1._dp - x_He) * 3._dp * Rup_trip * exp(-h_P * c * L_He_2St / (k_B * Tmat))) &
-                *CfHe_t / (Hz * (1._dp + z))
+            f(2) = f(2) + (x * x_He * nd_H * Rdown_trip - Rup_trip * (1._dp-x_He) * 3._dp * exp(-h_P * c * L_He_2St &
+                                                                                                / (k_B * Tmat))) &
+                          * CfHe_t / (Hz * (1._dp + z))
         end if
     end if
 
@@ -766,11 +761,10 @@ subroutine ion(Ndim, z, y, f)
         ! (suggested by Adam Moss)
         epsilon = Hz * (1._dp + x + fHe) / (CT * Trad**3 * x)  ! approximate difference (=Trad-Tmat) at high z
         f(3) = Tnow &
-            + epsilon * ((1._dp + fHe) / (1._dp + fHe + x)) * ((f(1) + fHe * f(2)) / x) &
-            - epsilon * dHdz / Hz + 3.0_dp * epsilon / (1._dp + z)
+               + epsilon * ((1._dp + fHe) / (1._dp + fHe + x)) * ((f(1) + fHe * f(2)) / x) &
+               - epsilon * dHdz / Hz + 3.0_dp * epsilon / (1._dp + z)
     else
-        f(3)= CT * (Trad**4) * x / (1._dp + x + fHe) &
-            * (Tmat - Trad) / (Hz * (1._dp + z)) + 2._dp * Tmat / (1._dp + z)
+        f(3) = CT * Trad**4 * x / (1._dp + x + fHe) * (Tmat - Trad) / (Hz * (1._dp + z)) + 2._dp * Tmat / (1._dp + z)
     end if
     return
 end subroutine ion
@@ -948,14 +942,15 @@ end subroutine ion
             ! case 1 - initial entry - use prescribed value of hstart, if
             ! any, else default
             c(14) = c(4)
-            if (abs(c(4)) < tiny(1._dp)) c(14) = c(16) * tol**(1. / 6.)  ! if c(4) == 0
+            if (abs(c(4)) < tiny(1._dp)) c(14) = c(16) * tol**(1._dp / 6._dp)  ! if c(4) == 0
         else if (c(23) <= 1._dp) then
             ! case 2 - after a successful step, or at most  one  failure,
             ! use min(2, .9 * (tol/est)**(1/6)) * hmag, but avoid possible
             ! overflow. then avoid reduction by more than half.
             temp = 2._dp * c(14)
-                if (tol < (2._dp / .9_dp)**6 * c(19)) &
-                    temp = .9_dp * (tol / c(19))**(1. / 6.) * c(14)
+                if (tol < (2._dp / .9_dp)**6 * c(19)) then
+                    temp = .9_dp * (tol / c(19))**(1._dp / 6._dp) * c(14)
+                end if
             c(14) = max(temp, .5_dp * c(14))
         else
             ! case 3 - after two or more successive failures
