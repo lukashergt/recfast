@@ -6,8 +6,8 @@ import numpy as np
 extensions = [
     Extension(
         'pyrecfast',
-        ['pyrecfast.pyx'],
-        extra_link_args = ['recfast_wrapper.o']
+        ['src/pyrecfast.pyx'],
+        extra_link_args = ['build/recfast_wrapper.o']
     )
 ]
 
