@@ -2,9 +2,10 @@
 # Lukas Hergt, 01.06.2021
 #
 # Usage:
-# make        # compile all binaries
+# make        # compile all binaries and install the python wrapper
 # make test   # execute a basic run test
-# make clean  # remove ALL binaries and objects
+# make clean  # remove ALL objects
+# make purge  # remove ALL objects and binaries
 
 
 # Whether to compile in debugging mode (default: false)
@@ -15,6 +16,7 @@ DEBUG=1
 ############################# Prepare directories #############################
 ###############################################################################
 MAKE_DIR = $(PWD)
+SOURCE_DIR = $(MAKE_DIR)/src
 BUILD_DIR = $(MAKE_DIR)/build
 TEST_DIR = $(MAKE_DIR)/test/example_data
 .base:
@@ -22,6 +24,13 @@ TEST_DIR = $(MAKE_DIR)/test/example_data
 	touch build/.base
 vpath %.o build
 vpath .base build
+
+
+###############################################################################
+############################## Compilation flags ##############################
+###############################################################################
+FFLAGS = -fPIC
+CFLAGS = -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 
 
 ###############################################################################
@@ -35,9 +44,8 @@ CC = icc
 # -------------
 # fpp                    : perform preprocessing
 # fpic                   : shared object libraries
-FFLAGS += -fpp -fpic -heap-arrays
+FFLAGS += -fpp -heap-arrays
 MODFLAG = -module $(BUILD_DIR)
-CFLAGS = -Wall -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 
 ifeq ($(DEBUG),1)
 # debugging mode
@@ -52,6 +60,7 @@ ifeq ($(DEBUG),1)
 # gen-interfaces : generate an interface block for each routine
 # warn-interfaces: warn on these interface blocks
 FFLAGS += -g -O0 -traceback -check all,noarg_temp_created -warn all -ftrapuv -debug all -gen-interfaces -warn-interfaces
+CFLAGS += -Wall
 else
 # optimised mode
 # --------------
@@ -80,9 +89,8 @@ CC = gcc
 # free-line-length-none : turn of line length limitation (why is this not a default??)
 # cpp                   : perform preprocessing
 # fPIC                  : for compiling a shared object library
-FFLAGS += -ffree-line-length-none -cpp -fPIC -fno-stack-arrays 
+FFLAGS += -ffree-line-length-none -cpp -fno-stack-arrays 
 MODFLAG = -J $(BUILD_DIR)
-CFLAGS = -Wall -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 
 ifeq ($(DEBUG),1)
 # debugging mode
@@ -96,6 +104,7 @@ ifeq ($(DEBUG),1)
 # backtrace     : produce backtrace of error
 # fpe-trap      : search for floating point exceptions (dividing by zero etc)
 FFLAGS += -g -O0 -Wall -Wextra -pedantic -fcheck=all -fimplicit-none -fbacktrace -ffpe-trap=zero,overflow 
+CFLAGS += -Wall
 else
 # optimised mode
 # --------------
@@ -111,55 +120,24 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-#SRCS := $(wildcard *.f08)
-#SRCS := $(filter-out recfast_wrapper.f08, $(SRCS))
-#BINS := $(SRCS:%.f08=%)
+all: .base recfast pyrecfast.so test
 
-all: pyrecfast.so recfast test
+recfast: $(BUILD_DIR)/recfast.o
+	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
 
-pyrecfast.so: recfast_wrapper.o pyrecfast.o recfast.o
-	$(FC) -shared -o pyrecfast.so $^ -lpython3.9
+pyrecfast.so: $(BUILD_DIR)/recfast.o $(BUILD_DIR)/recfast_wrapper.o $(BUILD_DIR)/pyrecfast.o
+	$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@ -lpython3.9
 
-#pyrecfast.c: pyrecfast.pyx
-	#cython pyrecfast.pyx
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.f08
+	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
 
-%.o: %.f08
-	$(FC) $(FFLAGS) -c $<
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
-
-pyrecfast.c: pyrecfast.pyx
-	python setup.py install
-
-recfast_wrapper.o: recfast.o
-
-recfast: recfast.o
-	$(FC) $(FFLAGS) recfast.o -o recfast
+$(SOURCE_DIR)/%.c: $(SOURCE_DIR)/%.pyx $(BUILD_DIR)/recfast_wrapper.o
+	python setup.py sdist bdist_wheel egg_info --egg-base $(BUILD_DIR)
 
 
-#all: $(BINS) recfast_wrapper.o test
-#
-## Build step for executable
-#%: $(BUILD_DIR)/%.o
-#	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
-#
-## Build step for fortran source
-#$(BUILD_DIR)/%.o: %.f08 .base
-#	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
-#
-##pyrecfast.so: recfast_wrapper.o pyrecfast.o $(BUILD_DIR)/recfast.o
-##	$(FC) -shared -o pyrecfast.so $^
-#
-##pyrecfast.c: pyrecfast.pyx
-##	cython pyrecfast.pyx
-#
-#recfast_wrapper.o: recfast_wrapper.f08 .base
-#	$(FC) $(FFLAGS) $(MODFLAG) -c $(MAKE_DIR)/recfast_wrapper.f08 -o $(MAKE_DIR)/recfast_wrapper.o
-#
-##%.o: %.c
-##	$(CC) $(CFLAGS) -c $<
-#
 # Run a basic test with input from example.ini
 test: recfast
 	@echo
@@ -177,13 +155,23 @@ test: recfast
 	@echo
 
 clean:
-	@echo "Cleaning recfast"
-	@echo "================"
+	@echo "Cleaning recfast build"
+	@echo "======================"
 	rm -rvf $(BUILD_DIR)
-	rm -vf $(MAKE_DIR)/recfast 
+	rm -vf $(SOURCE_DIR)/pyrecfast.c
+	@echo
+
+purge: clean
+	@echo "Purging recfast folder from executables and any remaining .mod, .o, .c etc."
+	@echo "==========================================================================="
+	rm -vf $(MAKE_DIR)/recfast
 	rm -vf $(MAKE_DIR)/*.mod
 	rm -vf $(MAKE_DIR)/*.o
 	rm -vf $(MAKE_DIR)/*.c
 	rm -vf $(MAKE_DIR)/*.so
+	rm -rvf $(MAKE_DIR)/dist
+	rm -rvf $(MAKE_DIR)/pyrecfast.egg-info
 	rm -vf $(MAKE_DIR)/test.out
+	pip uninstall pyrecfast
+	@echo
 
