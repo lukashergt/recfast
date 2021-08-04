@@ -511,9 +511,9 @@ program recfast
                       zinitial, zfinal, tol, Nz, z_array, x_array)
 
     open(unit=7, status='new', form='formatted', file=fileout)
-    write(7, '(1x,''  z    '', 1x, ''     x_e   '')')
+    write(7, '(''#'', 1x,''z'', 2x, ''x_e'')')
     do i = 1, Nz
-        write(7, '(1x,f9.2,2x,g25.18)') z_array(i), x_array(i)
+        write(7, '(f9.2,2x,e24.18)') z_array(i), x_array(i)
     end do
 
 end program recfast
