@@ -107,17 +107,17 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-SRCS := $(wildcard *.f03)
-BINS := $(SRCS:%.f03=%)
+SRCS := $(wildcard *.f08)
+BINS := $(SRCS:%.f08=%)
 
-all: clean $(BINS) test
+all: $(BINS) test
 
 # Build step for executable
 %: $(BUILD_DIR)/%.o
 	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
 
 # Build step for fortran source
-$(BUILD_DIR)/%.o: %.f03 .base
+$(BUILD_DIR)/%.o: %.f08 .base
 	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
 
 # Run a basic test with input from example.ini
@@ -127,13 +127,17 @@ test: $(BINS)
 	@echo "======================================="
 	./recfast < $(TEST_DIR)/example.ini
 	@echo
+	tail -n 5 $(TEST_DIR)/example.out
+	tail -n 5 $(TEST_DIR)/example_new_CODATA.out
+	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME.out
+	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME_2photon.out
+	tail -n 5 $(MAKE_DIR)/test.out
+	@echo
 
 clean:
-	@echo
 	@echo "Cleaning recfast"
 	@echo "================"
 	rm -rvf $(BUILD_DIR)
 	rm -vf $(MAKE_DIR)/$(BINS)
 	rm -vf $(MAKE_DIR)/test.out
-	@echo
 
