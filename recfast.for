@@ -25,7 +25,7 @@ C
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 CN	Name:	RECFAST
-CV	Version: 1.5.2
+CV	Version: 1.5.3
 C 
 CP	Purpose:  Calculate ionised fraction as a function of redshift.
 CP		  Solves for H and He simultaneously, and includes
