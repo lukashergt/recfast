@@ -25,7 +25,7 @@
 !##############################################################################
 !
 !N  Name: RECFAST
-!V  Version: 1.6.0
+!V  Version: 1.7.0
 !
 !P  Purpose:
 !P      Calculate ionised fraction as a function of redshift.
