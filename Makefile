@@ -127,7 +127,8 @@ recfast: $(BUILD_DIR)/recfast.o
 	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
 
 pyrecfast.so: $(BUILD_DIR)/recfast.o $(BUILD_DIR)/recfast_wrapper.o $(BUILD_DIR)/pyrecfast.o
-	$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@ -lpython3.9
+	$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@
+	#$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@ -lpython3.9
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.f08
 	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
