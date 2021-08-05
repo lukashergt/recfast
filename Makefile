@@ -31,7 +31,7 @@ vpath .base build
 ###############################################################################
 FFLAGS = -fPIC
 #CFLAGS = -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
-CFLAGS = -fPIC $(shell pkg-config --cflags python3) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
+CFLAGS = -fPIC $(shell pkg-config --dont-define-prefix --cflags python3) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
 
 
 ###############################################################################
