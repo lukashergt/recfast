@@ -7,7 +7,7 @@ extensions = [
     Extension(
         'pyrecfast',
         ['src/pyrecfast.pyx'],
-        extra_link_args = ['build/recfast_wrapper.o']
+        extra_link_args = ['build/python_wrapper.o']
     )
 ]
 

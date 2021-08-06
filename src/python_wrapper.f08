@@ -1,6 +1,6 @@
-module recfast_wrapper
+module python_wrapper
     use iso_c_binding, only: c_double, c_int
-    use recfast_module, only: recfast_func
+    use recombination, only: recfast_func
     implicit none
 
     contains
@@ -24,5 +24,5 @@ module recfast_wrapper
         call recfast_func(OmegaB, OmegaC, OmegaL, H0inp, Tnow, Yp, Hswitch_in, Heswitch_in, &
                 zinitial, zfinal, tol, Nz, z_array, x_array)
     end subroutine c_recfast
-end module recfast_wrapper
+end module python_wrapper
 
