@@ -129,10 +129,13 @@ module constants
     real(dp), parameter :: k_B = 1.380649e-23_dp         ! Boltzmann's constant [kg m^2/s^2/K]
     real(dp), parameter :: m_e = 9.1093837015e-31_dp     ! electron mass [kg]
     real(dp), parameter :: amu = 1.66053906660e-27_dp    ! atomic mass unit [kg]
-    real(dp), parameter :: sigma_e = 6.6524587321e-29_dp ! Thomson cross section [m^2]
+    real(dp), parameter :: sigma_thomson = 6.6524587321e-29_dp ! Thomson cross section [m^2]
 
     ! black body radiation constant for u=aT^4:
-    real(dp), parameter :: a = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
+    real(dp), parameter :: a_rad = 8._dp * pi**5 * k_B**4 / (15._dp * c**3 * h_P**3) ! [J/m^3/K^4]
+
+    ! cosmological abbreviations
+    real(dp), parameter :: kappa = 8._dp * pi * G
 
     ! some astronomical units:
     real(dp), parameter :: AU = 149597870700._dp          ! astronomical unit [m]; exact definition of the IAU
@@ -145,7 +148,6 @@ module constants
     real(dp), parameter :: m_3He_u = 3.016029321967_dp   ! atomic mass of 3He in atomic mass units [u]
     real(dp), parameter :: m_4He_u = 4.002603254130_dp   ! atomic mass of 4He in atomic mass units [u]
     real(dp), parameter :: m_1H    = m_1H_u * amu        ! atomic mass of 1H [kg]
-    real(dp), parameter :: m_4He   = m_4He_u * amu       ! atomic mass of 4He [kg]
     real(dp), parameter :: not4    = m_4He_u / m_1H_u    ! atomic mass ratio of 4He to 1H
     ! ("not4" pointed out by Gary Steigman)
 
@@ -183,7 +185,7 @@ module constants
     real(dp), parameter :: CK_He = Lalpha_He**3 / (8._dp * pi)          !
     real(dp), parameter :: CL_H = c * h_P / (k_B * Lalpha)              !
     real(dp), parameter :: CL_He = c * h_P / (k_B / L_He_2s)            ! comes from det.bal. of 2s-1s
-    real(dp), parameter :: CT = (8._dp / 3._dp) * a * sigma_e / m_e / c !
+    real(dp), parameter :: CT = (8._dp / 3._dp) * a_rad * sigma_thomson / m_e / c
     real(dp), parameter :: Bfact = h_P * c * (L_He_2p - L_He_2s) / k_B  ! Bfact = exp((E_2p - E_2s) / kT); Extra Boltzmann factor
 end module constants
 
@@ -239,8 +241,7 @@ end module fudgefit
 !##############################################################################
 module input
     use precision, only : dp
-    use constants, only : pi, c, G, a, parsec
-    use constants, only : m_1H, not4
+    use constants, only : pi, c, G, a_rad, kappa, parsec, m_1H, not4
     implicit none
 
     ! fnu is the contribution of neutrinos to the radn. energy density
@@ -285,11 +286,11 @@ module input
         fHe = Yp / (not4 * (1._dp - Yp))            ! n_He_tot / n_H_tot
         fHe_out = fHe
 
-        Nnow = 3._dp * H0**2 / (8._dp * pi * G) * OmegaB / (mu_H * m_1H)
+        Nnow = 3._dp * H0**2 / kappa * OmegaB / (mu_H * m_1H)
         Nnow_out = Nnow
 
         ! (this is explictly for 3 massless neutrinos - change if N_nu /= 3)
-        z_eq = 3._dp * H0**2 / (8._dp * pi * G) * c**2 / (a * (1._dp + fnu) * Tnow**4) * (OmegaB + OmegaC)
+        z_eq = 3._dp * H0**2 / kappa * c**2 / (a_rad * (1._dp + fnu) * Tnow**4) * (OmegaB + OmegaC)
         z_eq = z_eq - 1._dp
     end subroutine set_input
 end module input
@@ -298,7 +299,7 @@ end module input
 !##############################################################################
 module recfast_module
     use precision, only : dp
-    use constants, only : pi, c, G, a, parsec, m_1H, not4, CB1_H, CB1_He1, CB1_He2, CR
+    use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     use fudgefit, only : set_switch
     use input, only : set_input
     implicit none
@@ -306,7 +307,7 @@ module recfast_module
 
     subroutine recfast_func(OmegaB, OmegaC, OmegaL_in, H0_in, Tnow, Yp, Hswitch_in, Heswitch_in, &
                             zinitial, zfinal, tol, Nz, z_array, x_array)
-        integer,  intent(in) :: Nz           ! number of output redshitf (integer)
+        integer,  intent(in) :: Nz           ! number of output redshifts (integer)
         integer,  intent(in) :: Hswitch_in
         integer,  intent(in) :: Heswitch_in
         real(dp), intent(in) :: OmegaB
@@ -605,9 +606,10 @@ subroutine ion(Ndim, z, y, f)
     T_1 = 10._dp**(5.114_dp)
     ! fitting parameters for HeI triplets
     ! (matches Hummer's table with <1% error for 10^2.8 < T/K < 10^4)
-    !A      Parameters and quantities to describe the extra triplet states
-    !A       and also the continuum opacity of H, with a fitting function
-    !A       suggested by KIV, astro-ph/0703438
+
+    ! Parameters and quantities to describe the extra triplet states
+    ! and also the continuum opacity of H, with a fitting function
+    ! suggested by KIV, astro-ph/0703438
     a_trip = 10._dp**(-16.306_dp)  ! used to fit HeI triplet recombination rate
     b_trip = 0.761_dp              ! used to fit HeI triplet recombination rate
 
@@ -626,7 +628,7 @@ subroutine ion(Ndim, z, y, f)
                    + OmegaL)
 
     ! dHdz is the derivative of the Hubble parameter H at the specific z
-    dHdz = (H0**2 / 2._dp / Hz) * (4._dp * OmegaM * (1._dp + z)**3 / (1._dp + z_eq) &
+    dHdz = (H0**2 / 2._dp / Hz) * (  4._dp * OmegaM * (1._dp + z)**3 / (1._dp + z_eq) &
                                    + 3._dp * OmegaM * (1._dp + z)**2 &
                                    + 2._dp * OmegaK * (1._dp + z))
 
@@ -651,7 +653,7 @@ subroutine ion(Ndim, z, y, f)
 
     ! now deal with H and its fudges
     if (Hswitch == 0) then
-        ! Peebles coefficient K=lambda_a^3/8piH
+        ! use Peebles coefficient K=lambda_a^3/8piH
         K = CK_H / Hz
     else
         ! fit a double Gaussian correction function
@@ -672,21 +674,23 @@ subroutine ion(Ndim, z, y, f)
     else
         Heflag = Heswitch
     end if
-    if (Heflag == 0)then        !use Peebles coeff. for He
+    if (Heflag == 0) then
+        ! use Peebles coefficient for He
         K_He = CK_He / Hz
-    else    !for Heflag>0       !use Sobolev escape probability
+    else  ! for Heflag>0       
+        ! use Sobolev escape probability
         tauHe_s = A2P_s * CK_He * 3._dp * n_He * (1._dp - x_He) / Hz
         pHe_s = (1._dp - exp(-tauHe_s)) / tauHe_s
         K_He = 1._dp / (A2P_s * pHe_s * 3._dp * n_He * (1._dp - x_He))
-        ! smoother criterion here from Antony Lewis & Chad Fendt
         if (((Heflag == 2) .or. (Heflag >= 5)) .and. (x_H < 0.9999999_dp)) then
+            ! smoother criterion here from Antony Lewis & Chad Fendt
             ! use fitting formula for continuum opacity of H
             ! first get the Doppler width parameter
             Doppler = 2._dp * k_B * Tmat / (m_1H * not4 * c * c)
             Doppler = c * L_He_2p * sqrt(Doppler)
             gamma_2Ps = 3._dp * A2P_s * fHe * (1._dp - x_He) * c * c &
                         / (sqrt(pi) * sigma_He_2Ps * 8._dp * pi * Doppler * (1._dp - x_H)) / ((c * L_He_2p)**2)
-            pb = 0.36_dp  !value from KIV (2007)
+            pb = 0.36_dp  ! value from KIV (2007)
             qb = b_He
             ! calculate AHcon, the value of A * p_(con, H) for H continuum opacity
             AHcon = A2P_s / (1._dp + pb * (gamma_2Ps**qb))
@@ -729,11 +733,12 @@ subroutine ion(Ndim, z, y, f)
     !else if ((x_H > 0.98_dp) .and. (Heflag == 0)) then    !don't modify
     else if (x_H > 0.985_dp) then     !use Saha rate for Hydrogen
         f(1) = (x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) / (Hz * (1._dp + z))
-        ! for interest, calculate the correction factor compared to Saha
-        ! (without the fudge)
-        factor = (1._dp + K * Lambda_H * nd_H * (1._dp - x_H)) &
-                 / (Hz * (1._dp + z) * (1._dp + K * Lambda_H * nd_H * (1._dp - x) + K * Rup * nd_H * (1._dp - x)))
-    else                  !use full rate for H
+        ! AL: following commented as not used
+        !! for interest, calculate the correction factor compared to Saha
+        !! (without the fudge)
+        !factor = (1._dp + K * Lambda_H * nd_H * (1._dp - x_H)) &
+        !         / (Hz * (1._dp + z) * (1._dp + K * Lambda_H * nd_H * (1._dp - x) + K * Rup * nd_H * (1._dp - x)))
+    else  ! use full rate for H
         f(1) = ((x * x_H * nd_H * Rdown - Rup * (1._dp - x_H) * exp(-CL_H / Tmat)) &
                 * (1._dp + K * Lambda_H * nd_H * (1._dp - x_H))) &
                / (Hz * (1._dp+z) * (1._dp/fu + K * Lambda_H * nd_H * (1._dp-x_H) / fu + K * Rup * nd_H * (1._dp-x_H)))
