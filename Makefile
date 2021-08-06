@@ -122,21 +122,23 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-SRCS := precision constants ode_solver
+SRCS := precision constants ode_solver recfast
 OBJS := $(patsubst %,$(BUILD_DIR)/%.o,$(SRCS))
 
 all: .base $(OBJS) recfast pyrecfast.so test
 
-recfast: $(BUILD_DIR)/recfast.o
-	$(FC) $(FFLAGS) $(MODFLAG) $(OBJS) $< -o $@
+recfast: $(OBJS)
+	$(FC) $(FFLAGS) $(MODFLAG) $^ -o $@
 
-pyrecfast.so: $(BUILD_DIR)/recfast.o $(BUILD_DIR)/python_wrapper.o $(BUILD_DIR)/pyrecfast.o
-	$(FC) $(FFLAGS) $(MODFLAG) -shared $(OBJS) $^ -o $@
+pyrecfast: .base pyrecfast.so
 
-$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.f08
+pyrecfast.so: $(OBJS) $(BUILD_DIR)/python_wrapper.o $(BUILD_DIR)/pyrecfast.o
+	$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.f08 .base
 	$(FC) $(FFLAGS) $(MODFLAG) -c $< -o $@
 
-$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c .base
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SOURCE_DIR)/%.c: $(SOURCE_DIR)/%.pyx $(BUILD_DIR)/python_wrapper.o
