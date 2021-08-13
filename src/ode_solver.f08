@@ -1,8 +1,8 @@
 module ode_solver
-    use precision, only : dp
-    implicit none
+      use precision, only : dp
+      implicit none
 
-    contains
+      contains
 
 !##############################################################################
       subroutine dverk (n, fcn, x, y, xend, tol, ind, c, nw, w)

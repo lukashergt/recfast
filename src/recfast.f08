@@ -253,6 +253,24 @@ module recombination
 
         real(dp) :: cw(24)      ! cw(24), w(3,9): work space for dverk
         real(dp) :: w(Ndim, 9)  ! cw(24), w(3,9): work space for dverk
+
+        ! DLSODE, DLSODA, and VODE parameters
+        integer  :: neq(1)
+        integer  :: itol = 1
+        real(dp) :: atol(1)
+        integer  :: itask = 1
+        integer  :: istate = 1
+        integer  :: iopt = 0
+        integer  :: jt = 2
+        integer, parameter :: lrw = 22 + Ndim * max(16, Ndim + 9)  ! length of rwork
+        integer, parameter :: liw = 20 + Ndim                      ! length of iwork
+        real(dp) :: rwork(lrw)  ! work space for DLSODA
+        integer  :: iwork(liw)  ! work space for DLSODA
+        !real(dp) :: rpar
+        !integer  :: ipar
+        integer :: mf = 22
+        real(dp) :: jdummy
+
         real(dp) :: y(Ndim)
 
         real(dp) :: Nnow
@@ -278,7 +296,7 @@ module recombination
 
         ! Set up work-space stuff for dverk
         ind = 1
-        nw  = 3
+        nw  = Ndim
         do i = 1, 24
             cw(i) = 0._dp
         end do
@@ -331,15 +349,23 @@ module recombination
                 y(1) = x_H0
                 y(2) = x_He0
                 y(3) = Tnow * (1._dp + z_new)
-            else if (y(1) > 0.99_dp) then
-                rhs = exp(1.5_dp * log(CR * Tnow / (1._dp + z_new)) - CB1_H / (Tnow * (1._dp + z_new))) / Nnow
-                x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
-                call dverk(nw, ion, z_old, y, z_new, tol, ind, cw, nw, w)
-                y(1) = x_H0
-                x0 = y(1) + fHe * y(2)
+!            else if (y(1) > 0.99_dp) then
+!                write(*, '(i1.0,2x,f9.2,2x,f9.2,2x,e24.18,2x,e24.18,2x,e24.18)') 1, z_old, z_new, y(1), y(2), y(3)
+!                rhs = exp(1.5_dp * log(CR * Tnow / (1._dp + z_new)) - CB1_H / (Tnow * (1._dp + z_new))) / Nnow
+!                x_H0 = 0.5_dp * (sqrt( rhs**2 + 4._dp * rhs ) - rhs )
+!!                call dverk(nw, ion, z_old, y, z_new, tol, ind, cw, nw, w)
+!                call DLSODA(ion, Ndim, y, z_old, z_new, itol, tol, tol, itask, istate, iopt, rwork, lrw, iwork, liw, jdummy, jt)
+!                y(1) = x_H0
+!                x0 = y(1) + fHe * y(2)
+!                write(*, '(i1.0,2x,f9.2,2x,f9.2,2x,e24.18,2x,e24.18,2x,e24.18)') 1, z_old, z_new, y(1), y(2), y(3)
+!                write(*, *) istate
             else
-                call dverk(nw, ion, z_old, y, z_new, tol, ind, cw, nw, w)
+                write(*, '(i1.0,2x,f9.2,2x,f9.2,2x,e24.18,2x,e24.18,2x,e24.18)') 2, z_old, z_new, y(1), y(2), y(3)
+!                call dverk(nw, ion, z_old, y, z_new, tol, ind, cw, nw, w)
+                call DLSODA(ion, Ndim, y, z_old, z_new, itol, tol, tol, itask, istate, iopt, rwork, lrw, iwork, liw, jdummy, jt)
                 x0 = y(1) + fHe * y(2)
+                write(*, '(i1.0,2x,f9.2,2x,f9.2,2x,e24.18,2x,e24.18,2x,e24.18)') 2, z_old, z_new, y(1), y(2), y(3)
+                write(*, *) istate
             end if
 
             Trad = Tnow * (1._dp + z_new)  ! Trad and Tmat are radiation and matter temperatures
@@ -376,7 +402,7 @@ program recfast
 
     character(len=80) :: fileout
     
-    tol = 1.e-5_dp  ! tolerance for R-K
+    tol = 1.e-8_dp  ! tolerance for R-K
 
     !   ###########################################################################
     write(*,*)'recfast version 1.8'
@@ -693,3 +719,69 @@ subroutine ion(Ndim, z, y, f)
     end if
     return
 end subroutine ion
+
+
+!##############################################################################
+! jacobian for DLSODA:
+!subroutine jdummy(Ndim, z, y, ML, MU, pd, nrowpd)
+!    use precision, only : dp
+!    implicit none
+!    integer  :: Ndim              ! number of d.e.'s to solve (integer)
+!    integer  :: ML
+!    integer  :: MU
+!    integer  :: nrowpd
+!    real(dp) :: z                 ! redshift - w is sqrt(1 + z), like conformal time
+!    real(dp) :: y(Ndim)           ! y = [x_H, x_He, Tmat]
+!    real(dp) :: pd(nrowpd, Ndim)  ! f's are the partial derivatives of the y's
+!end subroutine jdummy
+!
+!SUBROUTINE FEX (NEQ, T, Y, YDOT)
+!    use precision, only : dp
+!    implicit none
+!    integer  :: NEQ
+!    real(dp) :: T
+!    real(dp) :: Y(3)
+!    real(dp) :: YDOT(3)
+!    RETURN
+!END SUBROUTINE FEX
+
+
+!! example function for VODE:
+!subroutine FEX (Ndim, z, y, f, rpar, ipar)
+!    use precision, only : dp
+!    implicit none
+!    integer  :: Ndim      ! number of d.e.'s to solve (integer)
+!    real(dp) :: z         ! redshift - w is sqrt(1 + z), like conformal time
+!    real(dp) :: y(Ndim)   ! y = [x_H, x_He, Tmat]
+!    real(dp) :: f(Ndim)   ! f's are the derivatives of the y's
+!    real(dp) :: rpar
+!    integer  :: ipar
+!!    f(1) = -.04D0*y(1) + 1.D4*y(2)*y(3)
+!!    f(3) = 3.D7*y(2)*y(2)
+!!    f(2) = -f(1) - f(3)
+!    return
+!end
+
+
+!! jacobian for VODE:
+!subroutine JVODE (Ndim, z, y, ml, mu, pd, nrpd, rpar, ipar)
+!    use precision, only : dp
+!    implicit none
+!    integer  :: Ndim      ! number of d.e.'s to solve (integer)
+!    real(dp) :: z         ! redshift - w is sqrt(1 + z), like conformal time
+!    real(dp) :: y(Ndim)   ! y = [x_H, x_He, Tmat]
+!    integer  :: ml
+!    integer  :: mu
+!    integer  :: nrpd
+!    real(dp) :: pd(nrpd, Ndim)
+!    real(dp) :: rpar
+!    integer  :: ipar
+!    !    pd(1,1) = -.04D0
+!    !    pd(1,2) = 1.D4*y(3)
+!    !    pd(1,3) = 1.D4*y(2)
+!    !    pd(2,1) = .04D0
+!    !    pd(2,3) = -pd(1,3)
+!    !    pd(3,2) = 6.D7*y(2)
+!    !    pd(2,2) = -pd(1,2) - pd(3,2)
+!    return
+!end
