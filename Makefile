@@ -122,7 +122,7 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-SRCS := precision constants ode_solver recfast
+SRCS := precision constants dverk recfast
 OBJS := $(patsubst %,$(BUILD_DIR)/%.o,$(SRCS))
 
 all: .base $(OBJS) recfast pyrecfast.so test
@@ -152,7 +152,7 @@ test: recfast
 	@echo
 	@echo "Test with test/example_data/example.ini"
 	@echo "======================================="
-	./recfast < $(TEST_DIR)/example.ini
+	time ./recfast < $(TEST_DIR)/example.ini
 	@echo
 	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME_2photon_ionisationlevel.out
 	tail -n 5 $(MAKE_DIR)/test.out
