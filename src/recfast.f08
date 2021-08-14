@@ -217,7 +217,6 @@ module recombination
     use constants, only : CB1_H, CB1_He1, CB1_He2, CR
     use fudgefit, only : set_switch
     use cosmo_input, only : set_cosmo_input
-    use ode_solver, only: dverk
     implicit none
     contains
 
@@ -278,7 +277,7 @@ module recombination
 
         ! Set up work-space stuff for dverk
         ind = 1
-        nw  = 3
+        nw  = Ndim
         do i = 1, 24
             cw(i) = 0._dp
         end do
