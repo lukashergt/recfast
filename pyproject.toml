@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools >= 61.0", "wheel", "Cython", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyrecfast"
+dynamic = ["version"]
+authors = [
+    { name = "Douglas Scott", email = "dscott@phas.ubc.ca" },
+    { name = "Lukas Hergt", email = "lthergt@posteo.de" },
+]
+maintainers = [
+    { name = "Lukas Hergt", email = "lthergt@posteo.de" },
+]
+description = "Python wrapper for the RECFAST recombination code."
+readme = "README.md"
+requires-python = ">=3.8,<=3.11"
+dependencies = ["numpy", "Cython"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/lukashergt/recfast"
+"Bug Tracker" = "https://github.com/lukashergt/recfast/issues"
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.distutils.egg_info]
+egg_base = "build"
