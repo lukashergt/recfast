@@ -148,26 +148,27 @@ $(SOURCE_DIR)/%.c: $(SOURCE_DIR)/%.pyx $(BUILD_DIR)/recfast_wrapper.o
 	cython $< -3
 
 # Run a basic test with input from example.ini
-test: recfast
-	@echo
-	@echo
+test: $(TEST_DIR)/test.out
 	@echo
 	@echo "Test with test/example_data/example.ini"
 	@echo "======================================="
-	./recfast < $(TEST_DIR)/example.ini
-	@echo
 	tail -n 5 $(TEST_DIR)/example.out
 	tail -n 5 $(TEST_DIR)/example_new_CODATA.out
 	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME.out
 	tail -n 5 $(TEST_DIR)/example_new_CODATA_AME_2photon.out
-	tail -n 5 $(MAKE_DIR)/test.out
+	tail -n 5 $(TEST_DIR)/test.out
 	@echo
+
+$(TEST_DIR)/test.out:
+	./recfast < $(TEST_DIR)/example.ini
+
 
 clean:
 	@echo "Cleaning recfast build"
 	@echo "======================"
 	rm -rvf $(BUILD_DIR)
 	rm -vf $(SOURCE_DIR)/pyrecfast.c
+	rm -vf $(TEST_DIR)/test.out
 	@echo
 
 purge: clean
