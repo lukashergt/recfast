@@ -18,6 +18,7 @@ DEBUG=1
 MAKE_DIR = $(PWD)
 SOURCE_DIR = $(MAKE_DIR)/src
 BUILD_DIR = $(MAKE_DIR)/build
+PYPKG_DIR = $(MAKE_DIR)/pyrecfast
 TEST_DIR = $(MAKE_DIR)/test/example_data
 .base:
 	if ! [ -e $(BUILD_DIR) ]; then mkdir $(BUILD_DIR) ; fi;
@@ -122,12 +123,17 @@ endif
 ################################ Make targets #################################
 ###############################################################################
 
-all: .base recfast pyrecfast.so test
+all: python
+
+python: fortran $(PYPKG_DIR)/pyrecfast.so
+	pip install .
+
+fortran: .base recfast
 
 recfast: $(BUILD_DIR)/recfast.o
 	$(FC) $(FFLAGS) $(MODFLAG) $< -o $@
 
-pyrecfast.so: $(BUILD_DIR)/recfast.o $(BUILD_DIR)/recfast_wrapper.o $(BUILD_DIR)/pyrecfast.o
+$(PYPKG_DIR)/pyrecfast.so: $(BUILD_DIR)/recfast.o $(BUILD_DIR)/recfast_wrapper.o $(BUILD_DIR)/pyrecfast.o
 	$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@
 	#$(FC) $(FFLAGS) $(MODFLAG) -shared $^ -o $@ -lpython3.9
 
@@ -138,8 +144,8 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(SOURCE_DIR)/%.c: $(SOURCE_DIR)/%.pyx $(BUILD_DIR)/recfast_wrapper.o
-	python setup.py sdist bdist_wheel egg_info --egg-base $(BUILD_DIR)
-
+	#python setup.py sdist bdist_wheel egg_info --egg-base $(BUILD_DIR)
+	cython $< -3
 
 # Run a basic test with input from example.ini
 test: recfast
@@ -173,8 +179,11 @@ purge: clean
 	rm -vf $(MAKE_DIR)/*.c
 	rm -vf $(MAKE_DIR)/*.so
 	rm -rvf $(MAKE_DIR)/dist
-	rm -rvf $(MAKE_DIR)/pyrecfast.egg-info
+	rm -rvf $(MAKE_DIR)/*.egg-info
 	rm -vf $(MAKE_DIR)/test.out
+	rm -vf $(SOURCE_DIR)/*.so
+	rm -vf $(PYPKG_DIR)/*.so
 	pip uninstall pyrecfast
+	pip uninstall recfast
 	@echo
 
