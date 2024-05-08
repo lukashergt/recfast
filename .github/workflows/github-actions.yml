@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  Explore-GitHub-Actions:
+  build-compile-pip-install:
 
     runs-on: ubuntu-latest
 
