@@ -17,6 +17,11 @@ make
 
 For the moment this is probably bound to fail for any system other than Linux.
 
+You can test whether things are working by running:
+```bash
+python -c "from pyrecfast import recfast; print(recfast(0.04, 0.20, 0.76, 70, 2.725, 0.25))"
+```
+
 
 
 # Archive
