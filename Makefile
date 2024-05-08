@@ -28,12 +28,23 @@ vpath .base build
 
 
 ###############################################################################
+############### Find python-config that matches the used python ###############
+###############################################################################
+PYTHONVERSION = "$(shell python --version)"
+VERSION = $(subst ., ,$(PYTHONVERSION))
+MAJOR = $(word 2,$(VERSION))
+MINOR = $(word 3,$(VERSION))
+PYTHONCONFIG = $(shell python$(MAJOR).$(MINOR)-config --includes)
+
+
+###############################################################################
 ############################## Compilation flags ##############################
 ###############################################################################
 FFLAGS = -fPIC
 #CFLAGS = -fPIC -I/usr/include/python3.9 -I/usr/lib/python3.9/site-packages/numpy/core/include/
 #CFLAGS = -fPIC $(shell pkg-config --dont-define-prefix --cflags python3) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
-CFLAGS = -fPIC -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION $(shell python3-config --includes) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
+#CFLAGS = -fPIC -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION $(shell python -m python-config --includes) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
+CFLAGS = -fPIC -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION $(PYTHONCONFIG) $(shell python -c "import numpy; print('-I' + numpy.get_include())")
 
 
 ###############################################################################
