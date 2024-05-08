@@ -14,7 +14,7 @@ maintainers = [
 ]
 description = "Python wrapper for the RECFAST recombination code."
 readme = "README.md"
-requires-python = ">=3.8,<=3.11"
+requires-python = ">=3.8,<3.12"
 dependencies = ["numpy", "Cython"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -31,8 +31,14 @@ classifiers = [
 "Homepage" = "https://github.com/lukashergt/recfast"
 "Bug Tracker" = "https://github.com/lukashergt/recfast/issues"
 
+[tool.setuptools]
+packages = ["pyrecfast"]
+
 [tool.setuptools.dynamic]
 version = { file = "VERSION" }
+
+[tool.setuptools.package-data]
+pyrecfast = ["*.so"]
 
 [tool.distutils.egg_info]
 egg_base = "build"
