@@ -2,31 +2,31 @@ import numpy as np
 from numpy cimport ndarray
 
 cdef extern:
-    void c_recfast(double *OmegaB,
-                   double *OmegaC,
-                   double *OmegaL,
+    void recfast_c(double *Omega_b,
+                   double *Omega_c,
+                   double *Omega_L,
                    double *H0,
-                   double *Tnow,
+                   double *T_CMB,
                    double *Yp,
-                   int *Hswitch,
-                   int *Heswitch,
-                   double *zinitial,
-                   double *zfinal,
+                   int *H_switch,
+                   int *He_switch,
+                   double *z_initial,
+                   double *z_final,
                    double *tol,
                    int *Nz,
                    double *z_array,
                    double *x_array)
 
-def recfast(double OmegaB,
-            double OmegaC,
-            double OmegaL,
+def recfast(double Omega_b,
+            double Omega_c,
+            double Omega_L,
             double H0,
-            double Tnow,
+            double T_CMB,
             double Yp,
-            int Hswitch=1,
-            int Heswitch=6,
-            double zinitial=10000,
-            double zfinal=0,
+            int H_switch=1,
+            int He_switch=6,
+            double z_initial=10000,
+            double z_final=0,
             double tol=1e-5,
             int Nz=1000):
     """
@@ -39,31 +39,31 @@ def recfast(double OmegaB,
 
     Parameters
     ----------
-        OmegaB: float
+        Omega_b: float
             Baryon density parameter.
 
-        OmegaC: float
+        Omega_c: float
             Cold dark matter density parameter.
 
-        OmegaL: float
+        Omega_L: float
             Dark energy density parameter.
 
         H0: float
             Hubble parameter in km/s/Mpc.
 
-        Tnow: float
+        T_CMB: float
             Present-day CMB temperature in K.
 
         Yp: float
             Present-day Helium fraction.
 
-        Hswitch: int
+        H_switch: int
             Integer switch for modifying the H recombination.
                 (0) no change from old Recfast, fudge factor `fu=1.14`
                 (1) include correction,         fudge factor `fu=1.125`
             default: 1
 
-        Heswitch: int
+        He_switch: int
             Integer switch for modifying the HeI recombination.
                 (0) use Peebles coeff. for He
                     (no change from old Recfast)
@@ -76,11 +76,11 @@ def recfast(double OmegaB,
                 (6: include Heswitch (1) to (4)
             default: 6
 
-        zinitial: float
+        z_initial: float
             Initial redshift value.
             default: 10000
 
-        zfinal: float
+        z_final: float
             Final redshift value.
             default: 0 (today)
 
@@ -107,6 +107,18 @@ def recfast(double OmegaB,
     cdef:
         ndarray[double, mode="c"] z_array = np.empty(Nz, dtype=np.double)
         ndarray[double, mode="c"] x_array = np.empty(Nz, dtype=np.double)
-    c_recfast(&OmegaB, &OmegaC, &OmegaL, &H0, &Tnow, &Yp, &Hswitch, &Heswitch,
-              &zinitial, &zfinal, &tol, &Nz, &z_array[0], &x_array[0])
+    recfast_c(&Omega_b,
+              &Omega_c,
+              &Omega_L,
+              &H0,
+              &T_CMB,
+              &Yp,
+              &H_switch,
+              &He_switch,
+              &z_initial,
+              &z_final,
+              &tol,
+              &Nz,
+              &z_array[0],
+              &x_array[0])
     return z_array, x_array

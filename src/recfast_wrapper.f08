@@ -5,24 +5,24 @@ module recfast_wrapper
 
     contains
 
-        subroutine c_recfast(OmegaB, OmegaC, OmegaL, H0inp, Tnow, Yp, Hswitch_in, Heswitch_in, &
-                             zinitial, zfinal, tol, Nz, z_array, x_array) bind(c)
-        integer(c_int), intent(in) :: Nz
-        integer(c_int), intent(in) :: Hswitch_in
-        integer(c_int), intent(in) :: Heswitch_in
-        real(c_double), intent(in) :: OmegaB
-        real(c_double), intent(in) :: OmegaC
-        real(c_double), intent(in) :: OmegaL
-        real(c_double), intent(in) :: H0inp
-        real(c_double), intent(in) :: Tnow
+        subroutine recfast_c(Omega_b, Omega_c, Omega_L, H0, T_CMB, Yp, H_switch, He_switch, &
+                             z_initial, z_final, tol, Nz, z_array, x_array) bind(c)
+        real(c_double), intent(in) :: Omega_b
+        real(c_double), intent(in) :: Omega_c
+        real(c_double), intent(in) :: Omega_L
+        real(c_double), intent(in) :: H0
+        real(c_double), intent(in) :: T_CMB
         real(c_double), intent(in) :: Yp
-        real(c_double), intent(in) :: zinitial
-        real(c_double), intent(in) :: zfinal
+        integer(c_int), intent(in) :: H_switch
+        integer(c_int), intent(in) :: He_switch
+        real(c_double), intent(in) :: z_initial
+        real(c_double), intent(in) :: z_final
         real(c_double), intent(in) :: tol
+        integer(c_int), intent(in) :: Nz
         real(c_double), intent(out) :: z_array(Nz)
         real(c_double), intent(out) :: x_array(Nz)
-        call recfast_func(OmegaB, OmegaC, OmegaL, H0inp, Tnow, Yp, Hswitch_in, Heswitch_in, &
-                zinitial, zfinal, tol, Nz, z_array, x_array)
-    end subroutine c_recfast
+        call recfast_func(Omega_b, Omega_c, Omega_L, H0, T_CMB, Yp, H_switch, He_switch, &
+                          z_initial, z_final, tol, Nz, z_array, x_array)
+    end subroutine recfast_c
 end module recfast_wrapper
 

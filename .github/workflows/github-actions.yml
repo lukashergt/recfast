@@ -7,13 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
-  Explore-GitHub-Actions:
+  build-compile-pip-install:
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - name: Setup Info
@@ -23,7 +23,7 @@ jobs:
           echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
 
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cloning status
         run: |
@@ -36,7 +36,7 @@ jobs:
           ls ${{ github.workspace }}
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -64,6 +64,7 @@ jobs:
       
       - name: Test with pytest
         run: |
+          make test
           python -m pytest test
 
       - name: Job status
